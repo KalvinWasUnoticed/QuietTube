@@ -1,0 +1,48 @@
+name: Build QuietTube IPA
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run packaging tests
+        run: python -m unittest discover -s tests -v
+      - name: Compile the tweak
+        run: bash scripts/build.sh
+      - name: Download the exact inspected base IPA
+        run: |
+          curl --fail --location --retry 2 --connect-timeout 30 --max-time 240 \
+            'https://files.catbox.moe/xky0ag.ipa' -o "$RUNNER_TEMP/YouTube-base.ipa"
+          python - "$RUNNER_TEMP/YouTube-base.ipa" <<'PY'
+          import hashlib, sys
+          with open(sys.argv[1], 'rb') as f:
+              digest = hashlib.file_digest(f, 'sha256').hexdigest()
+          assert digest == 'd0f6f5c9d27f7fea8f040ae59c425b3a8222f67d891937374b21ef8937deba11', 'Input IPA SHA-256 mismatch'
+          print('Base IPA hash verified')
+          PY
+      - name: Package for LiveContainer
+        run: |
+          python scripts/package.py "$RUNNER_TEMP/YouTube-base.ipa" \
+            artifacts/QuietTube.dylib artifacts/QuietTube-21.38.2-experimental.ipa
+      - name: Upload installable guest package
+        uses: actions/upload-artifact@v4
+        with:
+          name: QuietTube-21.38.2-experimental-IPA
+          path: artifacts/QuietTube-21.38.2-experimental.ipa
+          retention-days: 7
+          compression-level: 0
+          if-no-files-found: error
+      - name: Upload standalone tweak for debugging
+        uses: actions/upload-artifact@v4
+        with:
+          name: QuietTube-dylib-debugging-only
+          path: artifacts/QuietTube.dylib
+          retention-days: 7
+          if-no-files-found: error
