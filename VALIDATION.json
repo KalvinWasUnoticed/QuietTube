@@ -1,0 +1,9 @@
+{
+  "base_sha256": "d0f6f5c9d27f7fea8f040ae59c425b3a8222f67d891937374b21ef8937deba11",
+  "actual_binary_injection_dry_run": "passed; patched bytes discarded",
+  "original_command_count": 137,
+  "patched_command_count": 138,
+  "packaging_unit_tests": "8 passed",
+  "objc_compilation": "not run; requires macOS SDK",
+  "device_test": "not run"
+}
