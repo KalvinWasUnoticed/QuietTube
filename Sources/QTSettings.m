@@ -22,13 +22,12 @@
     ];
     if ([self.group isEqualToString:@"Advanced"]) self.rows = @[
         @{@"title":@"View diagnostics", @"action":@"diagnostics"},
-        @{@"title":@"UI-only test mode", @"action":@"ui"},
-        @{@"title":@"Restore chosen defaults", @"action":@"reset"}
+        @{@"title":@"Disable all for next launch", @"action":@"reset"}
     ];
 }
 - (NSInteger)tableView:(UITableView *)tv numberOfRowsInSection:(NSInteger)section { return self.rows.count; }
 - (NSString *)tableView:(UITableView *)tv titleForFooterInSection:(NSInteger)section {
-    return @"Experimental · YouTube 21.38.2\nRestart the guest app after changing flags. A switch is a preference, not proof that its hooks are available. See Advanced → View diagnostics.\n\nNo analytics, account-token access, request rewriting, or automatic error retries are added by this tweak.\n\nShorts-to-regular-player conversion is not implemented in 0.1; its requested default was off.";
+    return @"0.2 recovery build · All changes apply after a full guest-app restart. Test one feature at a time. Player-ad blocking and several cleanup features are temporarily removed, not fixed.";
 }
 - (UITableViewCell *)tableView:(UITableView *)tv cellForRowAtIndexPath:(NSIndexPath *)index {
     NSDictionary *row = self.rows[index.row];
@@ -41,14 +40,18 @@
         UISwitch *toggle = [UISwitch new];
         toggle.accessibilityLabel = row[@"title"];
         toggle.accessibilityIdentifier = row[@"key"];
-        toggle.on = [NSUserDefaults.standardUserDefaults boolForKey:[@"QuietTube.v1." stringByAppendingString:row[@"key"]]];
+        toggle.enabled = ![row[@"disabled"] boolValue];
+        toggle.on = ![row[@"disabled"] boolValue] && [NSUserDefaults.standardUserDefaults boolForKey:[@"QuietTube.v1." stringByAppendingString:row[@"key"]]];
         [toggle addTarget:self action:@selector(changed:) forControlEvents:UIControlEventValueChanged];
         cell.accessoryView = toggle;
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
     } else cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     return cell;
 }
-- (void)changed:(UISwitch *)sender { QTSet(sender.accessibilityIdentifier, sender.on); }
+- (void)changed:(UISwitch *)sender {
+    QTSet(sender.accessibilityIdentifier, sender.on);
+    self.navigationItem.prompt = @"Saved — restart the guest app to apply";
+}
 - (void)tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)index {
     [tv deselectRowAtIndexPath:index animated:YES];
     NSDictionary *row = self.rows[index.row];
@@ -71,17 +74,14 @@
         page.view = text;
         [self.navigationController pushViewController:page animated:YES];
     } else if (row[@"action"]) {
-        BOOL reset = [row[@"action"] isEqualToString:@"reset"];
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:row[@"title"]
-            message:reset ? @"Restore your selected defaults? Restart YouTube afterward." :
-                @"Disable player-ad filtering, PiP, background audio, autoplay and preview modifications. UI hiding stays on. Restart YouTube afterward."
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Disable all modifications?"
+            message:@"This takes effect after a full guest-app restart. It will not change the running feed."
             preferredStyle:UIAlertControllerStyleAlert];
         [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
         [alert addAction:[UIAlertAction actionWithTitle:@"Apply" style:UIAlertActionStyleDefault handler:^(UIAlertAction *a) {
-            QTSet(@"enabled", YES);
+            QTSet(@"enabled", NO);
             for (NSDictionary *o in QTOptions()) {
-                if (reset) QTSet(o[@"key"], [o[@"default"] boolValue]);
-                else if ([o[@"group"] isEqualToString:@"Playback"]) QTSet(o[@"key"], NO);
+                QTSet(o[@"key"], NO);
             }
             [self.tableView reloadData];
         }]];

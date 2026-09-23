@@ -1,161 +1,109 @@
-# QuietTube — experimental native YouTube tweak
+# QuietTube 0.2 — recovery / isolation build
 
-**Target:** your inspected YouTube **21.38.2** IPA, iPhone 14 / iOS 26.5, **LiveContainer 3.8.0 in normal launch mode**.
+**This is source plus a GitHub build workflow, not a compiled IPA or a verified fix.** Target: the same clean YouTube 21.38.2 IPA and LiveContainer normal launch. The changed Objective-C code has not been compiled or device-tested here.
 
-**This ZIP is source code and a build workflow, not a compiled IPA.** GitHub Actions compiles the tweak on macOS, downloads the exact inspected base IPA, checks its SHA-256, and produces `QuietTube-21.38.2-experimental.ipa` for import into LiveContainer.
+## What the crash report establishes
 
-**Status: prototype 0.1.** The packaging tests and a load-command injection dry run on the supplied executable passed. The Objective-C code has NOT been compiled in the authoring environment, and this modified app has NOT been device-tested. The first GitHub build is also the first Apple-SDK compilation test. A successful build does not prove ad blocking or uninterrupted playback.
-
-## Why this first experiment is different from a large mod bundle
-
-The supplied clean IPA played two videos beyond five minutes in your LiveContainer environment. That establishes a baseline, not the exact cause of failures in previous modified builds.
-
-This implementation changes only selected behavior:
-
-- Player-ad filtering intercepts explicit `YTIPlayerResponse` ad-array getters.
-- It preserves request context, client identity, signal generation, and authentication behavior.
-- Feed/companion filtering and UI cleanup have separate flags from player-ad filtering.
-- It does not rewrite playback requests, forge Premium status, install a proxy, add a downloader, or continually retry playback errors.
-- It observes numeric playback error codes without hiding the native error or recording error descriptions, request URLs, cookies, or account tokens.
-
-This is an original small implementation informed by the credited public interfaces and projects; the underlying idea of filtering ad arrays is NOT claimed as a novel discovery. It may still cause the same 10–20-second failure. It is not a demonstrated anti-detection bypass, and the server may use ad paths these hooks do not cover.
-
-## Build your IPA on GitHub
-
-### 1. Create and populate a repository
-
-Create an empty GitHub repository. Prefer private if you do not want the input URL and artifacts exposed to others; private macOS Actions jobs may consume paid minutes. Check your account's Actions allowance/billing first.
-
-Extract this ZIP, then upload the **contents of `QuietTube-prototype`** to the repository root. Your repository root must contain:
+The uploaded log starts with:
 
 ```
-.github/workflows/build.yml
-Sources/
-scripts/
-tests/
-Notices/
-README.md
+*** -[__NSArrayM objectAtIndexedSubscript:]: index 0 beyond bounds for empty array
 ```
 
-**The `.github` folder is hidden on some computers.** Enable hidden files. If GitHub's upload flow omits it, use **Add file → Create new file**, name it `.github/workflows/build.yml`, paste the contents of the supplied workflow, and commit.
+YouTube accessed index zero of an empty mutable array. The rest of the log contains unsymbolicated YouTube/UIKit addresses. It does not establish which particular flag or method caused the bad model. It also does not establish ad-block detection as the cause of this crash.
 
-No Apple ID, certificate, Google credentials, GitHub secrets, or third-party activation key is required for the build. Do not commit the base IPA or personal account data. The build URL points to the file you supplied; keep access limited to people you authorize to use it. The URL is not an endorsement of the host or proof of authenticity.
+Your test shows the clean app and the modified app with flags disabled work, whereas enabling modifications causes loading flicker and a crash. This strongly implicates our modifications.
 
-### 2. Run the build
+Source review identified an unsafe design in 0.1: repeated-field model getters returned fresh filtered arrays. Those getters can be involved in model construction, not just presentation. This can change identity, mutation behavior and expected contents. Separately, layout callbacks repeatedly hiding content views could interfere with loading/layout. These are plausible causes, not a symbolicated diagnosis.
 
-1. Open **Actions → Build QuietTube IPA**.
-2. Select **Run workflow** and confirm.
-3. Wait for success. If compilation fails, open **Compile the tweak** and share the error text; do not expect an IPA from a failed run.
-4. Open the successful run's summary.
-5. Download **QuietTube-21.38.2-experimental-IPA** under Artifacts.
-6. Extract that artifact ZIP to obtain **QuietTube-21.38.2-experimental.ipa**.
+## Changes in 0.2
 
-Do not rename the artifact ZIP to `.ipa`. The actual IPA is inside it.
+- **Removed all feed and player-response array-getter hooks.** No `contentsArray`, `itemsArray`, `playerAdsArray`, `adSlotsArray` or `adPlacementsArray` getter is overridden.
+- **Removed all layout-based hiding**, plus related-section limiting, pivot manipulation and navigation view hiding for now.
+- **First 0.2 launch resets modifications and available feature flags to OFF**, even when upgrading a 0.1 data container. Older stored keys have no effect because those features are no longer loaded.
+- **Preferences are immutable during each guest process.** Changing a switch only saves a preference for the next launch. Refreshing the feed does NOT apply it.
+- Only settings hooks load with the master switch off. With the master on, only selected feature hooks and playback error observation load.
+- A new, optional feed experiment filters **copies at `addSectionsFromArray:`**, not model getters. Unchanged objects retain their identity; the original model is not intentionally mutated. It uses explicit ad/Shorts fields, not whole-model description matching.
+- If filtering would turn a nonempty top-level presentation batch into an empty one, the original batch is passed through. Ads may remain visible rather than manufacturing an empty batch. This guard is not a general guarantee against every empty-array crash.
+- A shorter settings footer replaces the long explanation on the main controls page.
+- Diagnostics distinguish **active flags this launch** from **preferences saved for next launch**.
 
-The workflow also produces a separate `QuietTube-dylib-debugging-only` artifact. You do **not** need it when importing the packaged IPA. Do not add it as an external tweak on top of the packaged IPA, or you may load the modification twice.
+## Temporary reductions — important
 
-The base download is SHA-256 pinned. If Catbox removes or changes the file, the build fails instead of substituting an unverified IPA. Retain your own original copy. Do not change the expected hash without deliberately reinspecting the replacement file.
+This is NOT the full requested feature set.
 
-### 3. Install in LiveContainer
+**Player-ad blocking is paused and its switch is disabled. Video ads are expected.** The previous approach is removed, not fixed or silently kept active.
 
-1. Preserve your clean installation and data. If LiveContainer offers a separate app/data-container import, use it. Do not approve a destructive replacement without a backup.
-2. Disable other global/app-specific YouTube tweaks for this test.
-3. Import `QuietTube-21.38.2-experimental.ipa` with LiveContainer's app import **+** action.
-4. Allow LiveContainer to sign the guest app as required by your setup.
-5. Launch in **normal mode**, not Multitask, for the first test.
-6. Sign in using the normal YouTube interface.
+Home hiding is also paused. Shorts/Create tab hiding, notification/Cast hiding, related-video cleanup, end-screen cleanup, comments/community filtering, feed-preview suppression and promotional prompts are not active in this revision. Their absence lets us narrow the regression rather than combine many unverified changes.
 
-The package contains a compiled, ad-hoc-signed dylib and a modified app executable with invalidated old signatures. It is deliberately **not a standalone Apple-signed installation package**. LiveContainer must perform its signing/preparation. You still refresh your LiveContainer installation via SideStore as required by your free-account setup.
+Available experiments, all OFF by default:
 
-The packager removes app extensions (`PlugIns`) and stale provisioning/bundle signature files. Widgets and native YouTube share extensions are not part of this prototype. It leaves the main app's bundle identifier and version unchanged to avoid unnecessary login changes.
+1. Explicit feed-ad filtering (limited coverage).
+2. Explicit Shorts-shelf filtering (not the Shorts tab).
+3. Background audio eligibility.
+4. PiP eligibility.
+5. Selected automatic-next-video actions.
 
-## Where the switches are
+Google sign-in behavior is unchanged. No network interception, client spoofing, token logging, account export, error suppression, automatic retries, proxy service, or downloader is added.
 
-**You → Settings → General → Quiet controls** (a row appended to General).
+## Update your existing GitHub repository
 
-Inside:
+1. Extract `QuietTube-recovery-v0.2.zip`.
+2. Upload the **contents of `QuietTube-prototype-v0.2` into your existing repository root**, replacing the previous files. Do not upload the enclosing folder as another level.
+3. Ensure the hidden `.github/workflows/build.yml` was replaced too. If necessary use GitHub's file editor at that exact path.
+4. Your root should contain `Sources`, `scripts`, `tests`, `Notices`, and `.github`.
+5. Open **Actions → Build QuietTube Recovery IPA → Run workflow**.
+6. Once successful, download artifact **QuietTube-0.2-21.38.2-recovery-IPA**.
+7. Extract the artifact ZIP to get **QuietTube-0.2-21.38.2-recovery.ipa**.
 
-- **Enable modifications** — master switch.
-- **Distractions** — UI and feed cleanup.
-- **Playback** — player ads, background audio, PiP, autoplay, previews.
-- **Advanced** — diagnostics, UI-only mode, and reset.
+The workflow uses your original supplied clean base, not the crashed modified IPA. The original SHA-256 remains pinned:
 
-There is no new tab, floating button, player badge, startup alert, or added home screen. The entry stays available with the master switch off. Restart the guest app after changing flags to rebuild cached UI/player objects.
-
-If the entry does not appear, settings integration is not working for this runtime. Do not assume the switches are accessible elsewhere: revert to the preserved clean app and report this as a compatibility failure.
-
-## Flags and limits
-
-| Control | Default | Implementation / limit |
-|---|---|---|
-| Player-ad blocking | On | Explicit player-response ad arrays; experimental, no anti-detection guarantee |
-| Feed / companion ads | Hide | Explicit ad fields and selected element markers; not every ad surface is covered |
-| Promotional prompts | Hide | Selected promo controllers; no blanket suppression of errors or consent |
-| Shorts tab | Hide | Native pivot identifiers; only applies when recognized |
-| Shorts shelves | Hide | Known reel/Shorts renderers and element markers |
-| Home recommendations | Hide | Hides content collection only when the Home browse ID is recognized; header/navigation retained |
-| Related videos | Hide | Native visible-section limiting plus selected related-element filtering; version-sensitive |
-| End-screen suggestions | Hide | Known view getter/class/identifiers; may miss redesigned elements |
-| Comment previews | Show | Optional preview filtering, not a comprehensive comment-access block |
-| Community posts | Hide | Known post renderers and element markers |
-| Create tab | Hide | Recognized pivot identifiers |
-| Notification bell | Hide | Native button getter and accessibility identifiers |
-| Cast button | Show | Optional visibility only; does not disable discovery |
-| Autoplay next video | Stop | Selected autonav getters and transition methods; playlist behavior needs testing |
-| Feed previews | Stop | Candidate getter hooks; if unavailable, turn off Playback in feeds in YouTube's own settings |
-| Background audio | On | Native background-eligibility hooks; LiveContainer operation unverified |
-| Picture in Picture | On | Native PiP-eligibility hooks, not a replacement player or a forced activation loop |
-| Shorts links in regular player | Off | **Deferred: no switch/implementation in 0.1**, rather than a nonfunctional toggle |
-
-Features only attach when the expected method and ABI-compatible signature are found. No fabricated methods are added to make unsupported features appear available. Diagnostics say **unavailable**, **signature mismatch**, or **installed (behavior unverified)** for every attempted hook. Even an installed hook can be irrelevant to a server-selected UI/player path.
-
-### Coverage is intentionally not described as complete
-
-You may still see feed ads, companion ads, empty spaces, Shorts, Home content, or previews in the first build. This is a testable starting point for the exact IPA, not a repackaged full-featured mod advertised as finished.
-
-## First device test
-
-The clean control already passed. Now:
-
-1. Confirm Quiet controls is reachable.
-2. With selected defaults, play the same two videos beyond five minutes. Observe whether player ads are absent and playback remains uninterrupted.
-3. If the 10–20-second error returns, **do not repeatedly tap Retry as a workaround**. In Quiet controls → Playback, disable **Block player ads**, restart the guest app, and test again.
-4. If it still fails, use **Advanced → UI-only test mode**, restart and repeat. This turns off all Playback switches, preserving UI cleanup.
-5. If necessary turn off **Enable modifications**, restart, and compare. If it crashes before settings or cannot open, return to your preserved clean app.
-6. After stable foreground playback, test lock-screen audio and PiP separately. Ensure automatic PiP is enabled in iOS and YouTube. Report failures rather than assuming eligibility hooks are enough.
-
-Report:
-
-- Which switches were on, and whether you restarted after changing them.
-- Whether ads appeared and at which surface.
-- Whether the same error returned, and approximately when.
-- Diagnostic text from Advanced → View diagnostics (select and copy).
-- Whether the settings entry, PiP, or background audio worked.
-
-Diagnostics stay in memory for the current process; no telemetry is sent. They contain flags, hook names/statuses, counters and numeric error codes, not watch history or account credentials. A hook invocation count is **not** a count of unique ads blocked.
-
-## Verification actually performed
-
-See `VALIDATION.json`:
-
-- Eight Python packaging unit tests passed locally.
-- The actual supplied main executable accepted the new load command within verified zero header padding; command count 137 → 138, file length unchanged. Patched test bytes were discarded.
-- The actual base IPA hash was verified.
-- Objective-C compilation: **not run here** (Linux authoring environment, no Apple SDK).
-- LiveContainer signing/launch/playback test of modified build: **not run**.
-
-## Local build on a Mac
-
-With Xcode and Python 3.11+:
-
-```sh
-bash scripts/build.sh
-python3 -m unittest discover -s tests -v
-python3 scripts/package.py /path/to/original.ipa artifacts/QuietTube.dylib artifacts/QuietTube-21.38.2-experimental.ipa
+```
+d0f6f5c9d27f7fea8f040ae59c425b3a8222f67d891937374b21ef8937deba11
 ```
 
-## Source and licensing
+No Apple or Google credentials are needed in GitHub. macOS Actions billing/allowances still depend on your account. A build failure means no new IPA; share the failed compile step if that happens.
 
-The source builds using Apple's Foundation/UIKit and Objective-C runtime; no bundled hooking framework, telemetry SDK, stream extractor, or external playback server. Compile inputs are the checked-in source, not a floating upstream tweak download.
+## Install and test — in this order
 
-`Notices/REFERENCES.md` records the inspected references and third-party attribution. Full license notices are included in this source archive and copied into the generated app. YouTube itself is proprietary and is not included in this source archive; rights to this tweak do not grant rights to redistribute YouTube.
+Preserve your working clean app/container and account data. Do not uninstall it to run this experiment. Keep all unrelated LiveContainer global/app-specific tweaks disabled.
+
+### A. Recovery baseline
+
+1. Import the new IPA in LiveContainer. It needs LiveContainer to re-sign/prepare it, like 0.1.
+2. Fully terminate the old guest process before launching the new build. Returning Home or refreshing a feed is not a restart; if unsure, force-close LiveContainer and relaunch normally.
+3. Open **Settings → General → Quiet controls**. The footer should say **0.2 recovery build**; the master switch and feature switches should be off on first 0.2 launch.
+4. Check Home, refresh, open a video and play it. Ads are expected.
+
+If flicker/crash occurs at this baseline, stop. Do not enable features. Send the new crash report and diagnostics if reachable; revert to your preserved clean app.
+
+### B. One-feature test
+
+1. Enable the master switch.
+2. Enable ONLY **Distractions → Filter explicit feed ads**. Leave Shorts and all Playback switches off.
+3. Fully restart the guest process.
+4. Check feed loading, refresh once, then try a video.
+5. Send **Advanced → View diagnostics** text, whether the feed flickers, whether any feed ads disappear, and any new crash report.
+
+If the hook is unavailable or never invoked, feed ads may remain. Do not interpret a successful build or a checked switch as proof of effective filtering. Video ads are expected throughout this test because player-ad blocking is disabled.
+
+If there is another crash, disable modifications (if settings remain reachable), fully restart, and return to the clean baseline. Do not enable the rest of the flags simultaneously or keep reproducing the crash unnecessarily.
+
+We will only add the other features after this isolated test is stable. This is a deliberate recovery step, not a claim that the original ad-blocking goal is complete.
+
+## Diagnostics and privacy
+
+Advanced → View diagnostics contains selectable text. Copy it or provide readable screenshots. It includes hook status, active/saved flags, counters and numeric playback error codes. It does not intentionally include cookies, signed video URLs, watch history or tokens.
+
+LiveContainer's crash report is separate from QuietTube diagnostics. If attaching another report, confirm the text file is nonempty, or paste its contents. Remove personal data before sharing. No need to send Google credentials or account-data exports.
+
+## Verification
+
+- Eight Python packaging tests rerun: passed.
+- Shell syntax and workflow YAML checked.
+- Source regression checks confirm removal of the old getter/layout hook implementation and presence of the startup flag snapshot and zero-batch guard. These are static checks, NOT native runtime tests.
+- The packager previously passed an actual-executable header-injection dry run on this same base IPA. That is not a playback test.
+- Objective-C compilation of **0.2**: not run here; GitHub is required.
+- Device testing of **0.2**: pending your test.
+
+See `VALIDATION.json`, `Sources/`, `scripts/`, and `Notices/`. The source archive does not include YouTube's proprietary binary. The generated guest package invalidates old signatures, removes guest app extensions and needs LiveContainer signing. Do not load the standalone debugging dylib on top of the packaged IPA.

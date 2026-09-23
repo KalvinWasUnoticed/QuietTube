@@ -5,37 +5,25 @@ static NSString *const QTPrefix = @"QuietTube.v1.";
 static NSMutableDictionary *QTStatuses;
 static NSMutableDictionary *QTCounters;
 static NSMutableSet *QTInstalled;
+static NSDictionary *QTActiveFlags;
 
 NSArray<NSDictionary *> *QTOptions(void) {
     static NSArray *options;
     static dispatch_once_t once;
     dispatch_once(&once, ^{
-        // All switches control real hooks. Availability is reported separately.
         options = @[
-          @{@"key":@"playerAds", @"title":@"Block player ads", @"group":@"Playback", @"default":@YES,
-            @"note":@"Experimental response filtering. Not a verified detection bypass."},
-          @{@"key":@"background", @"title":@"Background audio", @"group":@"Playback", @"default":@YES,
-            @"note":@"Use YouTube’s native audio path; needs LiveContainer testing."},
-          @{@"key":@"pip", @"title":@"Picture in Picture", @"group":@"Playback", @"default":@YES,
-            @"note":@"Native PiP eligibility. Enable automatic PiP in iOS and YouTube."},
-          @{@"key":@"autoplay", @"title":@"Stop automatic next video", @"group":@"Playback", @"default":@YES},
-          @{@"key":@"previews", @"title":@"Stop feed previews", @"group":@"Playback", @"default":@YES,
-            @"note":@"Candidate hooks; if unavailable, use YouTube’s Playback in feeds setting."},
-          @{@"key":@"feedAds", @"title":@"Hide feed & companion ads", @"group":@"Distractions", @"default":@YES,
-            @"note":@"Filters explicit promoted renderers; coverage may be incomplete."},
-          @{@"key":@"promos", @"title":@"Hide promotional prompts", @"group":@"Distractions", @"default":@YES},
-          @{@"key":@"shortsTab", @"title":@"Hide Shorts tab", @"group":@"Distractions", @"default":@YES},
-          @{@"key":@"shorts", @"title":@"Hide Shorts shelves", @"group":@"Distractions", @"default":@YES},
-          @{@"key":@"home", @"title":@"Hide Home recommendations", @"group":@"Distractions", @"default":@YES,
-            @"note":@"Only hides content when the Home browse ID is identified."},
-          @{@"key":@"related", @"title":@"Hide related videos", @"group":@"Distractions", @"default":@YES},
-          @{@"key":@"endscreen", @"title":@"Hide end-screen suggestions", @"group":@"Distractions", @"default":@YES},
-          @{@"key":@"comments", @"title":@"Hide comment previews", @"group":@"Distractions", @"default":@NO,
-            @"note":@"Does not guarantee every comment entry point is hidden."},
-          @{@"key":@"community", @"title":@"Hide community posts", @"group":@"Distractions", @"default":@YES},
-          @{@"key":@"create", @"title":@"Hide Create tab", @"group":@"Distractions", @"default":@YES},
-          @{@"key":@"bell", @"title":@"Hide notification bell", @"group":@"Distractions", @"default":@YES},
-          @{@"key":@"cast", @"title":@"Hide Cast button", @"group":@"Distractions", @"default":@NO}
+          @{ @"key":@"feedAds", @"title":@"Filter explicit feed ads", @"group":@"Distractions", @"default":@NO,
+             @"note":@"New presentation-boundary experiment. Limited coverage; test this alone first." },
+          @{ @"key":@"shorts", @"title":@"Filter explicit Shorts shelves", @"group":@"Distractions", @"default":@NO,
+             @"note":@"Does not hide the Shorts tab or every Shorts surface." },
+          @{ @"key":@"background", @"title":@"Background audio", @"group":@"Playback", @"default":@NO },
+          @{ @"key":@"pip", @"title":@"Picture in Picture", @"group":@"Playback", @"default":@NO,
+             @"note":@"Native eligibility only; unverified." },
+          @{ @"key":@"autoplay", @"title":@"Stop automatic next video", @"group":@"Playback", @"default":@NO },
+          @{ @"key":@"playerAds", @"title":@"Player-ad blocking — paused", @"group":@"Playback", @"default":@NO,
+             @"disabled":@YES, @"note":@"Old response-array getter hooks removed pending a safer implementation." },
+          @{ @"key":@"home", @"title":@"Home hiding — paused", @"group":@"Distractions", @"default":@NO,
+             @"disabled":@YES, @"note":@"Layout-based hiding removed while investigating flicker." }
         ];
     });
     return options;
@@ -43,18 +31,28 @@ NSArray<NSDictionary *> *QTOptions(void) {
 
 void QTRegisterDefaults(void) {
     NSMutableDictionary *defaults = [NSMutableDictionary dictionary];
-    defaults[[QTPrefix stringByAppendingString:@"enabled"]] = @YES;
+    defaults[[QTPrefix stringByAppendingString:@"enabled"]] = @NO;
     for (NSDictionary *option in QTOptions())
         defaults[[QTPrefix stringByAppendingString:option[@"key"]]] = option[@"default"];
     [[NSUserDefaults standardUserDefaults] registerDefaults:defaults];
+    NSUserDefaults *d = NSUserDefaults.standardUserDefaults;
+    // One-time migration prevents previously enabled 0.1 settings carrying over.
+    if (![d boolForKey:@"QuietTube.recovery02.initialized"]) {
+        [d setBool:NO forKey:[QTPrefix stringByAppendingString:@"enabled"]];
+        for (NSDictionary *o in QTOptions()) [d setBool:NO forKey:[QTPrefix stringByAppendingString:o[@"key"]]];
+        [d setBool:YES forKey:@"QuietTube.recovery02.initialized"];
+    }
+    NSMutableDictionary *active = [NSMutableDictionary dictionary];
+    active[@"enabled"] = @([d boolForKey:[QTPrefix stringByAppendingString:@"enabled"]]);
+    for (NSDictionary *o in QTOptions())
+        active[o[@"key"]] = @(![o[@"disabled"] boolValue] && [d boolForKey:[QTPrefix stringByAppendingString:o[@"key"]]]);
+    QTActiveFlags = [active copy]; // immutable until next process launch
     QTStatuses = [NSMutableDictionary dictionary];
     QTCounters = [NSMutableDictionary dictionary];
     QTInstalled = [NSMutableSet set];
 }
 BOOL QTOn(NSString *key) {
-    NSUserDefaults *d = [NSUserDefaults standardUserDefaults];
-    return [d boolForKey:[QTPrefix stringByAppendingString:@"enabled"]] &&
-           [d boolForKey:[QTPrefix stringByAppendingString:key]];
+    return [QTActiveFlags[@"enabled"] boolValue] && [QTActiveFlags[key] boolValue];
 }
 void QTSet(NSString *key, BOOL value) {
     [[NSUserDefaults standardUserDefaults] setBool:value forKey:[QTPrefix stringByAppendingString:key]];
@@ -125,9 +123,12 @@ void QTBoolHook(NSString *name, NSString *selector, NSString *key, BOOL value) {
 }
 NSString *QTDiagnostics(void) {
     NSMutableString *s = [NSMutableString stringWithFormat:
-        @"QuietTube 0.1 experimental\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
+        @"QuietTube 0.2 recovery experiment\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
         [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"], UIDevice.currentDevice.systemVersion];
-    [s appendString:@"FLAGS (stored values)\n"];
+    [s appendString:@"ACTIVE THIS LAUNCH\n"];
+    for (NSString *key in [[QTActiveFlags allKeys] sortedArrayUsingSelector:@selector(compare:)])
+        [s appendFormat:@"%@ = %@\n", key, [QTActiveFlags[key] boolValue] ? @"on" : @"off"];
+    [s appendString:@"\nFLAGS SAVED FOR NEXT LAUNCH\n"];
     NSUserDefaults *d = NSUserDefaults.standardUserDefaults;
     [s appendFormat:@"enabled = %@\n", [d boolForKey:[QTPrefix stringByAppendingString:@"enabled"]] ? @"on" : @"off"];
     for (NSDictionary *o in QTOptions()) [s appendFormat:@"%@ = %@\n", o[@"key"],

@@ -1,9 +1,13 @@
 {
   "base_sha256": "d0f6f5c9d27f7fea8f040ae59c425b3a8222f67d891937374b21ef8937deba11",
-  "actual_binary_injection_dry_run": "passed; patched bytes discarded",
+  "actual_binary_injection_dry_run": "Inherited packaging code: successful 0.1 dry run on the same base; not re-run for 0.2",
   "original_command_count": 137,
   "patched_command_count": 138,
   "packaging_unit_tests": "8 passed",
-  "objc_compilation": "not run; requires macOS SDK",
-  "device_test": "not run"
+  "objc_compilation": "0.1 compiled successfully according to user; changed 0.2 source not compiled here",
+  "device_test": "0.1 user reports sign-in success, loading/flicker with flags on, normal operation with flags off, and empty-array exception; 0.2 untested",
+  "revision": "0.2-recovery",
+  "static_regression_checks": "passed; not native runtime tests",
+  "workflow_yaml": "parsed",
+  "shell_syntax": "passed"
 }
