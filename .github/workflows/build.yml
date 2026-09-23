@@ -1,4 +1,4 @@
-name: Build QuietTube IPA
+name: Build QuietTube Recovery IPA
 on:
   workflow_dispatch:
 permissions:
@@ -30,12 +30,12 @@ jobs:
       - name: Package for LiveContainer
         run: |
           python scripts/package.py "$RUNNER_TEMP/YouTube-base.ipa" \
-            artifacts/QuietTube.dylib artifacts/QuietTube-21.38.2-experimental.ipa
+            artifacts/QuietTube.dylib artifacts/QuietTube-0.2-21.38.2-recovery.ipa
       - name: Upload installable guest package
         uses: actions/upload-artifact@v4
         with:
-          name: QuietTube-21.38.2-experimental-IPA
-          path: artifacts/QuietTube-21.38.2-experimental.ipa
+          name: QuietTube-0.2-21.38.2-recovery-IPA
+          path: artifacts/QuietTube-0.2-21.38.2-recovery.ipa
           retention-days: 7
           compression-level: 0
           if-no-files-found: error
