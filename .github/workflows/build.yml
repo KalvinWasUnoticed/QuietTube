@@ -1,5 +1,5 @@
 name: Build QuietTube IPA
-run-name: QuietTube 0.13.5 — direct IPA download
+run-name: QuietTube 0.14.0-rc1 — direct IPA download
 on:
   workflow_dispatch:
     inputs:
@@ -37,7 +37,7 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Compile and test pure C classifiers with sanitizers
         run: |
-          for source in tests/test_feed_rules.c tests/test_template_scan.c tests/test_ad_state.c; do
+          for source in tests/test_feed_rules.c tests/test_template_scan.c tests/test_ad_state.c tests/test_insertion_policy.c; do
             output="$RUNNER_TEMP/$(basename "$source" .c)"
             cc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined "$source" -o "$output"
             "$output"
@@ -60,7 +60,7 @@ jobs:
       - name: Package the IPA for LiveContainer
         run: |
           python scripts/package.py "$RUNNER_TEMP/YouTube-base.ipa" \
-            artifacts/QuietTube.dylib artifacts/QuietTube-0.13.5-21.38.2.ipa
+            artifacts/QuietTube.dylib artifacts/QuietTube-0.14.0-rc1-21.38.2.ipa
       - name: DOWNLOAD IPA — publish direct link in Summary and Releases
         env:
           GH_TOKEN: ${{ github.token }}
