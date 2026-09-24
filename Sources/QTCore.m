@@ -12,6 +12,12 @@ NSArray<NSDictionary *> *QTOptions(void) {
     static dispatch_once_t once;
     dispatch_once(&once, ^{
         options = @[
+          @{ @"key":@"extendedFeed", @"title":@"Extended feed formats", @"group":@"Distractions", @"default":@NO,
+             @"note":@"Experimental element-template matching and deeper traversal. Off restores the earlier filter." },
+          @{ @"key":@"playables", @"title":@"Hide Playables shelves", @"group":@"Distractions", @"default":@NO,
+             @"note":@"Requires Extended feed formats. Limited template coverage." },
+          @{ @"key":@"eventPromos", @"title":@"Hide featured / promo cards", @"group":@"Distractions", @"default":@NO,
+             @"note":@"Requires Extended feed formats. Experimental; does not change the header logo." },
           @{ @"key":@"feedAds", @"title":@"Filter explicit feed ads", @"group":@"Distractions", @"default":@NO,
              @"note":@"New presentation-boundary experiment. Limited coverage; test this alone first." },
           @{ @"key":@"shorts", @"title":@"Filter explicit Shorts shelves", @"group":@"Distractions", @"default":@NO,
@@ -121,7 +127,7 @@ void QTBoolHook(NSString *name, NSString *selector, NSString *key, BOOL value) {
 }
 NSString *QTDiagnostics(void) {
     NSMutableString *s = [NSMutableString stringWithFormat:
-        @"QuietTube 0.3 settings update\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
+        @"QuietTube 0.4 extended-feed experiment\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
         [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"], UIDevice.currentDevice.systemVersion];
     [s appendString:@"ACTIVE THIS LAUNCH\n"];
     for (NSString *key in [[QTActiveFlags allKeys] sortedArrayUsingSelector:@selector(compare:)])

@@ -27,3 +27,12 @@ class RevisionChecks(unittest.TestCase):
         self.assertNotIn('QTHook(@"YTIPlayerResponse"',source)
         self.assertNotIn('@"layoutSubviews"',source)
         self.assertIn('sections.count > 0 && filtered.count == 0',source)
+
+class ExtendedFeedChecks(unittest.TestCase):
+    def test_extended_feed_is_opt_in(self):
+        core=(R/'Sources/QTCore.m').read_text()
+        self.assertIn('@"key":@"extendedFeed", @"title":@"Extended feed formats", @"group":@"Distractions", @"default":@NO',core)
+        features=(R/'Sources/QTFeatures.m').read_text()
+        self.assertIn('if (!QTOn(@"extendedFeed")) return NO;',features)
+        self.assertIn('QTNodeBudget = 1200;',features)
+        self.assertNotIn('[node description]',features)

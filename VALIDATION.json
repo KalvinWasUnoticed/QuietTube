@@ -4,10 +4,11 @@
   "original_command_count": 137,
   "patched_command_count": 138,
   "packaging_unit_tests": "8 passed",
-  "objc_compilation": "0.3 not compiled here; requires GitHub macOS build",
-  "device_test": "0.2 feed ads, Shorts shelves, background audio and native PiP passed user reports; 0.3 UI untested",
-  "revision": "0.3-settings",
-  "static_regression_checks": "4 source checks passed; feature source unchanged from 0.2 except PiP hook removal",
+  "objc_compilation": "0.4 not compiled here; requires GitHub macOS build",
+  "device_test": "0.4 not tested; 0.3 user reports stable navigation/PiP but incomplete feed filtering",
+  "revision": "0.4-extended-feed",
+  "static_regression_checks": "5 source checks passed (not native runtime tests)",
   "workflow_yaml": "parsed",
-  "shell_syntax": "passed"
+  "shell_syntax": "passed",
+  "classifier_tests": "14 C assertions compiled and passed locally"
 }

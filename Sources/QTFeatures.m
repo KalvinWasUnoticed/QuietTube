@@ -1,4 +1,8 @@
 #import "QTCore.h"
+#include "QTFeedRules.h"
+
+static _Thread_local NSUInteger QTNodeBudget;
+static NSUInteger QTDepthLimit(void) { return QTOn(@"extendedFeed") ? 14 : 6; }
 
 // 0.2: no protobuf repeated-field getter overrides, no layoutSubviews hooks,
 // no view hiding, no playback response mutation. Filter at a presentation boundary.
@@ -6,16 +10,38 @@ static BOOL QTDropNode(id node) {
     if (QTOn(@"feedAds")) {
         for (NSString *selector in @[@"hasPromotedVideoRenderer", @"hasCompactPromotedVideoRenderer",
             @"hasPromotedVideoInlineMutedRenderer", @"hasDisplayAdRenderer", @"hasAdSlotRenderer"])
-            if (QTBool(node,selector)) return YES;
-        if (QTBool(QTGet(node,@"compatibilityOptions"),@"hasAdLoggingData")) return YES;
+            if (QTBool(node,selector)) { QTCount(@"match explicit ad field"); return YES; }
+        if (QTBool(QTGet(node,@"compatibilityOptions"),@"hasAdLoggingData")) { QTCount(@"match explicit ad logging"); return YES; }
     }
     if (QTOn(@"shorts") && (QTBool(node,@"hasReelShelfRenderer") || QTBool(node,@"hasReelItemRenderer")))
-        return YES;
+        { QTCount(@"match explicit Shorts field"); return YES; }
+    if (!QTOn(@"extendedFeed")) return NO;
+    NSString *className = NSStringFromClass([node class]);
+    if (QTOn(@"playables") && [@[@"YTIPlayablesShelfRenderer", @"YTIPlayableItemRenderer",
+        @"YTICompactBoxGameRenderer", @"YTIPlayableGameRenderer"] containsObject:className]) {
+        QTCount(@"match Playables renderer class"); return YES;
+    }
+    // Only read element payloads at this presentation boundary. Never serialize
+    // whole sections or replace elementData/model getters.
+    if (![className hasPrefix:@"YTI"] || ![className hasSuffix:@"ElementRenderer"]) return NO;
+    QTCount(@"element renderer visited");
+    id data = QTGet(node,@"elementData");
+    if (![data isKindOfClass:NSData.class] || [data length] == 0) {
+        QTCount(@"element payload missing or unreadable"); return NO;
+    }
+    if ([data length] > 262144) { QTCount(@"oversize element payload skipped"); return NO; }
+    QTCount(@"element payload inspected");
+    unsigned kind = QTClassifyElementBytes([data bytes],[data length]);
+    if ((kind & QTFeedShorts) && QTOn(@"shorts")) { QTCount(@"match Shorts element tokens"); return YES; }
+    if ((kind & QTFeedAd) && QTOn(@"feedAds")) { QTCount(@"match ad element tokens"); return YES; }
+    if ((kind & QTFeedPlayable) && QTOn(@"playables")) { QTCount(@"match Playables element tokens"); return YES; }
+    if ((kind & QTFeedPromo) && QTOn(@"eventPromos")) { QTCount(@"match promo element tokens"); return YES; }
+    QTCount(@"element retained — no active rule matched");
     return NO;
 }
 static id QTFilteredNode(id node, NSUInteger depth);
 static NSArray *QTFilteredArray(NSArray *original, NSUInteger depth) {
-    if (![original isKindOfClass:NSArray.class] || depth > 6) return original;
+    if (![original isKindOfClass:NSArray.class] || depth > QTDepthLimit()) return original;
     NSMutableArray *result = [NSMutableArray arrayWithCapacity:original.count];
     BOOL changed = NO;
     for (id item in original) {
@@ -27,12 +53,20 @@ static NSArray *QTFilteredArray(NSArray *original, NSUInteger depth) {
     return changed ? result : original;
 }
 static id QTFilteredNode(id node, NSUInteger depth) {
-    if (!node || depth > 6) return node;
+    if (!node) return node;
+    if (depth > QTDepthLimit()) { if (QTOn(@"extendedFeed")) QTCount(@"traversal depth limit"); return node; }
+    if (QTOn(@"extendedFeed")) {
+        if (!QTNodeBudget) { QTCount(@"traversal node budget exhausted"); return node; }
+        QTNodeBudget--;
+        QTCount(@"extended traversal node visited");
+    }
     if (QTDropNode(node)) { QTCount(@"presentation nodes filtered"); return nil; }
     // A closed list of renderer edges. No whole-model descriptions or general KVC.
     NSArray *arrays = @[@"contentsArray",@"itemsArray"];
     NSArray *edges = @[@"itemSectionRenderer",@"elementRenderer",@"shelfRenderer",@"content",
                        @"horizontalListRenderer",@"richItemRenderer"];
+    if (QTOn(@"extendedFeed")) edges = [edges arrayByAddingObjectsFromArray:
+        @[@"richSectionRenderer",@"richGridRenderer",@"verticalListRenderer",@"sectionListRenderer"]];
     id output = node;
     for (NSString *key in [arrays arrayByAddingObjectsFromArray:edges]) {
         BOOL isArray = [arrays containsObject:key];
@@ -66,14 +100,16 @@ static void QTNoArgAction(NSString *cls, NSString *method, NSString *flag) {
 void QTInstallFeatures(void) {
     // When the master switch is off, not even diagnostic feature hooks are installed.
     if (!QTOn(@"enabled")) return;
-    if (QTOn(@"feedAds") || QTOn(@"shorts")) {
+    if (QTOn(@"feedAds") || QTOn(@"shorts") || (QTOn(@"extendedFeed") && (QTOn(@"playables") || QTOn(@"eventPromos")))) {
         QTHook(@"YTInnerTubeCollectionViewController",@"addSectionsFromArray:",@"v@",^id(IMP old,SEL sel) {
             return ^(id object,NSArray *sections) {
                 NSArray *filtered = sections;
                 QTCount(@"presentation boundary invoked");
                 if ([sections isKindOfClass:NSArray.class]) {
                     @try {
+                        QTNodeBudget = 1200;
                         filtered = QTFilteredArray(sections,0);
+                        if (filtered != sections) QTCount(@"presentation batch changed");
                         // The crash report shows a downstream index-zero assumption.
                         // Never turn a nonempty top-level presentation batch empty.
                         // Prefer showing ads to sending a fabricated empty batch.

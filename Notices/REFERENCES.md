@@ -9,3 +9,5 @@ QuietTube 0.1 is a small custom runtime-hook implementation. Private class/selec
 Attribution is included conservatively for interface patterns and adapted integration ideas; this project does not claim novel discovery of those techniques. None of these projects endorses or has tested QuietTube. No upstream binary tweaks are downloaded by the workflow. These references are not runtime network dependencies.
 
 The YTPlaybackFix project was reviewed for comparison. Its automatic retry, client rewriting and network interception code are not included. No YouMod GPL code is included.
+
+0.4 also consulted YTKACE `Tweak/Features/Interface/ContentVisibilityHooks.mm` for Shorts/Playables renderer and element-template families, and YouTube-X `Tweak.x` for selected ad/promo element families. QuietTube's bounded C token matcher and opt-in integration are custom code. The references do not establish compatibility with any particular server-provided layout. Broad whole-model description matching and arbitrary whole-response serialization are not included.
