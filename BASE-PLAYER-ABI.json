@@ -1,0 +1,79 @@
+{
+  "base_sha256": "d0f6f5c9d27f7fea8f040ae59c425b3a8222f67d891937374b21ef8937deba11",
+  "classes": [
+    {
+      "class": "YTNoOpAdsPlaybackCoordinator",
+      "methods": [
+        {
+          "name": "initWithServiceRegistryScope:delegate:",
+          "types": "@32@0:8@16@24",
+          "implementation": "0x101589414"
+        },
+        {
+          "name": "init",
+          "types": "@16@0:8",
+          "implementation": "0x101589468"
+        },
+        {
+          "name": "startPrerollAdBreak",
+          "types": "v16@0:8",
+          "implementation": "0x1015894b8"
+        },
+        {
+          "name": "startPostrollAdBreak",
+          "types": "v16@0:8",
+          "implementation": "0x1015894f8"
+        }
+      ]
+    },
+    {
+      "class": "YTLocalPlaybackController",
+      "methods": [
+        {
+          "name": "createAdsPlaybackCoordinator",
+          "types": "@16@0:8",
+          "implementation": "0x1004c4034"
+        }
+      ]
+    },
+    {
+      "class": "YTInnerTubeCollectionViewController",
+      "methods": [
+        {
+          "name": "insertBelowVisibleSection:",
+          "types": "v24@0:8@16",
+          "implementation": "0x10433db18"
+        },
+        {
+          "name": "insertBelowVisibleSectionInternal:",
+          "types": "@24@0:8@16",
+          "implementation": "0x10433dbdc"
+        }
+      ]
+    },
+    {
+      "class": "YTRealAdsPlayerServices",
+      "methods": [
+        {
+          "name": "adsPlaybackCoordinatorWithOverlayManager:delegate:parentResponder:contentPlayerResponse:",
+          "types": "@48@0:8@16@24@32@40",
+          "implementation": "0x1004c4154"
+        }
+      ]
+    }
+  ],
+  "dynamic_getter": {
+    "class": "YTIIosPlayerConfig",
+    "selector": "useNoOpAdsCoordinator",
+    "evidence": "Config class exists with no instance methods in class metadata; factory disassembly reads this selector via playerData.playerConfig.iosPlayerConfig. Runtime resolution/signature must be checked."
+  },
+  "disassembly": {
+    "factory": "0x1004c4154",
+    "config_flag_read": "0x1004c41d0",
+    "no_op_branch": "0x1004c41e8",
+    "native_class_ref": "0x10c96ef98 -> YTNoOpAdsPlaybackCoordinator",
+    "initializer_call": "0x1004c41fc",
+    "native_delegate_callback": "adsPlaybackCoordinator:didFinishBreakWithBreakType:",
+    "notes": "Native no-op init returns nil; use native factory, not alloc/init. Factory uses its service scope and original delegate. Preroll/postroll methods call delegate with break types 1/3. Static findings do not establish runtime safety or ad removal."
+  }
+}

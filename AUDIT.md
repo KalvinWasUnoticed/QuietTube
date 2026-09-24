@@ -1,27 +1,13 @@
-# 0.11 audit
+# 0.12 audit / retirement of failed experiments
 
-## Evidence and scope
+Built from 0.10. 0.11's nil creator suppression and loadWithModel hook are absent, and their option keys are unregistered/unused. Stale saved ON values cannot activate them. Four extra 0.11 template candidates are not carried forward; they had no observed matches. Native feed rules remain as in the working baseline.
 
-0.10 device observation: coordinator installed, entered 3, object returns 3; user saw an ad on one of several videos. No supplied error counter. This verifies active method/signature matching and observation success in that session, not whether nil is supported or blocking will be stable. Sponsored MIVI/MadMuscles cards appear after minimizing; the screenshot/capture does not identify the actual insertion method or template.
+Player test 2 is separately gated and default OFF. The native factory and outer creator remain intact. Thread-local exact-object flag scope is restored with finally; native exceptions propagate. Non-target reads forward to original BOOL getter. No object mutation/serialization or manual delegate calls. Getter availability is dynamically verified, and factory ownership/encoding and no-op selection branch were independently parsed from the pinned executable. Missing config passes through with no scope. Result is the native factory's own object. No synchronous runtime test, nullable-result assumptions, or server invisibility claims. Native no-op callbacks may still be inappropriate for this session; a failed test must be rolled back.
 
-Two separate off-by-default keys: playerExperiment1 and companionAds. The previously disabled playerAds key remains disabled to prevent old stored preferences activating new code. Existing flags/migration unchanged. UI, documentation and diagnostic mode explain precedence and restart requirement.
+Post-play test 2 is separately gated by insertionAds2/feedAds/extendedFeed, default OFF. Outer insertion selector and ABI verified in binary. Only YTI inputs and recognized ad fields/logging/tokens, bounded depth6 and node budget, no arbitrary description/KVC/title matching. Multi-item children retained, single-child wrappers inspected, unknown inputs/inspection exceptions forwarded untouched. Thread-local budget restored. Recognized additional insertion is skipped; that also skips native bookkeeping and may affect other collection surfaces. This is a candidate, not a device-confirmed path for the card.
 
-## Player mutation
+The existing batch filter, empty-batch safeguard, default-logo code, Watch again/Mix/Shorts/topic rules, settings navigation/Done, background/native PiP, sign-in paths, immutable saved flags/migration and native error forwarding remain unchanged. Direct IPA release gate and prominent download link preserved. New version/UI/probe diagnostic text and two options added. Original 0.9 and 0.9.1 baseline tests remain and pass after explicit addition normalization; byte classifier and scanner unchanged from 0.10.
 
-One existing coordinator hook only. Suppression branch counts and returns nil before calling the original. Observation branch still calls original once and returns the original object; native exceptions propagate. Counter exceptions alone are isolated. No fabricated completion, network/protobuf mutation, client spoofing, signal removal, retry or seek behavior. The original creator may have required side effects; its absence may crash or stall. No automatic recovery or guarantee of ad-free/undetectable playback. No player instance pointers, responses or URLs are captured.
+44 Python tests: 8 packaging, 6 release mocks, 30 source/ABI/scope. New tests verify retired flags absent, opt-in isolation, exact-object/thread-local/finally scope, native original factory called once, no synthetic nil/config writes, binary hook ABI records and conservative insertion recognition. C: 79 classifier fixtures + 5,000 random iterations and 20 scanner fixtures + 5,000 random iterations passed with ASan/UBSan. Shell syntax, YAML/archive checks passed. Downloaded IPA/executable removed after evidence extraction.
 
-## Sponsored cards
-
-Four exact template candidates observed in public YouTube-X source; new classifier bit separately gated by companionAds/feedAds inside existing extendedFeed. Generic metadata, injection, Sponsored text and link strings are negative fixtures. These names have not been observed in the actual missed cards.
-
-Public YouTubeHeader declares loadWithModel: on YTInnerTubeCollectionViewController. Runtime signature checks gate the new hook; actual method ownership/encoding was not parsed from the supplied executable and this path was not observed on the device. YTI-prefixed models only, same bounded traversal/copy logic; non-YTI, nil result and exceptions preserve input. Original always invoked once after traversal. Prior thread-local budget restored in finally. No view hiding, player model hook, unrestricted KVC or whole-model serialization. Existing active feed filters also apply at this new boundary when opted in; that scope change may affect other collection surfaces. All-empty results fail open rather than pass nil. Other dynamic insert/update paths remain uncovered.
-
-## Preservation
-
-Logo module, feed capture scanner, core hook ABI checks, background/PiP settings, sign-in/network code, next-video actions and original error forwarding unchanged. Existing feed rules retained; new templates/boundary only when independently opted in. Old 0.9 and 0.9.1 baseline tests account for explicitly delimited additions, new dependency, version and diagnostic text; all hashes pass. Existing direct IPA workflow, public approval gate and successful-upload link behavior preserved.
-
-## Local tests
-
-43 Python tests: 8 packaging, 6 mocked release, 29 source/ABI/scope tests. C with -Wall -Wextra -Werror and ASan/UBSan: 89 classifier fixtures + 5,000 random-byte iterations; 20 scanner fixtures + 5,000 random-byte iterations. Initial stale exact-list assertion was updated to include the new UI dependency, without removing prior dependency checks. Shell syntax passed. Workflow YAML and ZIP checked at packaging.
-
-No Apple SDK/native compilation, actual GitHub release upload or 0.11 device test here. Static tests do not execute nil-return or model handoff behavior. Performance/timing, ARC semantics, stable playback, correct card removal and regression-free combined operation remain to be validated separately. Do not interpret absence of recorded errors as proof of stability.
+No Apple SDK compilation, native hook execution, actual release upload or device results for 0.12. Source checks do not execute ARC/TLS or dynamic protobuf resolution. Metadata and selected disassembly support this hypothesis but do not guarantee playback or ad removal. The 0.11 code-0 failure remains a failure of that experiment, not proof of ad-block detection. Do not request the same 0.11 counters again.

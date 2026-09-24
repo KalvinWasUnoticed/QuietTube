@@ -1,9 +1,9 @@
-# 0.11 — first player mutation and separate sponsored-card experiment
+# 0.12 — retire test 1, native no-op and insertion test 2
 
-- New default-off playerExperiment1 skips coordinator creation; the observed native hook is reused, not duplicated. Observation-only still available.
-- New default-off companionAds adds four reference-observed display-ad families and a guarded model-load boundary. No claim that these are the pictured cards' templates/path.
-- Preserve existing working rules, logo, background/PiP, login, navigation, preferences and direct IPA release workflow.
-- New diagnostics, rollback instructions and separate test matrix. Neither experiment device-tested here.
+- Rebase on working 0.10; remove failed nil-coordinator and broad model-load experiments. Old saved experiment keys ignored.
+- Inspect pinned executable: native no-op factory branch, delegate callback path, insertion method ownership/ABI recorded.
+- Add independently gated default-off playerExperiment2 (scoped native flag) and insertionAds2 (recognized-ad-only insertion filtering).
+- Preserve working feed/appearance/settings/background/native PiP and direct IPA workflow. No runtime success claim before testing.
 
 # 0.10 — player test 0, observation only
 

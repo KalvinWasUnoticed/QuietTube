@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <string.h>
 
-enum { QTFeedShorts = 1, QTFeedAd = 2, QTFeedPlayable = 4, QTFeedPromo = 8, QTFeedTopics = 16, QTFeedEdgeVideo = 32, QTFeedDisplayAd = 64, QTFeedMix = 128, QTFeedInlineShort = 256, QTFeedMixURL = 512, QTFeedWatchAgain = 1024, QTFeedCompanionAd = 2048 };
+enum { QTFeedShorts = 1, QTFeedAd = 2, QTFeedPlayable = 4, QTFeedPromo = 8, QTFeedTopics = 16, QTFeedEdgeVideo = 32, QTFeedDisplayAd = 64, QTFeedMix = 128, QTFeedInlineShort = 256, QTFeedMixURL = 512, QTFeedWatchAgain = 1024 };
 /* Bounded, case-sensitive template-token heuristics, NOT a protobuf decoder.
  * Never match generic words such as "shorts", "game", "featured" or "ad". */
 static int QTTokenChar(unsigned char c) {
@@ -122,13 +122,6 @@ static unsigned QTClassifyElementBytes(const unsigned char *bytes, size_t length
     if (QTTokenPresent(bytes,length,"horizontal_shelf") && QTHasExactWatchAgainText(bytes,length))
         result |= QTFeedWatchAgain;
 // END 0.9.1 WATCH AGAIN
-// BEGIN 0.11 EXPERIMENTS
-    /* Reference-observed display-ad templates, not screenshot identification. */
-    if (QTTokenPresent(bytes,length,"full_width_portrait_image_layout") ||
-        QTTokenPresent(bytes,length,"full_width_square_image_layout") ||
-        QTTokenPresent(bytes,length,"video_display_full_layout") ||
-        QTTokenPresent(bytes,length,"video_display_full_buttoned_layout")) result |= QTFeedCompanionAd;
-// END 0.11 EXPERIMENTS
     return result;
 }
 #endif

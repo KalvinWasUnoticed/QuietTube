@@ -36,7 +36,7 @@
 }
 - (NSInteger)tableView:(UITableView *)tv numberOfRowsInSection:(NSInteger)section { return self.rows.count; }
 - (NSString *)tableView:(UITableView *)tv titleForFooterInSection:(NSInteger)section {
-    return @"0.11 · Restart the guest app to apply changes. Use YouTube’s own PiP setting. Player test 1 is experimental and off by default.";
+    return @"0.12 · Restart the guest app to apply changes. Use YouTube’s own PiP setting. Player test 2 is experimental and off by default.";
 }
 - (UITableViewCell *)tableView:(UITableView *)tv cellForRowAtIndexPath:(NSIndexPath *)index {
     NSDictionary *row = self.rows[index.row];
@@ -53,9 +53,9 @@
         UISwitch *toggle = [UISwitch new];
         toggle.accessibilityLabel = row[@"title"];
         toggle.accessibilityIdentifier = row[@"key"];
-        BOOL needsExtended = [@[@"topicsShelves",@"edgeCards",@"playables",@"eventPromos",@"inspectElements",@"displayAds",@"mixes",@"watchAgain",@"companionAds"] containsObject:row[@"key"]];
+        BOOL needsExtended = [@[@"topicsShelves",@"edgeCards",@"playables",@"eventPromos",@"inspectElements",@"displayAds",@"mixes",@"watchAgain",@"insertionAds2"] containsObject:row[@"key"]];
         BOOL dependencyReady = !needsExtended || [NSUserDefaults.standardUserDefaults boolForKey:@"QuietTube.v1.extendedFeed"];
-        BOOL needsFeedAds = [row[@"key"] isEqualToString:@"displayAds"] || [row[@"key"] isEqualToString:@"companionAds"];
+        BOOL needsFeedAds = [row[@"key"] isEqualToString:@"displayAds"] || [row[@"key"] isEqualToString:@"insertionAds2"];
         if (needsFeedAds && ![NSUserDefaults.standardUserDefaults boolForKey:@"QuietTube.v1.feedAds"]) dependencyReady = NO;
         toggle.enabled = ![row[@"disabled"] boolValue] && dependencyReady;
         if (!dependencyReady) cell.detailTextLabel.text = needsFeedAds ? @"Enable Extended feed formats and Feed ads first. Restart to apply." : @"Enable Extended feed formats first. Restart to apply.";

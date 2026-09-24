@@ -105,11 +105,6 @@ static BOOL QTDropNode(id node) {
         QTCount(@"match Watch again horizontal shelf candidate"); return YES;
     }
 // END 0.9.1 WATCH AGAIN
-// BEGIN 0.11 EXPERIMENTS
-    if ((kind & QTFeedCompanionAd) && QTOn(@"feedAds") && QTOn(@"companionAds")) {
-        QTCount(@"match post-play display-ad template candidate"); return YES;
-    }
-// END 0.11 EXPERIMENTS
     QTObserveUnmatchedElement(data); // observation only; never changes the filtering decision
     QTCount(@"element retained — no active rule matched");
     return NO;
@@ -166,6 +161,39 @@ static id QTFilteredNode(id node, NSUInteger depth) {
     }
     return output;
 }
+// BEGIN 0.12 TEST 2
+static BOOL QTInsertionIsAd(id node, NSUInteger depth) {
+    if (!node || depth>6 || !QTNodeBudget) return NO;
+    QTNodeBudget--;
+    for (NSString *key in @[@"hasPromotedVideoRenderer",@"hasCompactPromotedVideoRenderer",
+                           @"hasPromotedVideoInlineMutedRenderer",@"hasDisplayAdRenderer",@"hasAdSlotRenderer"])
+        if (QTBool(node,key)) { QTCount(@"post-play test 2 explicit ad field"); return YES; }
+    if (QTBool(QTGet(node,@"compatibilityOptions"),@"hasAdLoggingData")) {
+        QTCount(@"post-play test 2 explicit ad logging"); return YES;
+    }
+    NSString *name = NSStringFromClass([node class]);
+    if ([name hasPrefix:@"YTI"] && [name hasSuffix:@"ElementRenderer"]) {
+        id data = QTGet(node,@"elementData");
+        if ([data isKindOfClass:NSData.class] && [data length]<=262144) {
+            unsigned kind = QTClassifyElementBytes([data bytes],[data length]);
+            if (kind & QTFeedAd) { QTCount(@"post-play test 2 existing ad tokens"); return YES; }
+            if ((kind & QTFeedDisplayAd) && QTOn(@"displayAds")) {
+                QTCount(@"post-play test 2 display ad tokens"); return YES;
+            }
+            QTObserveUnmatchedElement(data);
+        }
+    }
+    // Only a single-child wrapper can be dropped as a whole. Mixed sections stay.
+    for (NSString *key in @[@"contentsArray",@"itemsArray"]) {
+        id children = QTGet(node,key);
+        if ([children isKindOfClass:NSArray.class] && [children count]>0)
+            return [children count]==1 && QTInsertionIsAd([children firstObject],depth+1);
+    }
+    for (NSString *key in @[@"itemSectionRenderer",@"elementRenderer",@"richItemRenderer"])
+        if (QTInsertionIsAd(QTGet(node,key),depth+1)) return YES;
+    return NO;
+}
+// END 0.12 TEST 2
 static void QTNoArgAction(NSString *cls, NSString *method, NSString *flag) {
     if (!QTOn(flag)) return;
     QTHook(cls,method,@"v",^id(IMP old,SEL sel) {
@@ -176,6 +204,9 @@ void QTInstallFeatures(void) {
     // When the master switch is off, not even diagnostic feature hooks are installed.
     if (!QTOn(@"enabled")) return;
     QTInstallPlainLogo();
+// BEGIN 0.12 TEST 2
+    QTInstallPlayerTest2();
+// END 0.12 TEST 2
 // BEGIN 0.10 PLAYER PROBE
     QTInstallPlayerProbe();
 // END 0.10 PLAYER PROBE
@@ -206,32 +237,32 @@ void QTInstallFeatures(void) {
             };
         });
     }
-// BEGIN 0.11 EXPERIMENTS
-    // Header-observed alternate model handoff. No view hiding or player-model hooks.
-    // Runtime ABI check and opt-in gate; unknown/non-protobuf inputs are untouched.
-    if (QTOn(@"companionAds") && QTOn(@"feedAds") && QTOn(@"extendedFeed")) {
-        QTHook(@"YTInnerTubeCollectionViewController",@"loadWithModel:",@"v@",^id(IMP old,SEL sel) {
-            return ^(id object,id model) {
-                QTCount(@"post-play model-load boundary invoked");
-                id filtered = model;
-                if ([NSStringFromClass([model class]) hasPrefix:@"YTI"]) {
-                    NSUInteger savedBudget = QTNodeBudget;
-                    @try {
+// BEGIN 0.12 TEST 2
+    if (QTOn(@"insertionAds2") && QTOn(@"feedAds") && QTOn(@"extendedFeed")) {
+        // Verified selector and ABI in the pinned binary. Runtime use still unproven.
+        QTHook(@"YTInnerTubeCollectionViewController",@"insertBelowVisibleSection:",@"v@",^id(IMP old,SEL sel) {
+            return ^(id object,id section) {
+                QTCount(@"post-play test 2 insertion entered");
+                BOOL drop = NO;
+                NSUInteger savedBudget = QTNodeBudget;
+                @try {
+                    if ([NSStringFromClass([section class]) hasPrefix:@"YTI"]) {
                         QTNodeBudget = 1200;
-                        id candidate = QTFilteredNode(model,0);
-                        if (candidate) filtered = candidate;
-                        else QTCount(@"empty model-load result prevented — kept original");
-                        if (filtered != model) QTCount(@"post-play model-load changed");
-                    } @catch (__unused NSException *error) {
-                        QTCount(@"model-load filter exception — kept original");
-                        filtered = model;
-                    } @finally { QTNodeBudget = savedBudget; }
-                } else QTCount(@"post-play model-load input unsupported — kept original");
-                ((void (*)(id,SEL,id))old)(object,sel,filtered);
+                        // Restrict this boundary to AD decisions, not all enabled
+                        // feed cleanup. Unknown formats are passed through intact.
+                        drop = QTInsertionIsAd(section,0);
+                    } else QTCount(@"post-play test 2 unsupported input — retained");
+                } @catch (__unused NSException *error) {
+                    drop = NO;
+                    QTCount(@"post-play test 2 inspection exception — retained");
+                } @finally { QTNodeBudget = savedBudget; }
+                if (drop) { QTCount(@"post-play test 2 ad insertion suppressed"); return; }
+                QTCount(@"post-play test 2 insertion forwarded");
+                ((void (*)(id,SEL,id))old)(object,sel,section);
             };
         });
     }
-// END 0.11 EXPERIMENTS
+// END 0.12 TEST 2
     if (QTOn(@"background")) {
         QTBoolHook(@"YTIPlayabilityStatus",@"isPlayableInBackground",@"background",YES);
         QTBoolHook(@"MLVideo",@"playableInBackground",@"background",YES);

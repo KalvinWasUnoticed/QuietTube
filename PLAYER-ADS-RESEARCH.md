@@ -1,8 +1,10 @@
-# Current status: 0.11 first mutation experiment
+# Current status: 0.12 native-factory experiment
 
-0.10 device probe recorded 3 original coordinator calls, 3 object returns, while the user saw ads on one of multiple videos. That justifies testing this active boundary, not declaring it safe. 0.11 adds playerExperiment1, off by default: skip creation and return nil. It is the sole player-blocking mutation. Observation-only remains available. No response/request/signal changes or automatic retries. Failure means disable/restart or roll back, not conceal the error. See TEST-PLAN.md and AUDIT.md.
+User 0.11 test rejected nil coordinator creation: four suppressions, playback error YouTube code 0 and visible failure. It is retired. That result does not identify server-side detection. The post-play model-load experiment also missed the target and is retired.
 
-## Historical rationale below (superseded status headings retained as history)
+Fresh inspection of the hash-verified supplied executable found a native no-op selection branch and its lifecycle callbacks. See BINARY-RESEARCH.md and BASE-PLAYER-ABI.json. 0.12 tests scoped selection through the original factory rather than returning nil or manually constructing an object. It also separately tests a statically verified insertion method. Both are off by default, unverified on device, and isolated in TEST-PLAN.md.
+
+## Historical notes below (status statements superseded above)
 
 # Current status: 0.10 observation stage
 

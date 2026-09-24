@@ -36,8 +36,3 @@ Inline overlay / Shorts-icon combination comes directly from the user's 0.7 capt
 ## 0.9.1 Watch it again candidate
 
 English label comes from the user's supplied IMG_2400 screenshot; horizontal_shelf.eml-fe appears in the 0.9 unmatched capture. The capture is not uniquely mapped to the screenshot and does not prove the title's encoding. Native shelf-title checks and the bounded exact string-field candidate scanner are independently implemented; no external code added for this feature.
-
-## 0.11 experiment references
-
-- https://raw.githubusercontent.com/PoomSmart/YouTube-X/main/Tweak.x — reviewed source returns nil from createAdsPlaybackCoordinator and lists full_width_portrait_image_layout, full_width_square_image_layout, video_display_full_layout, video_display_full_buttoned_layout. Behavioral/name references only for this change; no upstream implementation transplanted. This does not establish device effectiveness or semantic safety.
-- https://raw.githubusercontent.com/PoomSmart/YouTubeHeader/main/YTInnerTubeCollectionViewController.h — declares loadWithModel:(id)model, alongside addSectionsFromArray:. Runtime ABI checked locally on device; not statically parsed from the supplied binary for this revision. This header does not prove the post-minimize insertion uses that method.

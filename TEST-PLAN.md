@@ -1,36 +1,32 @@
-# 0.11 test report — two independent experiments
+# 0.12 — separate tests and report
 
-Keep existing flags constant. Fully stop/relaunch LiveContainer's guest between runs. Session counters reset on process restart; Clear template capture does NOT reset counters.
+The failed 0.11 runs are already recorded; do not repeat suppression of coordinator creation. Use 0.10 if rollback is needed. Restart the entire guest between configurations; template reset does not reset session counters.
 
-## Run B: player test 1 only
+## B: native no-op player only
 
-Settings: playerExperiment1 ON; companionAds OFF. playerProbe may remain ON, but suppression takes precedence. Diagnostics must say TEST 1 — coordinator suppression.
+playerExperiment2 ON, insertionAds2 OFF. Existing playerProbe may be ON. Observe actual playback, preroll/midroll, duration before an error, seeking, background audio and native PiP. Stop at first error/stall.
 
-Record:
-- Video played / stalled / showed error / crashed?
-- Preroll or midroll actually seen? Approximate uninterrupted playback duration?
-- Seeking, background audio, native PiP results?
-- `player test 1 coordinator creation suppressed` counter.
-- Any `playback error … code …` counter and the visible error text/time.
+Report these NEW signals plus visible outcome:
+- Hook status: YTIIosPlayerConfig / useNoOpAdsCoordinator.
+- Hook status: YTRealAdsPlayerServices / adsPlaybackCoordinatorWithOverlayManager:delegate:parentResponder:contentPlayerResponse:.
+- player test 2 native factory entered.
+- player test 2 scoped no-op flag read.
+- player test 2 native no-op coordinator returned.
+- player test 2 missing config — native selection, other coordinator returned, or native factory returned nil.
+- Any unavailable-getter / not-installed message and playback error counters.
 
-An installed hook or suppressed call is not proof of ad removal. Zero omitted counters mean no recorded event, not necessarily no failure. If it fails, stop and restore test 1 OFF + full restart; if settings are inaccessible, revert to 0.10. Restoring 0.10 leaves the unknown experiment flag stored but ignored; remember to turn it off if returning to 0.11. Do not keep retrying or change network/client settings to hide the failure.
+Interpretation: requested flag alone is insufficient. Factory calls without flag reads mean the object/path is not being selected as intended. A returned native no-op object proves selection, NOT ad removal/stability. Error code 0 alone does not distinguish state failure, media/network problems or server enforcement. If errors occur, disable and restart. If UI unavailable revert to 0.10; it ignores test 2 keys. Reinstalling 0.12 later may restore saved ON state.
 
-## Run C: post-play sponsored cards only
+## C: insertion filtering only
 
-Settings: playerExperiment1 OFF; companionAds ON; feedAds ON; extendedFeed ON. Diagnostics should report observation-only or native player mode.
+playerExperiment2 OFF, insertionAds2 ON, feedAds/extendedFeed ON. Tap Home video, minimize, inspect card. Check ordinary feed/search/subscriptions/navigation too.
 
-Tap a Home video, minimize with a downward swipe, and inspect the card beneath the selected video. Compare with this new switch OFF. Record normal Home content and search/subscription behavior too, because the controller is shared.
+Report:
+- Hook status: YTInnerTubeCollectionViewController / insertBelowVisibleSection:.
+- post-play test 2 insertion entered, insertion forwarded, ad insertion suppressed.
+- explicit ad field / explicit ad logging / existing ad tokens / display ad tokens counters.
+- unsupported input or inspection exception counters.
 
-Relevant NEW evidence:
-- `YTInnerTubeCollectionViewController / loadWithModel:` hook status.
-- `post-play model-load boundary invoked`.
-- `post-play model-load input unsupported — kept original`.
-- `post-play model-load changed`.
-- `match post-play display-ad template candidate`.
-- `empty model-load result prevented — kept original` or `model-load filter exception — kept original`.
+No invocation: wrong path for that test. Forwarded inputs: no recognized ad; not proof there was no ad. Suppression: a recognized insertion was skipped, not necessarily the pictured card. Unknown and multi-item inputs are intentionally retained. No title/metadata/sponsor-button fallback.
 
-A model-load hit is not proof of a post-minimize insertion; the hook can run for other loads. A format hit is not uniquely tied to a screenshot. If cards remain, clear template capture immediately BEFORE reproducing to avoid the already-observed 128-sample cap, then share only fresh groups and these new counters. Do not resend the old 0.10 capture as new evidence. Never block generic injection or video_metadata keys as a workaround.
-
-## Stop conditions / privacy
-
-Stop on crash, repeatable playback failure, missing ordinary content or navigation regression. Disable only the implicated new experiment, restart and compare. No automatic retries, error masking, crash recovery or server-side invisibility is implemented. Existing error observer forwards to YouTube unchanged. No raw player/request/response objects, signed URLs, cookies or tokens are logged. Review reports/screenshots before sharing.
+If fresh capture is needed, clear it immediately before reproduction; old reports reached the 128-sample cap. Review reports before sharing. No raw playback payloads, request bodies, signed URLs, cookies or tokens are logged. A crash may prevent error-counter capture. There is no auto retry, automatic recovery or telemetry falsification.

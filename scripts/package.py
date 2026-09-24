@@ -128,7 +128,7 @@ def package(ipa, dylib, output):
         # Guest app extensions cannot be assumed to work in this install route.
         if (app/'PlugIns').exists(): shutil.rmtree(app/'PlugIns')
         (app/'QuietTube-build.json').write_text(json.dumps({
-            'prototype':'0.11-feed-controls','base_sha256':digest,'youtube':'21.38.2',
+            'prototype':'0.12-feed-controls','base_sha256':digest,'youtube':'21.38.2',
             'status':'experimental; not device-verified',
             'signing':'LiveContainer must sign this guest app',
             'extensions_removed':True,
