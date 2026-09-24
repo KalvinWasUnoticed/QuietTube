@@ -8,10 +8,10 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 class ReleaseTests(unittest.TestCase):
-    def invoke(self, private='true', approval='false', gh_fail=False, create_ipa=True):
+    def invoke(self, private='true', approval='false', gh_fail=False, create_ipa=True, ipa_path=None):
         with tempfile.TemporaryDirectory() as t:
             root=Path(t); (root/'bin').mkdir(); (root/'artifacts').mkdir()
-            if create_ipa: (root/'artifacts/QuietTube-0.13.5-21.38.2.ipa').write_bytes(b'fixture')
+            if create_ipa: (root/'artifacts/QuietTube-0.14.0-rc1-21.38.2.ipa').write_bytes(b'fixture')
             gh=root/'bin/gh'
             gh.write_text('#!/usr/bin/env python3\nimport json,os,sys\nfrom pathlib import Path\nPath(os.environ["MOCK_CALL"]).write_text(json.dumps(sys.argv[1:]))\nsys.exit(int(os.environ["MOCK_FAIL"]))\n')
             gh.chmod(0o755)
@@ -20,6 +20,13 @@ class ReleaseTests(unittest.TestCase):
                 GITHUB_SHA='abc123', GITHUB_STEP_SUMMARY=str(root/'summary.md'), GH_TOKEN='mock-not-real',
                 REPO_PRIVATE=private, ALLOW_PUBLIC_RELEASE=approval, GITHUB_SERVER_URL='https://github.com',
                 RUNNER_TEMP=str(root), MOCK_CALL=str(root/'call.json'), MOCK_FAIL='7' if gh_fail else '0')
+            env.pop('IPA_PATH',None)
+            if ipa_path is not None:
+                env['IPA_PATH']=ipa_path
+                if create_ipa:
+                    alternate=root/ipa_path
+                    alternate.parent.mkdir(parents=True,exist_ok=True)
+                    alternate.write_bytes(b'fixture')
             result=subprocess.run(['bash',str(ROOT/'scripts/release.sh')],cwd=root,env=env,capture_output=True,text=True)
             summary=(root/'summary.md').read_text() if (root/'summary.md').exists() else ''
             call=json.loads((root/'call.json').read_text()) if (root/'call.json').exists() else None
@@ -27,8 +34,8 @@ class ReleaseTests(unittest.TestCase):
     def test_private_direct_link_and_actual_ipa_argument(self):
         run,summary,call=self.invoke()
         self.assertEqual(run.returncode,0,run.stderr)
-        self.assertIn('releases/download/quiettube-0.13.5-123-2/QuietTube-0.13.5-21.38.2.ipa',summary)
-        self.assertIn('artifacts/QuietTube-0.13.5-21.38.2.ipa',call)
+        self.assertIn('releases/download/quiettube-0.14.0-rc1-123-2/QuietTube-0.14.0-rc1-21.38.2.ipa',summary)
+        self.assertIn('artifacts/QuietTube-0.14.0-rc1-21.38.2.ipa',call)
         self.assertFalse(any(a.endswith('.zip') for a in call))
         self.assertNotIn('mock-not-real',run.stdout+summary)
         self.assertIn('--prerelease',call)
@@ -49,3 +56,20 @@ class ReleaseTests(unittest.TestCase):
         self.assertNotIn('actions/upload-artifact',workflow)
         self.assertIn('contents: write',workflow)
         self.assertIn('GITHUB_STEP_SUMMARY',workflow)
+
+    def test_shared_workflow_path(self):
+        workflow=(ROOT/'.github/workflows/build.yml').read_text()
+        self.assertIn('IPA_PATH: artifacts/QuietTube-0.14.0-rc1-21.38.2.ipa',workflow)
+        self.assertIn('artifacts/QuietTube.dylib "$IPA_PATH"',workflow)
+        self.assertIn('test -s "$IPA_PATH"',workflow)
+    def test_explicit_output_path_used_for_upload_and_link(self):
+        run,summary,call=self.invoke(ipa_path='artifacts/custom-build.ipa')
+        self.assertEqual(run.returncode,0,run.stderr)
+        self.assertIn('artifacts/custom-build.ipa',call)
+        self.assertIn('/custom-build.ipa',summary)
+    def test_missing_output_reports_expected_path(self):
+        run,summary,call=self.invoke(create_ipa=False,ipa_path='artifacts/expected.ipa')
+        self.assertNotEqual(run.returncode,0)
+        self.assertIn('Expected: artifacts/expected.ipa',run.stderr)
+        self.assertIn('Files present in artifacts:',run.stderr)
+        self.assertIsNone(call)
