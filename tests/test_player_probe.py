@@ -7,15 +7,14 @@ class PlayerProbeChecks(unittest.TestCase):
         for name,expected in json.loads((R/'BASELINE-0.9.1.json').read_text()).items():
             with self.subTest(file=name):
                 text=(R/name).read_text()
-                text=re.sub(r'// BEGIN 0\.12 TEST 2\n.*?// END 0\.12 TEST 2\n','',text,flags=re.S)
-                text=text.replace(' Sources/QTPlayerTest2.m','')
-                text=text.replace(',@"insertionAds2"]',']')
-                text=text.replace(' || [row[@"key"] isEqualToString:@"insertionAds2"]','')
-                text=text.replace('Player test 2 is experimental and off by default.','Player-ad blocking remains paused.')
+                text=re.sub(r'// BEGIN 0\.13 AD PROFILE\n.*?// END 0\.13 AD PROFILE\n','',text,flags=re.S)
+                text=text.replace(' Sources/QTAdProfile.m','')
+                text=text.replace('([row[@"action"] isEqualToString:@"diagnostics"] || [row[@"action"] isEqualToString:@"adReport"])','[row[@"action"] isEqualToString:@"diagnostics"]')
+                text=text.replace('[row[@"action"] isEqualToString:@"adReport"] ? QTAdReport() : QTDiagnostics()','QTDiagnostics()')
                 text=re.sub(r'// BEGIN 0\.10 PLAYER PROBE\n.*?// END 0\.10 PLAYER PROBE\n','',text,flags=re.S)
                 text=text.replace(' Sources/QTPlayerProbe.m','')
-                text=text.replace('Native no-op and insertion tests','Mix playlist destination filtering')
-                text=text.replace('0.12','VERSION').replace('0.9.1','VERSION')
+                text=text.replace('Ad profile and bounded troubleshooting','Mix playlist destination filtering')
+                text=text.replace('0.13','VERSION').replace('0.9.1','VERSION')
                 self.assertEqual(hashlib.sha256(text.encode()).hexdigest(),expected)
     def test_opt_in_and_master_gates(self):
         source=(R/'Sources/QTPlayerProbe.m').read_text()

@@ -161,39 +161,6 @@ static id QTFilteredNode(id node, NSUInteger depth) {
     }
     return output;
 }
-// BEGIN 0.12 TEST 2
-static BOOL QTInsertionIsAd(id node, NSUInteger depth) {
-    if (!node || depth>6 || !QTNodeBudget) return NO;
-    QTNodeBudget--;
-    for (NSString *key in @[@"hasPromotedVideoRenderer",@"hasCompactPromotedVideoRenderer",
-                           @"hasPromotedVideoInlineMutedRenderer",@"hasDisplayAdRenderer",@"hasAdSlotRenderer"])
-        if (QTBool(node,key)) { QTCount(@"post-play test 2 explicit ad field"); return YES; }
-    if (QTBool(QTGet(node,@"compatibilityOptions"),@"hasAdLoggingData")) {
-        QTCount(@"post-play test 2 explicit ad logging"); return YES;
-    }
-    NSString *name = NSStringFromClass([node class]);
-    if ([name hasPrefix:@"YTI"] && [name hasSuffix:@"ElementRenderer"]) {
-        id data = QTGet(node,@"elementData");
-        if ([data isKindOfClass:NSData.class] && [data length]<=262144) {
-            unsigned kind = QTClassifyElementBytes([data bytes],[data length]);
-            if (kind & QTFeedAd) { QTCount(@"post-play test 2 existing ad tokens"); return YES; }
-            if ((kind & QTFeedDisplayAd) && QTOn(@"displayAds")) {
-                QTCount(@"post-play test 2 display ad tokens"); return YES;
-            }
-            QTObserveUnmatchedElement(data);
-        }
-    }
-    // Only a single-child wrapper can be dropped as a whole. Mixed sections stay.
-    for (NSString *key in @[@"contentsArray",@"itemsArray"]) {
-        id children = QTGet(node,key);
-        if ([children isKindOfClass:NSArray.class] && [children count]>0)
-            return [children count]==1 && QTInsertionIsAd([children firstObject],depth+1);
-    }
-    for (NSString *key in @[@"itemSectionRenderer",@"elementRenderer",@"richItemRenderer"])
-        if (QTInsertionIsAd(QTGet(node,key),depth+1)) return YES;
-    return NO;
-}
-// END 0.12 TEST 2
 static void QTNoArgAction(NSString *cls, NSString *method, NSString *flag) {
     if (!QTOn(flag)) return;
     QTHook(cls,method,@"v",^id(IMP old,SEL sel) {
@@ -204,9 +171,9 @@ void QTInstallFeatures(void) {
     // When the master switch is off, not even diagnostic feature hooks are installed.
     if (!QTOn(@"enabled")) return;
     QTInstallPlainLogo();
-// BEGIN 0.12 TEST 2
-    QTInstallPlayerTest2();
-// END 0.12 TEST 2
+// BEGIN 0.13 AD PROFILE
+    QTInstallAdProfile();
+// END 0.13 AD PROFILE
 // BEGIN 0.10 PLAYER PROBE
     QTInstallPlayerProbe();
 // END 0.10 PLAYER PROBE
@@ -237,32 +204,6 @@ void QTInstallFeatures(void) {
             };
         });
     }
-// BEGIN 0.12 TEST 2
-    if (QTOn(@"insertionAds2") && QTOn(@"feedAds") && QTOn(@"extendedFeed")) {
-        // Verified selector and ABI in the pinned binary. Runtime use still unproven.
-        QTHook(@"YTInnerTubeCollectionViewController",@"insertBelowVisibleSection:",@"v@",^id(IMP old,SEL sel) {
-            return ^(id object,id section) {
-                QTCount(@"post-play test 2 insertion entered");
-                BOOL drop = NO;
-                NSUInteger savedBudget = QTNodeBudget;
-                @try {
-                    if ([NSStringFromClass([section class]) hasPrefix:@"YTI"]) {
-                        QTNodeBudget = 1200;
-                        // Restrict this boundary to AD decisions, not all enabled
-                        // feed cleanup. Unknown formats are passed through intact.
-                        drop = QTInsertionIsAd(section,0);
-                    } else QTCount(@"post-play test 2 unsupported input — retained");
-                } @catch (__unused NSException *error) {
-                    drop = NO;
-                    QTCount(@"post-play test 2 inspection exception — retained");
-                } @finally { QTNodeBudget = savedBudget; }
-                if (drop) { QTCount(@"post-play test 2 ad insertion suppressed"); return; }
-                QTCount(@"post-play test 2 insertion forwarded");
-                ((void (*)(id,SEL,id))old)(object,sel,section);
-            };
-        });
-    }
-// END 0.12 TEST 2
     if (QTOn(@"background")) {
         QTBoolHook(@"YTIPlayabilityStatus",@"isPlayableInBackground",@"background",YES);
         QTBoolHook(@"MLVideo",@"playableInBackground",@"background",YES);
@@ -273,6 +214,9 @@ void QTInstallFeatures(void) {
     QTHook(@"YTMainAppVideoPlayerOverlayViewController",@"handleError:",@"v@",^id(IMP old,SEL sel) {
         return ^(id object,NSError *error) {
             if ([error isKindOfClass:NSError.class]) {
+// BEGIN 0.13 AD PROFILE
+                QTAdPlaybackError(error);
+// END 0.13 AD PROFILE
                 NSString *kind = [error.domain isEqualToString:@"com.google.ios.youtube.ErrorDomain.playback"] ? @"YouTube" : @"other";
                 QTCount([NSString stringWithFormat:@"playback error %@ code %ld",kind,(long)error.code]);
             }

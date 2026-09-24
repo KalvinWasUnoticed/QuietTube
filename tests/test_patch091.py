@@ -8,19 +8,18 @@ class PatchScopeTests(unittest.TestCase):
         for name,expected in baseline.items():
             with self.subTest(file=name):
                 text=(R/name).read_text()
-                text=re.sub(r'// BEGIN 0\.12 TEST 2\n.*?// END 0\.12 TEST 2\n','',text,flags=re.S)
-                text=text.replace(' Sources/QTPlayerTest2.m','')
-                text=text.replace(',@"insertionAds2"]',']')
-                text=text.replace(' || [row[@"key"] isEqualToString:@"insertionAds2"]','')
-                text=text.replace('Player test 2 is experimental and off by default.','Player-ad blocking remains paused.')
+                text=re.sub(r'// BEGIN 0\.13 AD PROFILE\n.*?// END 0\.13 AD PROFILE\n','',text,flags=re.S)
+                text=text.replace(' Sources/QTAdProfile.m','')
+                text=text.replace('([row[@"action"] isEqualToString:@"diagnostics"] || [row[@"action"] isEqualToString:@"adReport"])','[row[@"action"] isEqualToString:@"diagnostics"]')
+                text=text.replace('[row[@"action"] isEqualToString:@"adReport"] ? QTAdReport() : QTDiagnostics()','QTDiagnostics()')
                 text=re.sub(r'// BEGIN 0\.10 PLAYER PROBE\n.*?// END 0\.10 PLAYER PROBE\n','',text,flags=re.S)
                 text=text.replace(' Sources/QTPlayerProbe.m','')
-                text=text.replace('Native no-op and insertion tests','Mix playlist destination filtering')
+                text=text.replace('Ad profile and bounded troubleshooting','Mix playlist destination filtering')
                 text=re.sub(r'// BEGIN 0\.9\.1 WATCH AGAIN\n.*?// END 0\.9\.1 WATCH AGAIN\n','',text,flags=re.S)
                 text=text.replace(', QTFeedWatchAgain = 1024','')
                 text=text.replace(' || QTOn(@"watchAgain")','')
                 text=text.replace(',@"watchAgain"]',']')
-                text=text.replace('0.12','VERSION')
+                text=text.replace('0.13','VERSION')
                 self.assertEqual(hashlib.sha256(text.encode()).hexdigest(),expected)
     def test_independent_opt_in_and_dependency(self):
         core=(R/'Sources/QTCore.m').read_text()
@@ -30,7 +29,7 @@ class PatchScopeTests(unittest.TestCase):
         self.assertIn('(kind & QTFeedWatchAgain) && QTOn(@"watchAgain")',source)
         self.assertIn('QTOn(@"mixes") || QTOn(@"watchAgain")',source)
         self.assertLess(source.index('if (!QTOn(@"extendedFeed")) return NO;'),source.index('if (QTOn(@"watchAgain"))'))
-        self.assertIn('@"mixes",@"watchAgain",@"insertionAds2"]',(R/'Sources/QTSettings.m').read_text())
+        self.assertIn('@"mixes",@"watchAgain"]',(R/'Sources/QTSettings.m').read_text())
     def test_native_title_is_shelf_only(self):
         s=(R/'Sources/QTFeatures.m').read_text()
         helper=s[s.index('static NSString *QTShelfTitle'):s.index('static BOOL QTDropNode')]

@@ -1,10 +1,8 @@
-# Current status: 0.12 native-factory experiment
+# 0.13 current status
 
-User 0.11 test rejected nil coordinator creation: four suppressions, playback error YouTube code 0 and visible failure. It is retired. That result does not identify server-side detection. The post-play model-load experiment also missed the target and is retired.
+0.12 did not activate no-op behavior: missing response/config on three factory calls; delayed install retries caused misleading not-installed logs. Insertion candidate saw zero calls. Both paths removed. 0.13 uses native no-op designated initializer with verified factory scope/delegate and disables the native watch-while-feed-mutation feature, combined into one opt-in profile with independent diagnostic counters, bounded trace, underlying numeric errors and a safety latch. This remains unverified on device. Read README, BINARY-RESEARCH and AUDIT for current behavior.
 
-Fresh inspection of the hash-verified supplied executable found a native no-op selection branch and its lifecycle callbacks. See BINARY-RESEARCH.md and BASE-PLAYER-ABI.json. 0.12 tests scoped selection through the original factory rather than returning nil or manually constructing an object. It also separately tests a statically verified insertion method. Both are off by default, unverified on device, and isolated in TEST-PLAN.md.
-
-## Historical notes below (status statements superseded above)
+## Historical notes below — status text superseded above
 
 # Current status: 0.10 observation stage
 

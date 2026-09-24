@@ -25,6 +25,8 @@ void QTInstallPlainLogo(void);
 // BEGIN 0.10 PLAYER PROBE
 void QTInstallPlayerProbe(void);
 // END 0.10 PLAYER PROBE
-// BEGIN 0.12 TEST 2
-void QTInstallPlayerTest2(void);
-// END 0.12 TEST 2
+// BEGIN 0.13 AD PROFILE
+void QTInstallAdProfile(void);
+NSString *QTAdReport(void);
+void QTAdPlaybackError(NSError *error);
+// END 0.13 AD PROFILE

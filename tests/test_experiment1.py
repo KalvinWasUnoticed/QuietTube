@@ -27,10 +27,10 @@ class RetiredExperiment1Checks(unittest.TestCase):
         source = (R / 'Sources/QTFeatures.m').read_text()
         self.assertNotIn('@"loadWithModel:",', source)
         self.assertNotIn('post-play model-load', source)
-        self.assertIn('@"insertBelowVisibleSection:",@"v@"', source)
+        self.assertNotIn('@"insertBelowVisibleSection:",@"v@"', source)
 
     def test_replacement_experiments_remain_opt_in(self):
         core = (R / 'Sources/QTCore.m').read_text()
-        for key in ['playerExperiment2', 'insertionAds2']:
+        for key in ['adTest']:
             start = core.index('@"key":@"' + key + '"')
             self.assertIn('@"default":@NO', core[start:core.index('},', start)])

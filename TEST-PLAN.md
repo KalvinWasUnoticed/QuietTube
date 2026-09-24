@@ -1,32 +1,16 @@
-# 0.12 — separate tests and report
+# 0.13 simplified test
 
-The failed 0.11 runs are already recorded; do not repeat suppression of coordinator creation. Use 0.10 if rollback is needed. Restart the entire guest between configurations; template reset does not reset session counters.
+Turn on ONLY the new **Playback → Ad test profile** switch, keeping normal defaults/working flags. Fully restart the guest. Play an ad-bearing candidate video, watch beyond the earlier failure window, minimize to Home and inspect the area below it. If stable, check seek/background/native PiP. Ad delivery varies; do not infer success from a single missing ad.
 
-## B: native no-op player only
+Send: **Advanced → Ad test report**, plus three observations:
+- Player ads appeared: yes/no/not enough opportunity.
+- Sponsored card pushed after minimizing: yes/no.
+- Playback: worked, stalled or error (approximate time).
 
-playerExperiment2 ON, insertionAds2 OFF. Existing playerProbe may be ON. Observe actual playback, preroll/midroll, duration before an error, seeking, background audio and native PiP. Stop at first error/stall.
+The report contains branch installation status and events including player factory called, native no-op coordinator supplied, original factory fallback reasons, and watch-while feed mutation disabled. No-op object count proves substitution only, not ad removal. Feed flag-read count proves the feature getter ran, not unique card removal.
 
-Report these NEW signals plus visible outcome:
-- Hook status: YTIIosPlayerConfig / useNoOpAdsCoordinator.
-- Hook status: YTRealAdsPlayerServices / adsPlaybackCoordinatorWithOverlayManager:delegate:parentResponder:contentPlayerResponse:.
-- player test 2 native factory entered.
-- player test 2 scoped no-op flag read.
-- player test 2 native no-op coordinator returned.
-- player test 2 missing config — native selection, other coordinator returned, or native factory returned nil.
-- Any unavailable-getter / not-installed message and playback error counters.
+On an observed playback NSError, the report shows SAFETY STOP; the profile is saved OFF and new calls use native behavior. Restart after an error. Current objects may remain altered until restart. No error seen by this hook means no automatic trip; turn off manually on a stall or roll back to 0.10 if crashing/settings inaccessible. Retired flags are ignored here; going back to older experimental builds could reactivate their saved keys.
 
-Interpretation: requested flag alone is insufficient. Factory calls without flag reads mean the object/path is not being selected as intended. A returned native no-op object proves selection, NOT ad removal/stability. Error code 0 alone does not distinguish state failure, media/network problems or server enforcement. If errors occur, disable and restart. If UI unavailable revert to 0.10; it ignores test 2 keys. Reinstalling 0.12 later may restore saved ON state.
+Optional isolation ONLY if requested after reading the report: Advanced → Ad test options permits turning off one branch, then restart. No two-run matrix is required initially. Automatic safety stop switches off the single profile, not your working cleanup/audio flags.
 
-## C: insertion filtering only
-
-playerExperiment2 OFF, insertionAds2 ON, feedAds/extendedFeed ON. Tap Home video, minimize, inspect card. Check ordinary feed/search/subscriptions/navigation too.
-
-Report:
-- Hook status: YTInnerTubeCollectionViewController / insertBelowVisibleSection:.
-- post-play test 2 insertion entered, insertion forwarded, ad insertion suppressed.
-- explicit ad field / explicit ad logging / existing ad tokens / display ad tokens counters.
-- unsupported input or inspection exception counters.
-
-No invocation: wrong path for that test. Forwarded inputs: no recognized ad; not proof there was no ad. Suppression: a recognized insertion was skipped, not necessarily the pictured card. Unknown and multi-item inputs are intentionally retained. No title/metadata/sponsor-button fallback.
-
-If fresh capture is needed, clear it immediately before reproduction; old reports reached the 128-sample cap. Review reports before sharing. No raw playback payloads, request bodies, signed URLs, cookies or tokens are logged. A crash may prevent error-counter capture. There is no auto retry, automatic recovery or telemetry falsification.
+No raw player data, URLs, credentials, userInfo dump or automatic uploads. Trace is in-memory and capped at 80 events, with fixed-label totals and numeric/domain-bucket error details (max three levels per error). Restart clears it. Template capture is separate and unnecessary for the initial report.

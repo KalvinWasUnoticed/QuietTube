@@ -1,16 +1,11 @@
-# 0.12 buildfix — repository overlay compatibility
+# 0.13 — single-profile workarounds and troubleshooting
 
-- Replace obsolete tests/test_experiment1.py under its existing filename with four retirement checks.
-- Reproduce upgrade by overlaying onto 0.11; all 48 Python tests pass, as on a clean copy.
-- Production Sources, build/release/packaging scripts and workflow byte-identical to original 0.12. App/release version remains 0.12.
-- Commit the fix and launch a new workflow run; do not re-run the old commit.
-
-# 0.12 — retire test 1, native no-op and insertion test 2
-
-- Rebase on working 0.10; remove failed nil-coordinator and broad model-load experiments. Old saved experiment keys ignored.
-- Inspect pinned executable: native no-op factory branch, delegate callback path, insertion method ownership/ABI recorded.
-- Add independently gated default-off playerExperiment2 (scoped native flag) and insertionAds2 (recognized-ad-only insertion filtering).
-- Preserve working feed/appearance/settings/background/native PiP and direct IPA workflow. No runtime success claim before testing.
+- Correct 0.12 repeated-install false failures; remove missing-config-dependent no-op selection and unused insertion hook.
+- Native no-op constructor through verified scope/delegate; original factory fallback on missing prerequisites/failure.
+- Disable verified watch-while ad feed-mutation feature, not guessed renderer/UI boundaries.
+- One default-off Ad test profile, automatic safety stop on observed errors, short bounded timestamped report and underlying numeric error chain.
+- Preserve established feed/appearance/navigation/audio/PiP and direct IPA delivery; replace retired files for safe overlay updates.
+- Device and Apple SDK results pending.
 
 # 0.10 — player test 0, observation only
 

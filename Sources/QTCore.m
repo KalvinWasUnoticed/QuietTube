@@ -18,12 +18,14 @@ NSArray<NSDictionary *> *QTOptions(void) {
     static dispatch_once_t once;
     dispatch_once(&once, ^{
         options = @[
-// BEGIN 0.12 TEST 2
-          @{ @"key":@"playerExperiment2", @"title":@"Player test 2: native no-op coordinator", @"group":@"Playback", @"default":@NO,
-             @"note":@"Experimental native factory selection, NOT guaranteed ad-free or stable. Leaves the creator intact. Restart required; stop and disable on errors." },
-          @{ @"key":@"insertionAds2", @"title":@"Post-play test 2: insertion filtering", @"group":@"Distractions", @"default":@NO,
-             @"note":@"Filter recognized ads at insertBelowVisibleSection. Requires Feed ads and Extended feed formats. May miss other paths. Test separately from player test 2." },
-// END 0.12 TEST 2
+// BEGIN 0.13 AD PROFILE
+          @{ @"key":@"adTest", @"title":@"Ad test profile", @"group":@"Playback", @"default":@NO,
+             @"note":@"One switch: native no-op player + disable watch-while feed mutations. Experimental. Automatic safety stop on observed playback errors; restart required." },
+          @{ @"key":@"adTestPlayer", @"title":@"Player workaround", @"group":@"Ad test options", @"default":@YES,
+             @"note":@"Only active with Ad test profile. Leave on for the normal test." },
+          @{ @"key":@"adTestFeed", @"title":@"Post-play feed workaround", @"group":@"Ad test options", @"default":@YES,
+             @"note":@"Only active with Ad test profile. Leave on for the normal test." },
+// END 0.13 AD PROFILE
 // BEGIN 0.10 PLAYER PROBE
           @{ @"key":@"playerProbe", @"title":@"Observe player ad coordinator", @"group":@"Playback", @"default":@NO,
              @"note":@"Test 0: counters only, NOT ad blocking. Keeps the native coordinator unchanged. Restart to enable/disable; compare with probe off." },
@@ -190,14 +192,14 @@ void QTObserveUnmatchedElement(NSData *data) {
 }
 NSString *QTDiagnostics(void) {
     NSMutableString *s = [NSMutableString stringWithFormat:
-        @"QuietTube 0.12 Native no-op and insertion tests\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
+        @"QuietTube 0.13 Ad profile and bounded troubleshooting\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
         [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"], UIDevice.currentDevice.systemVersion];
 // BEGIN 0.10 PLAYER PROBE
-    [s appendFormat:@"PLAYER TEST 0: %@\nThis probe alone is observation-only. Test 2, if enabled, can change the native factory selection. Counts are not ad counts.\n\n", QTOn(@"playerProbe") ? @"observation enabled" : @"off"];
+    [s appendFormat:@"PLAYER TEST 0: %@\nAd blocking is NOT implemented by this probe. Original coordinator result is preserved. Counts are not ad counts.\n\n", QTOn(@"playerProbe") ? @"observation enabled" : @"off"];
 // END 0.10 PLAYER PROBE
-// BEGIN 0.12 TEST 2
-    [s appendFormat:@"PLAYER TEST 2 requested this launch: %@. Check hook status and native no-op result counters; a requested flag alone does not prove activation.\n0.11 nil-coordinator and model-load experiments are retired; their saved keys are ignored.\n\n", QTOn(@"playerExperiment2") ? @"yes" : @"no"];
-// END 0.12 TEST 2
+// BEGIN 0.13 AD PROFILE
+    [s appendString:QTAdReport()];
+// END 0.13 AD PROFILE
     [s appendString:@"ACTIVE THIS LAUNCH\n"];
     for (NSString *key in [[QTActiveFlags allKeys] sortedArrayUsingSelector:@selector(compare:)])
         [s appendFormat:@"%@ = %@\n", key, [QTActiveFlags[key] boolValue] ? @"on" : @"off"];

@@ -30,13 +30,17 @@
         @{@"title":@"Inspect unmatched templates", @"key":@"inspectElements",
           @"note":@"Opt-in local capture of identifier-shaped names. Requires Extended feed formats and restart. Review before sharing."},
         @{@"title":@"Clear template capture", @"action":@"clearCapture"},
+// BEGIN 0.13 AD PROFILE
+        @{@"title":@"Ad test report", @"action":@"adReport"},
+        @{@"title":@"Ad test options", @"page":@"Ad test options"},
+// END 0.13 AD PROFILE
         @{@"title":@"View diagnostics", @"action":@"diagnostics"},
         @{@"title":@"Disable all for next launch", @"action":@"reset"}
     ];
 }
 - (NSInteger)tableView:(UITableView *)tv numberOfRowsInSection:(NSInteger)section { return self.rows.count; }
 - (NSString *)tableView:(UITableView *)tv titleForFooterInSection:(NSInteger)section {
-    return @"0.12 · Restart the guest app to apply changes. Use YouTube’s own PiP setting. Player test 2 is experimental and off by default.";
+    return @"0.13 · Restart the guest app to apply changes. Use YouTube’s own PiP setting. Player-ad blocking remains paused.";
 }
 - (UITableViewCell *)tableView:(UITableView *)tv cellForRowAtIndexPath:(NSIndexPath *)index {
     NSDictionary *row = self.rows[index.row];
@@ -53,9 +57,9 @@
         UISwitch *toggle = [UISwitch new];
         toggle.accessibilityLabel = row[@"title"];
         toggle.accessibilityIdentifier = row[@"key"];
-        BOOL needsExtended = [@[@"topicsShelves",@"edgeCards",@"playables",@"eventPromos",@"inspectElements",@"displayAds",@"mixes",@"watchAgain",@"insertionAds2"] containsObject:row[@"key"]];
+        BOOL needsExtended = [@[@"topicsShelves",@"edgeCards",@"playables",@"eventPromos",@"inspectElements",@"displayAds",@"mixes",@"watchAgain"] containsObject:row[@"key"]];
         BOOL dependencyReady = !needsExtended || [NSUserDefaults.standardUserDefaults boolForKey:@"QuietTube.v1.extendedFeed"];
-        BOOL needsFeedAds = [row[@"key"] isEqualToString:@"displayAds"] || [row[@"key"] isEqualToString:@"insertionAds2"];
+        BOOL needsFeedAds = [row[@"key"] isEqualToString:@"displayAds"];
         if (needsFeedAds && ![NSUserDefaults.standardUserDefaults boolForKey:@"QuietTube.v1.feedAds"]) dependencyReady = NO;
         toggle.enabled = ![row[@"disabled"] boolValue] && dependencyReady;
         if (!dependencyReady) cell.detailTextLabel.text = needsFeedAds ? @"Enable Extended feed formats and Feed ads first. Restart to apply." : @"Enable Extended feed formats first. Restart to apply.";
@@ -81,7 +85,7 @@
         QTOptionsController *page = [[QTOptionsController alloc] initWithStyle:UITableViewStyleInsetGrouped];
         page.group = row[@"page"];
         [self.navigationController pushViewController:page animated:YES];
-    } else if ([row[@"action"] isEqualToString:@"diagnostics"]) {
+    } else if (([row[@"action"] isEqualToString:@"diagnostics"] || [row[@"action"] isEqualToString:@"adReport"])) {
         UIViewController *page = [UIViewController new];
         page.title = @"Diagnostics";
         UITextView *text = [UITextView new];
@@ -92,7 +96,7 @@
         text.backgroundColor = UIColor.systemBackgroundColor;
         text.textColor = UIColor.labelColor;
         text.textContainerInset = UIEdgeInsetsMake(16,16,24,16);
-        text.text = QTDiagnostics();
+        text.text = [row[@"action"] isEqualToString:@"adReport"] ? QTAdReport() : QTDiagnostics();
         page.view = text;
         [self.navigationController pushViewController:page animated:YES];
     } else if ([row[@"action"] isEqualToString:@"clearCapture"]) {
