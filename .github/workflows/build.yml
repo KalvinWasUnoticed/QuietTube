@@ -1,26 +1,49 @@
 name: Build QuietTube IPA
+run-name: QuietTube 0.6 — direct IPA download
 on:
   workflow_dispatch:
+    inputs:
+      allow_public_release:
+        description: 'Allow publishing the modified IPA publicly if this repository is public. Leave OFF for a private repository.'
+        type: boolean
+        required: false
+        default: false
 permissions:
   contents: read
 jobs:
   build:
+    name: Build and publish direct IPA
     runs-on: macos-15
-    timeout-minutes: 20
+    timeout-minutes: 25
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Run packaging tests
-        run: python -m unittest discover -s tests -v
-      - name: Test element-token classifier
+      - name: Check release visibility approval
+        env:
+          REPO_PRIVATE: ${{ github.event.repository.private }}
+          ALLOW_PUBLIC_RELEASE: ${{ inputs.allow_public_release }}
         run: |
-          cc -std=c11 -Wall -Wextra -Werror tests/test_feed_rules.c -o "$RUNNER_TEMP/test-feed-rules"
-          "$RUNNER_TEMP/test-feed-rules"
-          cc -std=c11 -Wall -Wextra -Werror tests/test_template_scan.c -o "$RUNNER_TEMP/test-template-scan"
-          "$RUNNER_TEMP/test-template-scan"
-      - name: Compile the tweak
+          if [[ "$REPO_PRIVATE" != "true" && "$ALLOW_PUBLIC_RELEASE" != "true" ]]; then
+            echo '::error::This repository is public. Use a private repository, or explicitly approve public IPA publishing in Run workflow if you have the rights to do so.'
+            echo '## Build stopped before downloading: release visibility approval required' >> "$GITHUB_STEP_SUMMARY"
+            echo 'Use a private repository, or re-run with the public-release approval checkbox if authorized. No IPA has been published.' >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+      - name: Regression tests — packaging, source safeguards, release links
+        run: python -m unittest discover -s tests -v
+      - name: Compile and test pure C classifiers with sanitizers
+        run: |
+          for source in tests/test_feed_rules.c tests/test_template_scan.c; do
+            output="$RUNNER_TEMP/$(basename "$source" .c)"
+            cc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined "$source" -o "$output"
+            "$output"
+          done
+          bash -n scripts/build.sh scripts/release.sh
+      - name: Compile the native tweak
         run: bash scripts/build.sh
       - name: Download the exact inspected base IPA
         run: |
@@ -30,25 +53,22 @@ jobs:
           import hashlib, sys
           with open(sys.argv[1], 'rb') as f:
               digest = hashlib.file_digest(f, 'sha256').hexdigest()
-          assert digest == 'd0f6f5c9d27f7fea8f040ae59c425b3a8222f67d891937374b21ef8937deba11', 'Input IPA SHA-256 mismatch'
+          if digest != 'd0f6f5c9d27f7fea8f040ae59c425b3a8222f67d891937374b21ef8937deba11':
+              raise SystemExit('Input IPA SHA-256 mismatch')
           print('Base IPA hash verified')
           PY
-      - name: Package for LiveContainer
+      - name: Package the IPA for LiveContainer
         run: |
           python scripts/package.py "$RUNNER_TEMP/YouTube-base.ipa" \
-            artifacts/QuietTube.dylib artifacts/QuietTube-0.5-21.38.2.ipa
-      - name: Upload installable guest package
-        uses: actions/upload-artifact@v4
-        with:
-          name: QuietTube-0.5-21.38.2-IPA
-          path: artifacts/QuietTube-0.5-21.38.2.ipa
-          retention-days: 7
-          compression-level: 0
-          if-no-files-found: error
-      - name: Upload standalone tweak for debugging
-        uses: actions/upload-artifact@v4
-        with:
-          name: QuietTube-dylib-debugging-only
-          path: artifacts/QuietTube.dylib
-          retention-days: 7
-          if-no-files-found: error
+            artifacts/QuietTube.dylib artifacts/QuietTube-0.6-21.38.2.ipa
+      - name: DOWNLOAD IPA — publish direct link in Summary and Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO_PRIVATE: ${{ github.event.repository.private }}
+          ALLOW_PUBLIC_RELEASE: ${{ inputs.allow_public_release }}
+        run: bash scripts/release.sh
+      - name: Explain failed build
+        if: failure()
+        run: |
+          echo '## No successful IPA download is confirmed for this run' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Open the red failed step above. A compile/test failure is not an installable update. A release permission failure may require checking repository Actions permissions. Do not use an older artifact by mistake.' >> "$GITHUB_STEP_SUMMARY"
