@@ -5,9 +5,9 @@
   "patched_command_count": 138,
   "packaging_unit_tests": "8 passed",
   "objc_compilation": "Not compiled here; GitHub Apple SDK build required",
-  "device_test": "0.13.2 untested; user confirms 0.13.1 active no-op (5 supplied), no player ads/stable playback in tested session; post-minimize ad persists",
-  "revision": "0.13.2-companion-clear-player-preserved",
-  "static_regression_checks": "40 passed; source/ABI/scope only",
+  "device_test": "0.13.3 untested; 0.13.2 user saw five native no-op supplies, zero companion callbacks and persistent card",
+  "revision": "0.13.3-minimize-observation",
+  "static_regression_checks": "45 source/ABI/scope checks passed (59 Python checks overall)",
   "workflow_yaml": "parsed",
   "shell_syntax": "build.sh and release.sh passed",
   "classifier_tests": "79 fixtures + 5000 random-byte iterations passed under ASan/UBSan",
@@ -21,8 +21,9 @@
   "watch_again_evidence": "Screenshot English heading and horizontal_shelf capture; exact payload ownership/encoding not verified",
   "player_probe": "Retired; not compiled, no hook/control/install call",
   "player_ad_blocking": "Player construction block unchanged from reported successful 0.13.1; no universal stability/ad-free claim",
-  "upgrade_tests": "54 Python tests passed clean and after overlay onto 0.13.1",
-  "binary_research": "Pinned IPA hash re-verified; companion callback metadata and nil-branch/clear/push instructions inspected; inputs deleted",
+  "upgrade_tests": "59 Python checks clean and overlay onto 0.13.2",
+  "binary_research": "Pinned IPA SHA256 rechecked; nine trace method metadata records extracted; research IPA/executable removed",
   "ad_state_tests": "32 exhaustive boolean-state combinations plus inactive-session regression passed under ASan/UBSan",
-  "companion_ad_evidence": "Native nil-companion update path statically verified; on-device path for pictured card not established"
+  "companion_ad_evidence": "Native clear branch verified previously; zero device callbacks in 0.13.2. Not established as pictured card path",
+  "mutation_trace": "Pass-through source/ABI tests only; 24 pre-events, 96 total, 12-second window. No native runtime validation"
 }

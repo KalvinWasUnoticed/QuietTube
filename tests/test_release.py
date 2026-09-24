@@ -11,7 +11,7 @@ class ReleaseTests(unittest.TestCase):
     def invoke(self, private='true', approval='false', gh_fail=False, create_ipa=True):
         with tempfile.TemporaryDirectory() as t:
             root=Path(t); (root/'bin').mkdir(); (root/'artifacts').mkdir()
-            if create_ipa: (root/'artifacts/QuietTube-0.13.2-21.38.2.ipa').write_bytes(b'fixture')
+            if create_ipa: (root/'artifacts/QuietTube-0.13.3-21.38.2.ipa').write_bytes(b'fixture')
             gh=root/'bin/gh'
             gh.write_text('#!/usr/bin/env python3\nimport json,os,sys\nfrom pathlib import Path\nPath(os.environ["MOCK_CALL"]).write_text(json.dumps(sys.argv[1:]))\nsys.exit(int(os.environ["MOCK_FAIL"]))\n')
             gh.chmod(0o755)
@@ -27,8 +27,8 @@ class ReleaseTests(unittest.TestCase):
     def test_private_direct_link_and_actual_ipa_argument(self):
         run,summary,call=self.invoke()
         self.assertEqual(run.returncode,0,run.stderr)
-        self.assertIn('releases/download/quiettube-0.13.2-123-2/QuietTube-0.13.2-21.38.2.ipa',summary)
-        self.assertIn('artifacts/QuietTube-0.13.2-21.38.2.ipa',call)
+        self.assertIn('releases/download/quiettube-0.13.3-123-2/QuietTube-0.13.3-21.38.2.ipa',summary)
+        self.assertIn('artifacts/QuietTube-0.13.3-21.38.2.ipa',call)
         self.assertFalse(any(a.endswith('.zip') for a in call))
         self.assertNotIn('mock-not-real',run.stdout+summary)
         self.assertIn('--prerelease',call)

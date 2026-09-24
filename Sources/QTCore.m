@@ -18,6 +18,8 @@ NSArray<NSDictionary *> *QTOptions(void) {
     static dispatch_once_t once;
     dispatch_once(&once, ^{
         options = @[
+          @{ @"key":@"mutationTrace", @"title":@"Trace minimize and feed updates", @"group":@"Advanced", @"default":@NO,
+             @"note":@"Read-only bounded event timeline. Prepare ad test enables this. Restart required." },
 // BEGIN 0.13 AD PROFILE
           @{ @"key":@"adTest", @"title":@"Ad test profile", @"group":@"Playback", @"default":@NO,
              @"note":@"Native player no-op plus companion-ad clearing. One switch. Experimental; restart required. Stops on observed playback errors." },
@@ -180,7 +182,7 @@ void QTObserveUnmatchedElement(NSData *data) {
 }
 NSString *QTDiagnostics(void) {
     NSMutableString *s = [NSMutableString stringWithFormat:
-        @"QuietTube 0.13.2 Ad profile and bounded troubleshooting\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
+        @"QuietTube 0.13.3 Ad profile and bounded troubleshooting\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
         [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"], UIDevice.currentDevice.systemVersion];
 // BEGIN 0.13 AD PROFILE
     [s appendString:QTAdReport()];

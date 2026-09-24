@@ -1,15 +1,7 @@
-# 0.13.2 — focus on the remaining companion card
+# 0.13.3 test
 
-Keep the existing Ad test profile ON. Restart the entire guest after upgrading. Play a video, minimize it, and inspect the area below the selected item. Keep 0.13.1 as the player-stable rollback build.
+Build a new committed workflow; download the IPA from its Summary link. Tap Quiet controls → Prepare ad test, fully stop/relaunch the guest. Play one video, swipe down once, wait about 12 seconds, copy Advanced → Ad test report. Report card appearance and any player problem. Avoid further swipe/scroll actions before copying.
 
-Send the short Advanced → Ad test report plus “card remains / card gone”, and flag any new player error. No additional switch or two-run matrix.
+The report must distinguish saved versus launch flags, installed hooks versus calls, and zero callbacks versus observed clearing. Check will/did-collapse and subsequent mutation names/classes with relative times. Layout numbers have no asserted semantic mapping. Missing events, truncated windows and nearby non-ad feed operations remain possible. Do not treat this observation-only addition as an ad fix.
 
-Expected evidence:
-- Native no-op objects continue being supplied by unchanged player code.
-- Companion observer hook installed.
-- Companion callback received, with separate count for actual payload observed.
-- Native clear applied and current-ad empty/remaining state afterward.
-
-An installed hook with no callback is not an active fix. Empty observer state with a visible card means the actual card is not yet explained by this path. A clear applied to an already-empty callback does not count as a blocked ad. Counts are not unique cards or videos.
-
-Safety: stop on errors or missing wanted content. The safety latch reacts only to observed playback NSError, not every possible UI exception/crash/stall. It saves profile OFF; restart is needed. Already-cleared companion state is not automatically restored. No error hiding, retry loop or request spoofing. Report is bounded/session-only; no IDs, URLs or raw payloads.
+Offline: python -m unittest discover -s tests; compile/run the three tests/test_*.c with clang ASan/UBSan; bash -n scripts/*.sh; parse workflow YAML; rerun Python tests after overlay onto 0.13.2. Native Objective-C build/device confirmation is separate.

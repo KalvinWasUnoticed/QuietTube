@@ -1,3 +1,9 @@
+# 0.13.3 update
+
+Added one-button prerequisite saving and nine binary-verified pass-through minimize/mutation observers. See BASE-MINIMIZE-ABI.json and README.md. Player suffix hash and accepted cleanup checks remain unchanged. No new ad suppression. 0.13.2 device feedback: five no-op supplies, zero companion callbacks, sponsored card persists. The prior sections below are historical, not a fresh device result.
+
+---
+
 # 0.13.2 current status
 
 User 0.13.1 report: five native no-op objects supplied, no player ads and stable playback in that test. Player factory workaround is frozen and hash-checked in this revision. Post-minimize card remains; prior feed getter never ran. Only the feed side changes to a binary-verified native companion empty-update path. Current report distinguishes callback activity from observer-state clearing; runtime association with the card unverified. See README and BINARY-RESEARCH.

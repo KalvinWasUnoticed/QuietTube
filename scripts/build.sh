@@ -8,7 +8,7 @@ xcrun --sdk iphoneos clang -arch arm64 -isysroot "$sdk" \
   -O2 -Wall -Wextra -Wno-unused-parameter \
   -install_name '@rpath/QuietTube.dylib' \
   -framework Foundation -framework UIKit \
-  Sources/QTCore.m Sources/QTSettings.m Sources/QTFeatures.m Sources/QTLogo.m Sources/QTAdProfile.m \
+  Sources/QTCore.m Sources/QTSettings.m Sources/QTFeatures.m Sources/QTLogo.m Sources/QTAdProfile.m Sources/QTMutationTrace.m \
   -o artifacts/QuietTube.dylib
 codesign --force --sign - artifacts/QuietTube.dylib
 file artifacts/QuietTube.dylib

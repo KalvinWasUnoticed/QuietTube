@@ -1,3 +1,9 @@
+# 0.13.3 update
+
+Added one-button prerequisite saving and nine binary-verified pass-through minimize/mutation observers. See BASE-MINIMIZE-ABI.json and README.md. Player suffix hash and accepted cleanup checks remain unchanged. No new ad suppression. 0.13.2 device feedback: five no-op supplies, zero companion callbacks, sponsored card persists. The prior sections below are historical, not a fresh device result.
+
+---
+
 # 0.13.2 audit
 
 Evidence: 0.13.1 actually supplied five native no-op objects and user reported no player ads/stable playback. Last user sentence confirms post-minimize card remains despite the earlier checkbox-style “no”. Zero feature-getter reads means previous feed hook not demonstrated active.

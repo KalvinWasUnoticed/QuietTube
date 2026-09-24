@@ -1,3 +1,9 @@
+# 0.13.3 update
+
+Added one-button prerequisite saving and nine binary-verified pass-through minimize/mutation observers. See BASE-MINIMIZE-ABI.json and README.md. Player suffix hash and accepted cleanup checks remain unchanged. No new ad suppression. 0.13.2 device feedback: five no-op supplies, zero companion callbacks, sponsored card persists. The prior sections below are historical, not a fresh device result.
+
+---
+
 # 0.13.2 companion callback inspection
 
 Pinned input SHA-256 d0f6f5c9d27f7fea8f040ae59c425b3a8222f67d891937374b21ef8937deba11 verified again. Selected Objective-C method metadata and ARM64 instructions inspected; downloaded IPA/executable removed afterward. BASE-COMPANION-ABI.json records the callback and getter encodings.

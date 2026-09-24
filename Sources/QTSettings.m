@@ -22,11 +22,13 @@
         }]];
     } else self.rows = @[
         @{@"title":@"Enable modifications", @"key":@"enabled"},
+        @{@"title":@"Prepare ad test", @"action":@"prepareAdTest", @"note":@"Enable test flags and local class/template logging; restart afterward."},
         @{@"title":@"Distractions", @"page":@"Distractions"},
         @{@"title":@"Playback", @"page":@"Playback"},
         @{@"title":@"Advanced", @"page":@"Advanced"}
     ];
     if ([self.group isEqualToString:@"Advanced"]) self.rows = @[
+        @{@"title":@"Trace minimize and feed updates", @"key":@"mutationTrace", @"note":@"Read-only bounded timeline; restart required."},
         @{@"title":@"Inspect unmatched templates", @"key":@"inspectElements",
           @"note":@"Opt-in local capture of identifier-shaped names. Requires Extended feed formats and restart. Review before sharing."},
         @{@"title":@"Clear template capture", @"action":@"clearCapture"},
@@ -39,7 +41,7 @@
 }
 - (NSInteger)tableView:(UITableView *)tv numberOfRowsInSection:(NSInteger)section { return self.rows.count; }
 - (NSString *)tableView:(UITableView *)tv titleForFooterInSection:(NSInteger)section {
-    return @"0.13.2 · Restart the guest app to apply changes. Use YouTube’s own PiP setting. Ad profile is experimental; see Advanced → Ad test report.";
+    return @"0.13.3 · Restart the guest app to apply changes. Use YouTube’s own PiP setting. Ad profile is experimental; see Advanced → Ad test report.";
 }
 - (UITableViewCell *)tableView:(UITableView *)tv cellForRowAtIndexPath:(NSIndexPath *)index {
     NSDictionary *row = self.rows[index.row];
@@ -98,6 +100,15 @@
         text.text = [row[@"action"] isEqualToString:@"adReport"] ? QTAdReport() : QTDiagnostics();
         page.view = text;
         [self.navigationController pushViewController:page animated:YES];
+    } else if ([row[@"action"] isEqualToString:@"prepareAdTest"]) {
+        QTPrepareAdTest();
+        [self.tableView reloadData];
+        self.navigationItem.prompt = @"Test saved - fully restart the guest";
+        UIAlertController *notice = [UIAlertController alertControllerWithTitle:@"Ad test prepared"
+            message:@"Required flags are saved. Fully stop and relaunch the LiveContainer guest before testing. Refreshing Home is not a restart. Your other settings are unchanged."
+            preferredStyle:UIAlertControllerStyleAlert];
+        [notice addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+        [self presentViewController:notice animated:YES completion:nil];
     } else if ([row[@"action"] isEqualToString:@"clearCapture"]) {
         QTResetElementCapture();
         self.navigationItem.prompt = @"Capture cleared — refresh Home to inspect new elements";

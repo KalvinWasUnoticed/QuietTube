@@ -173,6 +173,7 @@ void QTInstallFeatures(void) {
     QTInstallPlainLogo();
 // BEGIN 0.13 AD PROFILE
     QTInstallAdProfile();
+    QTInstallMutationTrace();
 // END 0.13 AD PROFILE
     if (QTOn(@"feedAds") || QTOn(@"shorts") || (QTOn(@"extendedFeed") && (QTOn(@"playables") || QTOn(@"eventPromos") || QTOn(@"topicsShelves") || QTOn(@"edgeCards") || QTOn(@"inspectElements") || QTOn(@"mixes") || QTOn(@"watchAgain")))) {
         QTHook(@"YTInnerTubeCollectionViewController",@"addSectionsFromArray:",@"v@",^id(IMP old,SEL sel) {

@@ -27,3 +27,7 @@ void QTInstallAdProfile(void);
 NSString *QTAdReport(void);
 void QTAdPlaybackError(NSError *error);
 // END 0.13 AD PROFILE
+
+void QTInstallMutationTrace(void);
+void QTPrepareAdTest(void);
+NSString *QTMutationReport(void);

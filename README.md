@@ -1,54 +1,38 @@
-# QuietTube 0.13.2 — preserve active player workaround; native companion clearing
+# QuietTube 0.13.3 — one-button preparation and minimize tracing
 
-**Source + build workflow, not a compiled IPA.** Same pinned YouTube 21.38.2 base. One existing Ad test profile switch, no new settings to enable.
+**Source + GitHub build workflow, not a compiled IPA.** Pinned YouTube 21.38.2 base.
 
-## What your 0.13.1 report established
+## What changes
 
-Five native no-op objects were supplied; you reported no player ads and stable playback. This is the first reported success with the player workaround actually active. It is not a guarantee across all videos, midrolls or future sessions. The player construction/fallback block is byte-for-byte unchanged in 0.13.2 and protected by a frozen hash test.
+**Quiet controls → Prepare ad test** saves all seven current prerequisites together: modifications, Ad test profile, feed ads, extended feed formats, additional display-ad formats, element inspection and minimize/mutation tracing. It preserves every other preference. It does not activate hooks mid-session, erase the current report or reset installation counters. Fully stop/relaunch the LiveContainer guest afterward.
 
-We interpret your final sentence as authoritative for the remaining issue: the ad pushed below the selected video still appears after minimizing. The old feed-feature hook had zero invocations. Its installation alone did not establish any effect on that card.
+The short **Advanced → Ad test report** now shows current-launch versus next-launch flags and a bounded timeline covering:
+- Native will-collapse / did-collapse callbacks and layout changes (numeric layout values remain unmapped).
+- Five collection mutation dispatch/insert/replace handlers.
+- The array-section model's insert notification, including bounded entry-class samples.
 
-## The targeted feed change
+Nine method signatures/ownership records were checked against your pinned binary. These new hooks forward original arguments, return values, NSError pointers and native exceptions without changing feed operations. Reporting contains class names/counts/times, not titles, video IDs, URLs or payload dumps. Existing element inspection also captures bounded internal template identifiers locally; it is not an automatic upload.
 
-Replace the unused YTHotConfig watch-while-feature hook with the binary-verified `YTCompanionAdObserverBehavior / companionAdDidChange:interactionLoggingAdsClientData:` callback.
+The trace retains up to 24 preceding events and 96 total events, stopping detailed capture 12 seconds after an observed collapse start. A new observed collapse starts another window. Drops/outside-window counts are explicit. It is not a complete recording: some methods may not run for this UI path, and heavily populated windows may truncate early events. Nearby calls establish timing, not ad identity or causation.
 
-Static inspection shows the native callback reads the companion object, clears its companion section, and, when there is no companion, skips appending ad content and commits the cleared section. While the profile is active, 0.13.2 calls this native callback with nil companion-update/logging arguments. It does NOT return a nil playback coordinator, suppress the native callback entirely, or manually clear the general feed. When the profile is off or safety-stopped, original arguments are forwarded.
+## What does NOT change
 
-Counters distinguish callback entry, a non-nil companion payload observed, native clearing applied, and the currentAd state checked afterward. Empty state confirms only this observer's state, not that the screenshot card is necessarily gone. The callback's association with the pictured post-minimize card remains unverified on device. It can also remove companion content/recommendations on other surfaces using this observer; it is not Home-only.
+The player construction/fallback block remains byte-for-byte identical to 0.13.1/0.13.2. Your 0.13.1 report established five native no-op substitutions with no player ads and stable playback in that session; no universal guarantee follows.
 
-Only this standard companion observer is hooked. The separately inspected engagement-shelf observer has different semantics and is deliberately not treated as an interchangeable ad-removal hook. Generic video metadata, id.sponsor_button, all links and ordinary feed shelves are not removed.
+Your 0.13.2 report again showed five substitutions but **zero companion callbacks** while the sponsored card persisted. More flags do not fix an uncalled companion path. That existing experimental callback is unchanged; this release adds observation, **not a claimed sponsored-card fix**. No guessed renderer filtering is added. Accepted cleanup, logo, native PiP/background, settings navigation and sign-in-related code remain unchanged.
 
-## Other changes / preservation
+## Build and one test
 
-- Fix the garbled installation-state dash: the C strings formatted through %s are now ASCII. No more encoding-dependent em dash in that field.
-- Preserve player no-op constructor/scope/delegate/fallback logic exactly; no new player methods, response mutations, request identities or manual completion callbacks.
-- Preserve existing feed cleanup, logo, Watch again/Mix/Shorts/topic controls, settings navigation, background audio and native PiP behavior.
-- Preserve one-switch activation, bounded reporting and error safety latch. Old experimental controls/hooks remain retired.
+1. Replace repository files with this folder's contents, including hidden `.github`, Sources, tests and evidence records. Commit and start a **new workflow run**, not a rerun of old code.
+2. On success: **Summary → DOWNLOAD IPA — QuietTube 0.13.3** → `QuietTube-0.13.3-21.38.2.ipa`. Source ZIP is not installable. Private GitHub downloads require authorized login; public publication requires explicit approval.
+3. Import into the same LiveContainer data container; no second injection. Keep the previous IPA for rollback.
+4. Open **You → Settings → General → Quiet controls → Prepare ad test**. Fully stop and relaunch the guest.
+5. Play a video, swipe down once, then wait about 12 seconds for the sponsored card/window. Avoid further swipes/scrolling before copying **Advanced → Ad test report**. Send that report and whether the card appeared; mention any player regression. No two-run matrix or full diagnostics needed.
 
-## Build and simplest test
+## Safety and validation
 
-1. Replace repository contents with QuietTube-v0.13.2 folder contents, including hidden .github, all Sources/tests and evidence records. Commit and launch a NEW workflow run.
-2. After success select **Summary → DOWNLOAD IPA — QuietTube 0.13.2**, downloading `QuietTube-0.13.2-21.38.2.ipa` directly. Private repository recommended; public publication needs explicit approval. Private downloads require authorized GitHub login.
-3. Import into LiveContainer in the same data container without a second injection. Keep 0.13.1 for rollback to the reported stable player behavior.
-4. Leave **Playback → Ad test profile ON**, fully restart, play a video and swipe down to the mini-player.
-5. Send only **Advanced → Ad test report** and whether the card still appears. Also mention any player regression; no separate two-run matrix is required.
+Existing playback-error safety latch remains: it saves the profile OFF and restores native behavior for future calls only. Existing players are not repaired; restart after errors, or revert for crashes/stalls. Prepare explicitly saves the profile ON again for a new test. Tracing is separately opt-in and never suppresses errors.
 
-Relevant new counters:
-- companion callback received
-- companion payload observed
-- companion native clear applied
-- companion state empty after clear / companion state still populated
+59 Python source/packaging/release checks passed clean and in an upgrade overlay; protected player/cleanup hashes pass. C classifier/scanner/status tests pass with ASan/UBSan. Shell and workflow YAML checks pass. See VALIDATION.json.
 
-No callback means this candidate path was not exercised. Clearing with the visible card still present means another renderer/path needs investigation. Neither result should be concealed by another generic filter. You do not need to repeat old reports.
-
-## Safety and limits
-
-Native callback exceptions are not swallowed or retried. The existing playback-error observer still forwards to YouTube. An observed player NSError trips the safety latch, saves the profile OFF and restores native arguments/creation on subsequent calls; already-created players and cleared companion sections are not automatically repaired. Restart after errors. Stalls/crashes may bypass that observer; disable manually or revert if necessary.
-
-No undetectability, universal ad blocking or zero-error guarantee. Native clearing is an implemented hypothesis with verified ABI/control-flow evidence, not a device-confirmed fix for the card.
-
-## Validation
-
-54 Python tests passed clean and after overlay onto 0.13.1, including a player-path byte-preservation check and callback ABI/forwarding checks. C ASan/UBSan:79 classifier fixtures +5000 random iterations;20 scanner fixtures +5000 random iterations;32 status combinations plus inactive-session regression. Shell syntax, YAML and ZIP checked. The input IPA was re-verified against the pinned hash before selected callback disassembly and then removed.
-
-**No Apple SDK compilation, real release upload or 0.13.2 device test here.** Source/C tests and static inspection cannot establish native runtime safety or successful card removal.
+**Apple SDK compilation, actual cloud release and 0.13.3 device behavior remain unverified here.** No undetectability or guaranteed ad removal claim.

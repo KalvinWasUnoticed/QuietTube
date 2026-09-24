@@ -1,0 +1,71 @@
+{
+  "base_sha256": "d0f6f5c9d27f7fea8f040ae59c425b3a8222f67d891937374b21ef8937deba11",
+  "classes": [
+    {
+      "class": "YTAppWatchControllerImpl",
+      "methods": [
+        {
+          "name": "handleWatchViewLayoutChangedFromLayout:toLayout:",
+          "types": "v32@0:8q16q24",
+          "implementation": "0x10130bb00"
+        }
+      ]
+    },
+    {
+      "class": "YTWatchLayerViewController",
+      "methods": [
+        {
+          "name": "willCollapseWatchFlowWithAnimationStyle:",
+          "types": "v24@0:8q16",
+          "implementation": "0x101315108"
+        },
+        {
+          "name": "didCollapseWatchFlowWithGestureType:",
+          "types": "v20@0:8i16",
+          "implementation": "0x101315564"
+        }
+      ]
+    },
+    {
+      "class": "YTInnerTubeCollectionViewController",
+      "methods": [
+        {
+          "name": "applyMutationOperation:error:",
+          "types": "@32@0:8@16^@24",
+          "implementation": "0x104345158"
+        },
+        {
+          "name": "handleReplaceSection:error:",
+          "types": "@32@0:8@16^@24",
+          "implementation": "0x104345854"
+        },
+        {
+          "name": "handleInsertSectionOperation:error:",
+          "types": "@32@0:8@16^@24",
+          "implementation": "0x1043458cc"
+        },
+        {
+          "name": "handleInsertItemSectionContent:error:",
+          "types": "@32@0:8@16^@24",
+          "implementation": "0x104345cf8"
+        },
+        {
+          "name": "handleReplaceItemSectionContent:error:",
+          "types": "@32@0:8@16^@24",
+          "implementation": "0x104347754"
+        }
+      ]
+    },
+    {
+      "class": "YTArraySectionViewModel",
+      "methods": [
+        {
+          "name": "didInsertEntries:atIndexes:",
+          "types": "v32@0:8@16@24",
+          "implementation": "0x104354a5c"
+        }
+      ]
+    }
+  ],
+  "notes": "Method ownership/encodings from pinned binary. Hooks pass through original arguments/results; selectors may not cover every swipe or mutation path."
+}
