@@ -1,74 +1,66 @@
-# QuietTube 0.4 — opt-in extended feed formats
+# QuietTube 0.5 — opt-in unmatched-template capture
 
-**Source + GitHub build workflow, not a compiled IPA.** Same inspected YouTube 21.38.2 base, LiveContainer normal launch. Preserve your 0.3 IPA as the working fallback. Objective-C compilation and 0.4 device behavior have not been tested here.
+**This download is source + a GitHub build workflow, not a compiled IPA. It does not yet remove “Explore more topics” or the edge-to-edge video cards.** It adds the missing diagnostic information needed to investigate those formats without guessing at new blocking rules.
 
-## Why this revision exists
+## What the evidence says
 
-Your 0.3 diagnostics showed `shorts = on`, 15 presentation-boundary calls and one filtered node, while a Shorts shelf remained visible. No exception or empty-batch fallback counter was reported. The single filtered-node counter does not identify its category, nor is it a count of unique ads. This is evidence of incomplete coverage; it does not identify the exact renderer of the missed card.
+Your 0.4 report recorded 10 Shorts-template matches, 3 explicit ad-logging matches and 1 promo-template match. You reported that Shorts shelves disappeared but two other layouts remained. These counters are not counts of unique ads or visible cards. They do not identify the 168 unmatched element payloads.
 
-The full-height portrait video in your second screenshot is not automatically classified as a Short. We do not filter videos by their aspect ratio, title or subject.
+No exception, budget, depth-limit or empty-batch fallback counter was reported. That points to classification/traversal coverage rather than the safety fallback as the immediate next area to investigate. The portrait video's context menu and screenshots do not prove its internal renderer type.
 
-## Changes
+## What changed
 
-New **Distractions → Extended feed formats** switch, **OFF by default**. When off, the original filtering decisions, traversal depth and renderer paths remain in place, with additional reason counters only.
+**Advanced → Inspect unmatched templates** (OFF by default).
 
-When on:
+With this option and Extended feed formats active, the existing feed-boundary filter extracts bounded, template-like names ending in `.eml` from element payloads it inspected but retained. It groups names that co-occurred in one payload and adds the results to **View diagnostics → UNMATCHED ELEMENT TEMPLATE CAPTURE**.
 
-- Traverses four additional named renderer-wrapper paths and permits deeper traversal.
-- Reads bounded `elementData` payloads of YTI element-renderer objects encountered at the existing presentation boundary.
-- Matches a small list of specific template tokens for Shorts and ads, rather than generic words like “shorts” or “ad.” The existing Feed ads and Shorts switches still determine which categories are removed.
-- Adds optional **Hide Playables shelves** and **Hide featured / promo cards**, both OFF by default and both requiring Extended feed formats.
-- Records category counters, visited/inspected/unmatched element counts, depth limits and node-budget exhaustion. No payload contents, video titles, URLs, account tokens or watch history are added to diagnostics.
+- No new filter rules or feed/playback hook points.
+- No video-title, aspect-ratio, or blanket vertical-video blocking.
+- Existing 0.4 filtering decisions, original-array preservation, and empty-batch guard are retained.
+- Native YouTube PiP, background behavior and the tested settings sheet remain unchanged.
+- Existing preferences are preserved when the same app-data container is retained; the capture option starts off.
 
-## Limits and risks
+## Capture boundaries and privacy
 
-This is token-based classification of element bytes, **not a complete semantic decoder**. A template token can occur within nested metadata; false positives and missed cards remain possible. This is why the new behavior is opt-in. Matching is limited to 256 KiB per element payload and 1,200 visited model nodes per batch. Unrecognized or oversized elements are retained.
+Capture is local, opt-in, in-memory, and never uploaded automatically. It does not request authentication fields or record full payloads, URLs, cookies or video titles deliberately. It extracts lowercase/digit/underscore/dot/hyphen tokens ending in `.eml`, rejects obvious URL/path/email contexts, and limits tokens to 96 characters.
 
-The existing guard against making a nonempty top-level batch empty remains. If a batch consists entirely of recognized unwanted content, the original batch may be retained rather than risk another empty-array assumption.
+**This is lexical extraction, not a schema-aware parser.** A user-authored string that happens to look like a template filename could pass these rules. Review the resulting text before sharing. Names may describe nested templates rather than a card's root renderer. A group is not reliably tied to the visible card directly above/below your scroll position; feeds can preload content.
 
-The reported missing shelf may instead be using a presentation path that never calls the currently hooked method. These counters help determine that; this build does not indiscriminately hook every collection controller.
+Limits: 256 KiB per inspected element, 128 unmatched elements per capture, 48 unique groups, and up to eight names per group. Payloads and complete model descriptions are not retained. Clearing capture or fully restarting discards its samples. Oversized elements are already skipped by the extended filter.
 
-**Not implemented in this revision:** restoring the ordinary event-free YouTube logo; hiding “Explore more topics”; removing the Shorts navigation tab; hiding every survey; comprehensive full-height-card filtering; in-video ad blocking. Do not interpret these as supported because other filters are enabled. Player-ad blocking stays paused, and native YouTube PiP stays untouched.
+If the payloads do not expose `.eml`-style names, the capture may contain no names. That is a useful limit to report, not evidence that the cards cannot be filtered.
 
-The optional promo rule recognizes selected template families such as `statement_banner` and `brand_promo`; it is not proven to match the exact “Sketching for the screen” card. It does not replace the decorated header logo.
+## Build/install
 
-## Build
-
-1. Extract `QuietTube-v0.4.zip`.
-2. Upload the contents of `QuietTube-v0.4` to your existing repository root, replacing files. Include `.github/workflows/build.yml` and the new `Sources/QTFeedRules.h` and `tests/test_feed_rules.c` files.
+1. Keep your 0.4 IPA as a rollback copy and preserve your working account data.
+2. Extract `QuietTube-v0.5.zip` and upload the **contents of QuietTube-v0.5** to your existing repository root. Replace files and include the hidden `.github/workflows/build.yml`, new `Sources/QTTemplateScan.h` and `tests/test_template_scan.c`.
 3. Run **Actions → Build QuietTube IPA**.
-4. Download artifact **QuietTube-0.4-21.38.2-IPA** and extract `QuietTube-0.4-21.38.2.ipa`.
-5. Import into LiveContainer and fully restart the guest process. Preserve working app data/your clean fallback. LiveContainer must re-sign/prepare the modified app as before.
+4. Download and extract artifact **QuietTube-0.5-21.38.2-IPA** to obtain `QuietTube-0.5-21.38.2.ipa`.
+5. Import into LiveContainer and let it re-sign/prepare the guest as before. Do not add the standalone debugging dylib on top of the package.
 
-The workflow still downloads the same hash-pinned clean base. No credentials are needed. Do not install its standalone debugging dylib on top of the packaged IPA. Check your macOS Actions allowance/billing.
+The workflow uses the same hash-pinned clean YouTube 21.38.2 IPA; no Apple/Google credentials are required. Check macOS Actions minutes/billing. The changed native source has not been compiled here; a failed compile step needs troubleshooting before an IPA is available.
 
-Existing preferences persist when the same 0.3 data container is retained. The new flags default to off. Native PiP and the tested 0.3 navigation sheet are unchanged.
+## One targeted capture
 
-## One test first
+1. Keep your working flags and **Extended feed formats** enabled.
+2. Enable **Quiet controls → Advanced → Inspect unmatched templates**.
+3. Fully restart the guest process. Confirm the footer says **0.5**.
+4. Open **Advanced → Clear template capture**. This clears only captured names/sample counts, not feature flags or ordinary session counters.
+5. Tap Done, return to Home, refresh once, then scroll until an “Explore more topics” shelf or edge-to-edge card appears. Do not keep scrolling far beyond it.
+6. Open **Advanced → View diagnostics**. Copy the new **UNMATCHED ELEMENT TEMPLATE CAPTURE** section and session counters. Identify which unwanted layout you saw during that run.
 
-1. Keep your currently working Feed ads, Shorts and Background audio settings.
-2. Enable **Extended feed formats** only. Leave the two new Playables/promo switches off initially.
-3. Fully restart. A feed refresh alone does not apply flags.
-4. Scroll Home through several loaded batches, refresh, and check search/subscriptions and normal playback.
-5. Report whether the previously visible Shorts shelf disappears, any incorrect removal of normal content, any flickering/crash, and the complete diagnostic counters.
+If both layouts appear close together, one capture is enough to start. If they appear in separate browsing sessions, clear capture before the second refresh and label the two outputs. Do not reproduce crashes unnecessarily.
 
-Then, only if stable, test Playables and promotional cards separately, restarting between changes. No Playables appearing in one session is not proof the filter worked; those shelves may not have been served.
+Capture reflects newly processed payloads, not already cached visible cards. If `unmatched elements sampled` is zero, refresh/reload the feed rather than repeatedly opening a cached card. If the 128-sample cap is reached before the target appears, clear capture and refresh nearer the test instead of collecting an enormous log.
 
-If unstable, turn Extended feed formats off and fully restart. That removes the new classifications and deeper traversal. If settings are unreachable, use the preserved 0.3 or clean app; don't delete working account data to troubleshoot.
+After sharing, switch capture off and fully restart. Normal filtering continues unchanged. If this diagnostic build is unstable, return to your saved 0.4 package; do not delete your working clean app or account data.
 
-### Useful counters
+## Not implemented yet
 
-- `match explicit Shorts field` / `match Shorts element tokens`: different recognition paths.
-- `element renderer visited`, `element payload inspected`, `element retained — no active rule matched`: distinguishes traversal from classification coverage.
-- `traversal depth limit`, `traversal node budget exhausted`, `oversize element payload skipped`: intentional bounds.
-- `presentation batch changed`: a different array was produced; it may still be reverted by the empty-batch guard.
-- `empty presentation batch prevented — kept original`: guard fired; matched content may remain visible.
-- `presentation filter exception — kept original`: filter aborted without intentionally editing the original model.
+The two requested filters (Explore more topics and edge-to-edge video cards), standard-logo restoration, and in-video ad blocking remain unresolved. No disabled or nonfunctional toggle for either new feed layout is advertised as implemented.
 
-These counts are session events, not unique cards. Nothing uploads automatically. Share diagnostic text manually.
+## Validation
 
-## Tests and attribution
+Local: eight packaging unit tests, six static source-regression checks, 14 standalone C classifier assertions and ten standalone C template-extraction assertions. They do NOT test YouTube's runtime/rendering or native Objective-C integration.
 
-Local checks: eight packaging unit tests, five source-regression checks, and 14 assertions against the compiled standalone C token classifier. None tests live YouTube rendering, native Objective-C integration or server behavior. See `VALIDATION.json`.
-
-Template families were researched from YTKACE's ContentVisibilityHooks and YouTube-X; existing MIT notices are retained and additional references are recorded in `Notices/REFERENCES.md`. Only checked-in source is compiled; no floating upstream tweak is fetched into the build. The source archive does not include YouTube's proprietary binary.
+0.5 native compilation and device testing: pending GitHub/device. Prior successful code and user tests are retained as historical evidence, not proof of this new revision. See `VALIDATION.json`, `Sources`, `tests`, and `Notices`.

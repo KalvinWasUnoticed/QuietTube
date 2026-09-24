@@ -36,3 +36,13 @@ class ExtendedFeedChecks(unittest.TestCase):
         self.assertIn('if (!QTOn(@"extendedFeed")) return NO;',features)
         self.assertIn('QTNodeBudget = 1200;',features)
         self.assertNotIn('[node description]',features)
+
+class CaptureChecks(unittest.TestCase):
+    def test_capture_is_bounded_opt_in_and_nonblocking(self):
+        core=(R/'Sources/QTCore.m').read_text()
+        self.assertIn('@"key":@"inspectElements", @"title":@"Inspect unmatched templates", @"group":@"Advanced", @"default":@NO',core)
+        self.assertIn('QTElementsInspected>=128',core)
+        self.assertIn('QTElementGroups.count>=48',core)
+        features=(R/'Sources/QTFeatures.m').read_text()
+        self.assertIn('QTObserveUnmatchedElement(data);',features)
+        self.assertNotIn('QTOn(@"inspectElements")',features)

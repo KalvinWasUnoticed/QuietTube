@@ -1,17 +1,25 @@
 #import "QTCore.h"
 #include <string.h>
+#include "QTTemplateScan.h"
 
 static NSString *const QTPrefix = @"QuietTube.v1.";
 static NSMutableDictionary *QTStatuses;
 static NSMutableDictionary *QTCounters;
 static NSMutableSet *QTInstalled;
 static NSDictionary *QTActiveFlags;
+static NSMutableArray<NSString *> *QTElementGroups;
+static NSMutableDictionary<NSString *,NSNumber *> *QTElementGroupCounts;
+static NSUInteger QTElementsInspected;
+static NSUInteger QTElementsWithoutNames;
+static NSUInteger QTGroupsDropped;
 
 NSArray<NSDictionary *> *QTOptions(void) {
     static NSArray *options;
     static dispatch_once_t once;
     dispatch_once(&once, ^{
         options = @[
+          @{ @"key":@"inspectElements", @"title":@"Inspect unmatched templates", @"group":@"Advanced", @"default":@NO,
+             @"note":@"Opt-in local capture of .eml-like names, not raw payloads. Requires Extended feed formats and restart. Review before sharing." },
           @{ @"key":@"extendedFeed", @"title":@"Extended feed formats", @"group":@"Distractions", @"default":@NO,
              @"note":@"Experimental element-template matching and deeper traversal. Off restores the earlier filter." },
           @{ @"key":@"playables", @"title":@"Hide Playables shelves", @"group":@"Distractions", @"default":@NO,
@@ -54,6 +62,8 @@ void QTRegisterDefaults(void) {
     QTStatuses = [NSMutableDictionary dictionary];
     QTCounters = [NSMutableDictionary dictionary];
     QTInstalled = [NSMutableSet set];
+    QTElementGroups = [NSMutableArray array];
+    QTElementGroupCounts = [NSMutableDictionary dictionary];
 }
 BOOL QTOn(NSString *key) {
     return [QTActiveFlags[@"enabled"] boolValue] && [QTActiveFlags[key] boolValue];
@@ -125,9 +135,37 @@ void QTBoolHook(NSString *name, NSString *selector, NSString *key, BOOL value) {
         };
     });
 }
+void QTResetElementCapture(void) {
+    @synchronized(QTElementGroups) {
+        [QTElementGroups removeAllObjects];
+        [QTElementGroupCounts removeAllObjects];
+        QTElementsInspected=0;
+        QTElementsWithoutNames=0;
+        QTGroupsDropped=0;
+    }
+}
+void QTObserveUnmatchedElement(NSData *data) {
+    if (!QTOn(@"inspectElements") || ![data isKindOfClass:NSData.class] || data.length>262144) return;
+    @synchronized(QTElementGroups) {
+        if (QTElementsInspected>=128) return;
+        QTElementsInspected++;
+        char tokens[8][97]={{0}};
+        size_t count=QTExtractTemplateNames(data.bytes,data.length,tokens,8);
+        if (!count) { QTElementsWithoutNames++; return; }
+        NSMutableArray<NSString *> *names=[NSMutableArray array];
+        for (size_t i=0;i<count;i++) [names addObject:[NSString stringWithUTF8String:tokens[i]]];
+        [names sortUsingSelector:@selector(compare:)];
+        NSString *group=[names componentsJoinedByString:@", "];
+        if (!QTElementGroupCounts[group]) {
+            if (QTElementGroups.count>=48) { QTGroupsDropped++; return; }
+            [QTElementGroups addObject:group];
+        }
+        QTElementGroupCounts[group]=@([QTElementGroupCounts[group] unsignedIntegerValue]+1);
+    }
+}
 NSString *QTDiagnostics(void) {
     NSMutableString *s = [NSMutableString stringWithFormat:
-        @"QuietTube 0.4 extended-feed experiment\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
+        @"QuietTube 0.5 template diagnostics\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
         [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"], UIDevice.currentDevice.systemVersion];
     [s appendString:@"ACTIVE THIS LAUNCH\n"];
     for (NSString *key in [[QTActiveFlags allKeys] sortedArrayUsingSelector:@selector(compare:)])
@@ -146,6 +184,16 @@ NSString *QTDiagnostics(void) {
     @synchronized(QTCounters) {
         for (NSString *k in [[QTCounters allKeys] sortedArrayUsingSelector:@selector(compare:)])
             [s appendFormat:@"%@ : %@\n", k, QTCounters[k]];
+    }
+    [s appendString:@"\nUNMATCHED ELEMENT TEMPLATE CAPTURE\n"];
+    [s appendFormat:@"capture enabled this launch: %@\n", QTOn(@"inspectElements") ? @"yes" : @"no"];
+    [s appendString:@"Lexical .eml-like names, not verified root renderers. Nested names may appear. Groups are NOT individual visible cards. Review before sharing.\n"];
+    @synchronized(QTElementGroups) {
+        [s appendFormat:@"unmatched elements sampled: %lu / 128\nelements without names: %lu\ngroup-cap drops: %lu\n",
+          (unsigned long)QTElementsInspected,(unsigned long)QTElementsWithoutNames,(unsigned long)QTGroupsDropped];
+        NSUInteger index=1;
+        for (NSString *group in QTElementGroups)
+            [s appendFormat:@"group %lu (seen %@): %@\n",(unsigned long)index++,QTElementGroupCounts[group],group];
     }
     return s;
 }

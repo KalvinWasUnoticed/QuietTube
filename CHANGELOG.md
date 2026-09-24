@@ -1,11 +1,11 @@
-# 0.4 extended-feed experiment
+# 0.5 template diagnostics
 
-Responds to 0.3 reports of visible Shorts shelves with flags active, 15 presentation calls and one filtered node. Adds an opt-in, bounded element-template classifier, limited deeper traversal, reason counters and independent Playables/promo options. No new player mutation, PiP changes or settings navigation changes. All new flags default off.
+Adds opt-in, bounded extraction of template-like .eml names from unmatched element payloads. Adds an in-app clear-capture action and separate capture section in diagnostics. No new blocking rules or hook points; the 0.4 filtering outcome is unchanged by observation. Does not yet implement removal of Explore more topics or edge-to-edge cards.
 
-# 0.3 settings update
+# 0.4 extended feed
 
-Removed redundant PiP hooks; isolated settings in a standard navigation sheet. User reports the sheet, Done, and native PiP work.
+User reports Shorts shelves removed. Diagnostics show specific matches but coverage gaps for recommendation shelves and edge-to-edge cards. No comprehensive coverage claim.
 
-# 0.2 recovery
+# 0.3 settings
 
-Removed global model-getter filtering after an empty-array crash. User reports initial success with explicit feed filtering, Shorts shelves and background audio; subsequent tests establish coverage gaps, not comprehensive removal.
+User-tested navigation sheet and native PiP. Own PiP hooks removed.

@@ -17,3 +17,6 @@ void QTBoolHook(NSString *className, NSString *selector, NSString *key, BOOL val
 void QTInstallFeatures(void);
 void QTInstallSettings(void);
 UIViewController *QTSettingsController(void);
+
+void QTObserveUnmatchedElement(NSData *data);
+void QTResetElementCapture(void);

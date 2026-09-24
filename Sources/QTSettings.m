@@ -27,13 +27,16 @@
         @{@"title":@"Advanced", @"page":@"Advanced"}
     ];
     if ([self.group isEqualToString:@"Advanced"]) self.rows = @[
+        @{@"title":@"Inspect unmatched templates", @"key":@"inspectElements",
+          @"note":@"Opt-in local capture of .eml-like names. Requires Extended feed formats and restart. Review before sharing."},
+        @{@"title":@"Clear template capture", @"action":@"clearCapture"},
         @{@"title":@"View diagnostics", @"action":@"diagnostics"},
         @{@"title":@"Disable all for next launch", @"action":@"reset"}
     ];
 }
 - (NSInteger)tableView:(UITableView *)tv numberOfRowsInSection:(NSInteger)section { return self.rows.count; }
 - (NSString *)tableView:(UITableView *)tv titleForFooterInSection:(NSInteger)section {
-    return @"0.4 · Restart the guest app to apply changes. Use YouTube’s own PiP setting. Player-ad blocking remains paused.";
+    return @"0.5 · Restart the guest app to apply changes. Use YouTube’s own PiP setting. Player-ad blocking remains paused.";
 }
 - (UITableViewCell *)tableView:(UITableView *)tv cellForRowAtIndexPath:(NSIndexPath *)index {
     NSDictionary *row = self.rows[index.row];
@@ -82,6 +85,9 @@
         text.text = QTDiagnostics();
         page.view = text;
         [self.navigationController pushViewController:page animated:YES];
+    } else if ([row[@"action"] isEqualToString:@"clearCapture"]) {
+        QTResetElementCapture();
+        self.navigationItem.prompt = @"Capture cleared — refresh Home to inspect new elements";
     } else if (row[@"action"]) {
         UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Disable all modifications?"
             message:@"This takes effect after a full guest-app restart. It will not change the running feed."

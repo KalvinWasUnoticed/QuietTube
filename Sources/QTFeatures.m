@@ -36,6 +36,7 @@ static BOOL QTDropNode(id node) {
     if ((kind & QTFeedAd) && QTOn(@"feedAds")) { QTCount(@"match ad element tokens"); return YES; }
     if ((kind & QTFeedPlayable) && QTOn(@"playables")) { QTCount(@"match Playables element tokens"); return YES; }
     if ((kind & QTFeedPromo) && QTOn(@"eventPromos")) { QTCount(@"match promo element tokens"); return YES; }
+    QTObserveUnmatchedElement(data); // observation only; never changes the filtering decision
     QTCount(@"element retained — no active rule matched");
     return NO;
 }
