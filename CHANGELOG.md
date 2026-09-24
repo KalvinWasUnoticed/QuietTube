@@ -1,3 +1,10 @@
+# 0.12 buildfix — repository overlay compatibility
+
+- Replace obsolete tests/test_experiment1.py under its existing filename with four retirement checks.
+- Reproduce upgrade by overlaying onto 0.11; all 48 Python tests pass, as on a clean copy.
+- Production Sources, build/release/packaging scripts and workflow byte-identical to original 0.12. App/release version remains 0.12.
+- Commit the fix and launch a new workflow run; do not re-run the old commit.
+
 # 0.12 — retire test 1, native no-op and insertion test 2
 
 - Rebase on working 0.10; remove failed nil-coordinator and broad model-load experiments. Old saved experiment keys ignored.

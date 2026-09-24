@@ -2,6 +2,16 @@
 
 **Source + build workflow, NOT a compiled IPA or a proven ad-blocking fix.** Two independent off-by-default experiments. Same pinned YouTube 21.38.2 base. Built from the 0.10 working baseline, not by stacking changes onto the failed 0.11 experiments.
 
+## Buildfix package — overlay upgrades
+
+Use `QuietTube-v0.12-buildfix.zip`. App version and IPA filename remain 0.12; **production source, build scripts and workflow are unchanged**. This fixes a test-file migration problem, not a playback or compiler problem.
+
+Uploading 0.12 over 0.11 can leave `tests/test_experiment1.py` in the repository. Its old assertions require code that was intentionally retired, causing 1 failure and 2 errors before compilation. The buildfix includes a replacement under the SAME filename that verifies the failed experiments stay removed. Make sure that file is overwritten and committed, then start a **new workflow run using the new commit**. Re-running the old failed run uses its old commit.
+
+Quick alternative without this package: delete the obsolete `tests/test_experiment1.py` from the repository, commit the deletion and start a new run. The original 0.12 then has 44 tests; the buildfix has 48, including four new retirement checks. Do not disable the regression step or restore the failed experiments to satisfy stale tests.
+
+Verified locally: all 48 tests pass both on a clean copy and after overlaying this package onto 0.11 without deleting leftover files. Native Apple SDK compilation still has not been performed here.
+
 ## What the 0.11 results established
 
 - Player test 1: four coordinator creations suppressed, playback failed, YouTube error code 0. Returning nil is retired. This does not prove server-side detection or identify a specific underlying cause.
@@ -51,6 +61,6 @@ Only combine after each separately succeeds. Ad delivery varies: one ad-free rep
 
 ## Validation
 
-44 Python tests (8 packaging, 6 mocked release, 30 static/source/ABI/scope checks) passed. C under ASan/UBSan: 79 classifier fixtures + 5,000 random iterations and 20 scanner fixtures + 5,000 random iterations. Existing baseline comparisons pass after accounting for explicitly marked additions/version/UI text. Shell syntax, YAML and ZIP checked.
+48 Python tests (8 packaging, 6 mocked release, 34 static/source/ABI/scope checks) passed. C under ASan/UBSan: 79 classifier fixtures + 5,000 random iterations and 20 scanner fixtures + 5,000 random iterations. Existing baseline comparisons pass after accounting for explicitly marked additions/version/UI text. Shell syntax, YAML and ZIP checked.
 
 **No Apple SDK build, actual GitHub release upload or 0.12 device test here.** Static binary ABI/call-path findings do not prove semantic safety, ad removal or undetectability. Original downloaded IPA/executable were removed after extracting the small evidence records.

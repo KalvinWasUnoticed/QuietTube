@@ -7,7 +7,7 @@
   "objc_compilation": "Not compiled here; GitHub Apple SDK build required",
   "device_test": "0.12 untested; 0.11 nil-coordinator test failed code0, model-load filtering missed cards",
   "revision": "0.12-native-noop-and-insertion-test2",
-  "static_regression_checks": "30 passed; source/ABI/scope only",
+  "static_regression_checks": "34 passed; source/ABI/scope/retirement only",
   "workflow_yaml": "parsed",
   "shell_syntax": "build.sh and release.sh passed",
   "classifier_tests": "79 fixtures + 5000 random-byte iterations passed under ASan/UBSan",
@@ -21,5 +21,8 @@
   "watch_again_evidence": "Screenshot English heading and horizontal_shelf capture; exact payload ownership/encoding not verified",
   "player_probe": "0.10 pass-through probe retained; new factory and insertion signatures parsed from pinned binary; protobuf flag requires runtime resolution",
   "player_ad_blocking": "Default-off scoped native no-op selection, unverified efficacy/stability",
-  "binary_research": "Pinned IPA SHA-256 verified; selected ARM64 method metadata/selector stubs and factory/no-op instructions inspected; inputs deleted after record extraction"
+  "binary_research": "Pinned IPA SHA-256 verified; selected ARM64 method metadata/selector stubs and factory/no-op instructions inspected; inputs deleted after record extraction",
+  "package_revision": "0.12-buildfix",
+  "upgrade_tests": "48 Python tests passed clean and after overlay onto 0.11 without deleting stale files",
+  "production_preservation": "Sources, build/release/packaging scripts and workflow verified byte-identical to original delivered 0.12 ZIP"
 }
