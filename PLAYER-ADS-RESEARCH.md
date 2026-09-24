@@ -1,3 +1,11 @@
+# Current status: 0.10 observation stage
+
+0.9.1 is user-confirmed stable with playerAds off and ads playing. 0.10 implements the read-only candidate coordinator probe proposed below, behind playerProbe (off by default). This is NOT ad blocking. Runtime method availability/signature and call activity still need device confirmation; no base-binary ABI verification was performed for this selector. See README.md, AUDIT.md and TEST-PLAN.md for current implementation and limitations.
+
+Current source re-review confirmed YouTube-X still combines response-array overrides, coordinator suppression and signal changes. Its source existence does not establish effectiveness on this account/version. Reviewed YTPlaybackFix still broadly changes client identity and request paths. Neither combination was adopted. The probe is independently implemented and returns the original coordinator.
+
+## Historical investigation, retained for rationale
+
 > Historical player-ad research. This remains a proposal; 0.6 adds no player-ad blocking. See README.md for current features.
 
 # Player-ad investigation — separate from the 0.3 UI update

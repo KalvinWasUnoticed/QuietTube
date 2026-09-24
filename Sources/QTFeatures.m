@@ -171,6 +171,9 @@ void QTInstallFeatures(void) {
     // When the master switch is off, not even diagnostic feature hooks are installed.
     if (!QTOn(@"enabled")) return;
     QTInstallPlainLogo();
+// BEGIN 0.10 PLAYER PROBE
+    QTInstallPlayerProbe();
+// END 0.10 PLAYER PROBE
     if (QTOn(@"feedAds") || QTOn(@"shorts") || (QTOn(@"extendedFeed") && (QTOn(@"playables") || QTOn(@"eventPromos") || QTOn(@"topicsShelves") || QTOn(@"edgeCards") || QTOn(@"inspectElements") || QTOn(@"mixes") || QTOn(@"watchAgain")))) {
         QTHook(@"YTInnerTubeCollectionViewController",@"addSectionsFromArray:",@"v@",^id(IMP old,SEL sel) {
             return ^(id object,NSArray *sections) {

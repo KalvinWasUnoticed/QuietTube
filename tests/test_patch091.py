@@ -8,11 +8,14 @@ class PatchScopeTests(unittest.TestCase):
         for name,expected in baseline.items():
             with self.subTest(file=name):
                 text=(R/name).read_text()
+                text=re.sub(r'// BEGIN 0\.10 PLAYER PROBE\n.*?// END 0\.10 PLAYER PROBE\n','',text,flags=re.S)
+                text=text.replace(' Sources/QTPlayerProbe.m','')
+                text=text.replace('Playback test 0 — observation only','Mix playlist destination filtering')
                 text=re.sub(r'// BEGIN 0\.9\.1 WATCH AGAIN\n.*?// END 0\.9\.1 WATCH AGAIN\n','',text,flags=re.S)
                 text=text.replace(', QTFeedWatchAgain = 1024','')
                 text=text.replace(' || QTOn(@"watchAgain")','')
                 text=text.replace(',@"watchAgain"]',']')
-                text=text.replace('0.9.1','VERSION')
+                text=text.replace('0.10','VERSION')
                 self.assertEqual(hashlib.sha256(text.encode()).hexdigest(),expected)
     def test_independent_opt_in_and_dependency(self):
         core=(R/'Sources/QTCore.m').read_text()

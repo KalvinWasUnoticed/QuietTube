@@ -1,46 +1,40 @@
-# QuietTube 0.9.1 — optional “Watch it again” shelf control
+# QuietTube 0.10 — player test 0: observation only
 
-**Source + build workflow, not a compiled IPA.** Same pinned YouTube 21.38.2 base for your LiveContainer setup. This is a small feed patch, not a player-ad-blocking experiment.
+**This source package does not block in-video ads.** It is the agreed observation stage before trying blocking solutions one at a time. The release workflow builds an IPA for the same pinned YouTube 21.38.2 base; no compiled IPA is included here.
 
-## New switch
+## What changed
 
-**You → Settings → General → Quiet controls → Distractions → Hide “Watch it again” shelves**
+New **Playback → Observe player ad coordinator** switch, off by default. It adds one signature-checked hook candidate: `YTLocalPlaybackController / createAdsPlaybackCoordinator`. With the probe enabled, it counts calls and object/nil results, calls the original exactly once, and returns the same object. Native exceptions are not swallowed; counter exceptions alone are isolated. No payloads or objects are described or stored by the probe.
 
-Off by default, independent of Shorts/Mix/topic/ad switches. Requires **Extended feed formats**. Existing saved flags are preserved; enable this new switch and fully restart the guest process.
+The selector comes from reviewed public YouTube-X source; availability/ABI are checked on device, not assumed. It has NOT been statically verified against the supplied executable for this release. An unavailable or mismatched selector is skipped. A non-nil coordinator does not prove an ad played or that suppressing it is safe. An installed hook does not prove it ran.
 
-Two matching paths:
+**Player-ad blocking — paused** remains disabled. The new switch is observation, not a hidden ad-removal mode. No player response arrays, requests, client identity, login signals, ad beacons, retries, seeks or fake ad-completion events are altered. Undetectability and zero errors are not promised. Even observation hooks add runtime overhead and require device testing.
 
-1. Exact English native shelf title “Watch it again” or “Watch again”, with outer whitespace trimmed and case normalized. This reads titles only on YTI shelf renderer classes, not arbitrary videos.
-2. For Element-based layouts: the `horizontal_shelf` marker together with an exact length-delimited string-field candidate containing “Watch it again” or “Watch again”. Merely containing those words is insufficient; `horizontal_shelf` alone, `shelf_header` alone and the generic Home/injection keys do not trigger this rule.
+## Preserved baseline
 
-The screenshot establishes the English label, and the capture includes `horizontal_shelf.eml-fe`, but it does not prove the title's payload encoding or root ownership. **The new rule is not device-verified.** Its Element fallback can match nested text in a larger horizontal shelf; turn this switch off and restart if it removes an unrelated shelf. It may miss other languages, split/indirect text or different encodings. It does not clear watch history, suppress all previously watched videos, or remove every horizontal carousel. Filtering is at the shared presentation boundary, not strictly Home-only.
+Your 0.9.1 playback-with-ads baseline is confirmed stable and feed cleanup is working by your report. All existing feed rules (including Mix RD, inline Shorts and Watch again), logo implementation, settings navigation, background audio, native PiP behavior, playback error observer and preference migration are preserved. Hash checks cover 11 prior source/build files after removing only the probe integration and normalizing version/headline. Full review is in AUDIT.md.
 
-## Working behavior preserved
+## Build and download
 
-Your 0.9 log shows the Mix RD query rule now matches, along with inline Shorts, Shorts shelf, explicit-ad and topics rules. You report that most feed problems are fixed. Counts are not unique cards and do not prove complete coverage.
+1. Extract `QuietTube-v0.10.zip`. Replace repository files with the contents of `QuietTube-v0.10`, including hidden `.github/workflows/build.yml`, the new `Sources/QTPlayerProbe.m`, and tests/baseline records.
+2. Use a private repository where possible. Run **Actions → Build QuietTube IPA → Run workflow**. Public repositories require explicit publication approval; release assets would expose the modified IPA.
+3. After success use **Summary → DOWNLOAD IPA — QuietTube 0.10**. The asset is `QuietTube-0.10-21.38.2.ipa`, not an outer artifact ZIP. GitHub's automatic source ZIP/TAR links are not the IPA. Private downloads require an authorized GitHub login.
+4. Import into LiveContainer, preserve the same data container and fully restart the guest. Keep 0.9.1 available for rollback. Do not inject the tweak again.
 
-0.9.1 preserves the default-logo fix, Mix RD destination rule, inline overlay + Shorts-icon rule, existing ad/Shorts/topic/Playables/promo controls, background audio, native PiP, autoplay controls, settings sheet/Done navigation, diagnostic capture and direct IPA downloads. No changes to Google sign-in or network/player requests. Player-ad blocking and Home hiding remain paused; no retry/seek/error-masking workaround is added.
+## Run the first test
 
-See **AUDIT.md** for the review against earlier conversation requirements and the distinctions between device reports, source preservation and untested behavior.
+Settings path: **You → Settings → General → Quiet controls → Playback**.
 
-## Build and download the actual IPA
+1. Leave existing working flags unchanged. First check 0.10 with **Observe player ad coordinator OFF**: an ad-bearing normal video should play as before. Player-ad blocking remains paused.
+2. Enable **Observe player ad coordinator**, fully stop/relaunch the guest, and verify diagnostics says `PLAYER TEST 0: observation enabled` and `playerProbe = on` under ACTIVE THIS LAUNCH. Refreshing the feed is not a process restart.
+3. Play two normal videos, preferably one where a preroll occurs and one long enough for a midroll opportunity. Watch at least five minutes beyond the ad-to-content transition. Ad delivery varies, so absence of an ad on a repeat is not evidence of blocking.
+4. If stable, briefly seek, background/lock the phone, and try native PiP. Check the feed and logo remain normal.
+5. Share the hook-status line, the three new probe counters, any `playback error … code …` lines, and a short description of what you actually saw. See TEST-PLAN.md. The existing feed-template capture is not needed for this player test; it can be turned off and the guest restarted if desired.
 
-1. Extract `QuietTube-v0.9.1.zip` and replace the files in your existing repository with the **contents** of its `QuietTube-v0.9.1` folder, including hidden `.github/workflows/build.yml`.
-2. Prefer a private repository. Open **Actions → Build QuietTube IPA → Run workflow**. Public repositories require explicit approval before downloading/publishing the modified app; only approve if authorized.
-3. After success, open the run's **Summary → DOWNLOAD IPA — QuietTube 0.9.1**. It points directly to `QuietTube-0.9.1-21.38.2.ipa` in GitHub Releases, with no outer artifact ZIP. The release page is the fallback; ignore GitHub's autogenerated source ZIP/TAR links.
-4. Import that IPA into LiveContainer. Preserve the same data container and fully stop/relaunch the guest. Do not inject the tweak a second time.
+If playback fails, stop the test. Disable the probe and fully restart; if necessary revert to 0.9.1 in the same container. Do not repeatedly retry to mask the failure. Capture the error screen/diagnostics if available. Native crashes may need a separately reviewed crash report; this probe cannot guarantee capture before a crash.
 
-Private download links require signing into GitHub with repository access. No personal GitHub token, Apple credentials, or Google credentials are requested. Built-in workflow permissions publish the release. The success link appears only after upload succeeds. Release assets remain until deleted; public release assets expose the modified IPA.
+## Validation / limitations
 
-## Focused test
+39 Python tests passed (8 packaging, 6 release mocks, 25 source/ABI/scope checks). C tests passed under ASan/UBSan: 79 classifier fixtures + 5,000 random-byte iterations and 20 scanner fixtures + 5,000 random-byte iterations. Build/release shell syntax, workflow YAML and archive integrity checked.
 
-1. Confirm the footer/diagnostics says **0.9.1**. Leave your working flags unchanged, enable the new shelf switch, then fully stop/relaunch the LiveContainer guest. No new preference migration/reset was introduced.
-2. Check that “Watch it again” disappears while normal recommendations and the top topic-selection bar remain. New counters are `match Watch again shelf title` and `match Watch again horizontal shelf candidate`. A counter is not proof of disappearance of a particular visible card; the empty-batch safeguard may retain matched content rather than crash.
-3. Confirm Mix/inline Shorts cleanup and normal logo sizing still work, then check settings Done/back, background audio and native PiP. Keep the previous IPA and the same data container for rollback.
-4. If unrelated shelves disappear, disable only the new switch and restart. If the target remains, the rule's native/payload path still needs device investigation; do not compensate by removing all horizontal shelves. The already supplied 0.9 log does not need to be resent.
-
-## Validation
-
-34 Python tests passed: 8 packaging, 6 mock-release, 20 source/ABI/patch-scope checks. New baseline hash checks cover 11 source/build/workflow files after removing only explicitly marked feature additions and normalizing the version. C under AddressSanitizer/UndefinedBehaviorSanitizer: 79 classifier fixtures + 5,000 random-byte iterations, 20 capture fixtures + 5,000 random-byte iterations. Shell syntax, YAML and archive integrity checked.
-
-**No Apple SDK build, real GitHub release upload or 0.9.1 device test was performed here.** Static preservation and C tests reduce regression risk but cannot guarantee compilation, native rendering, login or playback stability. GitHub performs the native build; the resulting release asset is `QuietTube-0.9.1-21.38.2.ipa`.
+**No Apple SDK compilation, actual GitHub release upload or 0.10 device test was performed here.** Source tests do not execute the native hook or prove unchanged ARC/runtime behavior. GitHub will compile it. Probe data will determine whether this candidate merits a separate default-off blocking experiment; no blocking solution has yet been demonstrated.

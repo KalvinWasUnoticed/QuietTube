@@ -1,3 +1,11 @@
+# 0.10 — player test 0, observation only
+
+- Add default-off Observe player ad coordinator control and one signature-checked pass-through hook.
+- Count calls and object/nil results; do not block ads or change requests/responses.
+- Preserve 0.9.1 feed/logo/background/native PiP and existing error forwarding.
+- Add baseline hashes, source checks, explicit test protocol and direct IPA release version 0.10.
+- Native build/device result pending. No ad-free or undetectable playback claim.
+
 # 0.9.1 — optional Watch it again shelf hiding
 
 - Add independent off-by-default Distractions switch, requiring Extended feed formats and restart.

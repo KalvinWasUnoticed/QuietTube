@@ -22,3 +22,6 @@ void QTObserveUnmatchedElement(NSData *data);
 void QTResetElementCapture(void);
 
 void QTInstallPlainLogo(void);
+// BEGIN 0.10 PLAYER PROBE
+void QTInstallPlayerProbe(void);
+// END 0.10 PLAYER PROBE

@@ -5,9 +5,9 @@
   "patched_command_count": 138,
   "packaging_unit_tests": "8 passed",
   "objc_compilation": "Not compiled here; GitHub Apple SDK build required",
-  "device_test": "0.9.1 untested; user reports most 0.9 feed issues fixed; Watch it again remains",
-  "revision": "0.9.1-watch-again-opt-in",
-  "static_regression_checks": "20 passed; source/ABI/patch scope only",
+  "device_test": "0.10 untested; user confirms 0.9.1 ads-enabled playback stable",
+  "revision": "0.10-player-test-0-observation-only",
+  "static_regression_checks": "25 passed; source/ABI/patch scope only",
   "workflow_yaml": "parsed",
   "shell_syntax": "build.sh and release.sh passed",
   "classifier_tests": "79 fixtures + 5000 random-byte iterations passed under ASan/UBSan",
@@ -17,6 +17,8 @@
   "logo_source": "Byte-for-byte unchanged from 0.9 and device-confirmed 0.7",
   "native_mix_endpoint": "Signature-checked at runtime; getter ownership/availability not verified from base binary",
   "mix_url_evidence": "https://github.com/MorpheApp/morphe-patches/pull/1835",
-  "patch_preservation": "11 baseline file hashes match after stripping explicit new feature additions and normalizing version",
-  "watch_again_evidence": "Screenshot English heading and horizontal_shelf capture; exact payload ownership/encoding not verified"
+  "patch_preservation": "11 immediate-baseline file hashes match after removing explicit probe integration and normalizing version/headline; historical baseline checks retained",
+  "watch_again_evidence": "Screenshot English heading and horizontal_shelf capture; exact payload ownership/encoding not verified",
+  "player_probe": "One runtime signature-checked pass-through candidate hook; no static binary ABI verification or native execution here",
+  "player_ad_blocking": "Not implemented; remains paused"
 }

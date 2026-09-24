@@ -18,6 +18,10 @@ NSArray<NSDictionary *> *QTOptions(void) {
     static dispatch_once_t once;
     dispatch_once(&once, ^{
         options = @[
+// BEGIN 0.10 PLAYER PROBE
+          @{ @"key":@"playerProbe", @"title":@"Observe player ad coordinator", @"group":@"Playback", @"default":@NO,
+             @"note":@"Test 0: counters only, NOT ad blocking. Keeps the native coordinator unchanged. Restart to enable/disable; compare with probe off." },
+// END 0.10 PLAYER PROBE
 // BEGIN 0.9.1 WATCH AGAIN
           @{ @"key":@"watchAgain", @"title":@"Hide “Watch it again” shelves", @"group":@"Distractions", @"default":@NO,
              @"note":@"English shelf-title matching, including an experimental horizontal-element fallback. Requires Extended feed formats. Does not delete watch history." },
@@ -180,8 +184,11 @@ void QTObserveUnmatchedElement(NSData *data) {
 }
 NSString *QTDiagnostics(void) {
     NSMutableString *s = [NSMutableString stringWithFormat:
-        @"QuietTube 0.9.1 Mix playlist destination filtering\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
+        @"QuietTube 0.10 Playback test 0 — observation only\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
         [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"], UIDevice.currentDevice.systemVersion];
+// BEGIN 0.10 PLAYER PROBE
+    [s appendFormat:@"PLAYER TEST 0: %@\nAd blocking is NOT implemented by this probe. Original coordinator result is preserved. Counts are not ad counts.\n\n", QTOn(@"playerProbe") ? @"observation enabled" : @"off"];
+// END 0.10 PLAYER PROBE
     [s appendString:@"ACTIVE THIS LAUNCH\n"];
     for (NSString *key in [[QTActiveFlags allKeys] sortedArrayUsingSelector:@selector(compare:)])
         [s appendFormat:@"%@ = %@\n", key, [QTActiveFlags[key] boolValue] ? @"on" : @"off"];
