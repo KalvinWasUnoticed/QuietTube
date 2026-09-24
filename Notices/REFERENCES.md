@@ -17,6 +17,6 @@ Player construction and scoped feed-insertion boundaries were also inspected in 
 
 Pinterest inspiration was requested, but its direct search page was access-blocked during preparation; no Pinterest images or layouts were obtained or reused.
 
-No upstream binary tweak is downloaded by the workflow. YTPlaybackFix was reviewed for comparison; its client rewriting/retry/network implementation is not included. No YouMod GPL implementation is included. Do not infer extra features or licensing permissions from these references.
+The workflow compiles QuietTube from source; no upstream binary tweak is downloaded. The base app is supplied by the person running the workflow, not by this repository. YTPlaybackFix was reviewed for comparison; its client rewriting/retry/network implementation is not included. No YouMod GPL implementation is included. Do not infer extra features or licensing permissions from these references.
 
 YouTube/Google and other product names belong to their respective owners. QuietTube is independent and unaffiliated. The MIT license covers the QuietTube source, not YouTube's binary, service or trademarks.

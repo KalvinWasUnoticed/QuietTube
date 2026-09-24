@@ -1,105 +1,94 @@
-# Fork. Build. Package locally. Watch.
+# Fork → provide your base → build → download IPA
 
 [← QuietTube](../README.md)
 
-**What this produces:** GitHub Actions produces `QuietTube.dylib`, not YouTube and not an installable IPA. You use that library with an authorized compatible base **on your own computer**. The finished local IPA goes into LiveContainer.
+The workflow builds in **your fork** and publishes the completed `.ipa` to **your fork's Releases**. It does not require local Xcode or local Python. The original QuietTube repository does not provide a YouTube base download.
 
 ## Before you start
 
-You need:
 - A GitHub account and a fork of [QuietTube](https://github.com/KalvinWasUnoticed/QuietTube/fork).
-- An iPhone with working SideStore and LiveContainer. The reported test environment is **iPhone 14 / iOS 26.5 / LiveContainer 3.8.0**. Other environments are not confirmed.
-- A computer with **Python 3.11+**, storage for the base app and a temporary expanded copy, and the source files from the **same commit** as your library build. Windows, macOS or Linux can run the Python packager; local Xcode is not needed when using the cloud-built library.
-- Your own **authorized, unencrypted, exactly matching YouTube 21.38.2 base IPA**. This repository does not provide it, download it, decrypt it or explain how to bypass app encryption.
+- Working SideStore and LiveContainer on your iPhone. Confirmed test setup: **iPhone 14 / iOS 26.5 / LiveContainer 3.8.0**.
+- An authorized, decrypted **YouTube 21.38.2** base IPA and a public-network **direct HTTPS download link** to that file. It must not require a login, cookie, browser confirmation or HTML download page. HTTPS redirects are allowed only to public HTTPS destinations on the standard port.
+- The necessary rights to obtain, modify and publish that app. A public fork produces public release assets. The acknowledgement is not independent legal clearance, and this flow is not a DMCA guarantee.
 
-The local packager accepts only the inspected base with this SHA256:
+The exact supported input SHA256 is:
 
 ```text
 d0f6f5c9d27f7fea8f040ae59c425b3a8222f67d891937374b21ef8937deba11
 ```
 
-**The same version number is not enough.** A differently packaged 21.38.2 IPA can fail this check. If you cannot lawfully supply this exact compatible base, stop here. Do not disable the hash, version or encryption guards to force another app through. Permissions to obtain, modify and use the app must be established separately.
+**Version number alone is not sufficient.** A different repackaging of 21.38.2 can have a different hash and will be rejected. The protection is retained to avoid silently running private hooks against a different app binary. Do not change the hash to force an unverified input through. This project supplies no base download or decryption instructions.
 
-## 1. Set up SideStore and LiveContainer
+Workflow inputs are not secrets. Do not include embedded credentials or sensitive long-lived tokens in the URL. URLs may remain in workflow/event records even though the download script masks its own logs. Files over 2 GiB, non-HTTPS/private-network destinations, incomplete downloads, HTML responses and hash mismatches are rejected. DNS checks are defense-in-depth, not a sandbox against every DNS/network attack.
 
-Already running this combination? Skip to step 2.
+## 1. Prepare SideStore and LiveContainer
 
-1. Follow SideStore's official [prerequisites](https://docs.sidestore.io/docs/installation/prerequisites) and [installation guide](https://docs.sidestore.io/docs/installation/install). Complete its device trust, Developer Mode (where applicable), VPN and refresh setup. Use official instructions rather than an old screenshot tutorial; these steps change with iOS releases.
-2. Follow the official [LiveContainer installation guide](https://livecontainer.github.io/docs/installation). For the tested standalone route, install LiveContainer through SideStore and complete its setup.
-3. Open LiveContainer once and confirm it runs. Follow SideStore's refresh requirements. Keep your Apple credentials in those tools—**QuietTube Actions does not need them**.
+Already have them working? Skip to step 2.
 
-Do not install a new SideStore/LiveContainer variant just to match these screenshots if your existing setup works. Their official documentation governs their setup and troubleshooting.
+1. Follow official SideStore [prerequisites](https://docs.sidestore.io/docs/installation/prerequisites) and [installation](https://docs.sidestore.io/docs/installation/install). Complete its device trust, Developer Mode where applicable, VPN and refresh setup.
+2. Follow [LiveContainer's installation guide](https://livecontainer.github.io/docs/installation). The tested route uses standalone LiveContainer installed through SideStore.
+3. Open LiveContainer once and confirm it runs. Keep Apple credentials in the official setup tools—QuietTube Actions never requests them.
 
-## 2. Fork and run the library build
+Their official instructions govern their setup and may change over time. Keep your working guest/data container for rollback.
 
-1. Open [QuietTube](https://github.com/KalvinWasUnoticed/QuietTube), choose **Fork → Create fork**.
-2. Open **your fork's Actions tab**. If GitHub asks, enable workflows.
-3. Choose **Build QuietTube library** in the workflow list.
-4. Select **Run workflow**, choose the branch you intend to build and confirm. Use a new run after committing updates, not a rerun of an old commit.
-5. Wait for the source-integrity check, tests and native compilation to finish.
-6. Open the run's **Summary → Download library artifact (ZIP)**, or its **Artifacts** section. Download `QuietTube-1.0.0-library`.
+## 2. Fork and build
 
-You may need to sign into GitHub to download artifacts. They expire after seven days; start another build if necessary. The workflow uses read-only repository contents permission and does not create GitHub Releases. It uploads only the QuietTube library, integrity information and licenses—not arbitrary contents of the build directory.
+1. On [QuietTube](https://github.com/KalvinWasUnoticed/QuietTube), choose **Fork → Create fork**.
+2. Open **your fork → Actions**. Enable workflows if GitHub prompts you.
+3. Select **Build QuietTube IPA**, then **Run workflow** on your intended branch.
+4. Paste the direct HTTPS file link into **base_ipa_url**.
+5. Read and check **acknowledge_rights** only if you have the necessary rights and understand the publication visibility.
+6. Click **Run workflow**. The build job is skipped outside a fork or without the acknowledgement. No IPA is produced in that case.
 
-## 3. Match the source and library
+The job verifies release-source consistency and regression tests, downloads/verifies your base, compiles QuietTube with the Apple SDK, packages the IPA and publishes to the repository that ran it. It uses GitHub's supplied token; no personal access token or Apple account is needed. Organization restrictions can still prohibit workflow write permissions or release creation.
 
-1. From the workflow run, open its **source commit**. Download the repository ZIP for that commit and extract it on your computer. Do not pair a newer source checkout with an older library.
-2. Extract the library artifact separately. Locate:
-   ```text
-   artifacts/QuietTube.dylib
-   artifacts/BUILD-INFO.json
-   artifacts/SHA256SUMS
-   ```
-3. Copy these three files into the source folder's `artifacts/` directory, creating it if needed.
-4. In a terminal opened at the source folder, run:
-   ```sh
-   python3 scripts/verify_release.py
-   python3 -c "import hashlib,json,pathlib; p=pathlib.Path('artifacts'); i=json.loads((p/'BUILD-INFO.json').read_text()); assert hashlib.sha256((p/'QuietTube.dylib').read_bytes()).hexdigest()==i['library_sha256']; print(i)"
-   ```
-   On Windows, use `py -3` instead of `python3` if that is how Python is installed.
+A fresh run checks out its source commit. After changing files, start a **new run**, not a rerun tied to an old commit.
 
-Check that the printed version and `source_commit` match the run you downloaded. Hashes catch accidental mismatches; they are not proof that a third-party fork is trustworthy. Build source you trust.
+## 3. Download your IPA
 
-## 4. Package with your own base — locally only
+1. Open the successful run's **Summary → DOWNLOAD IPA — QuietTube 1.0.0**.
+2. Alternatively open **your fork → Releases**, then the release named **QuietTube 1.0.0 — build …**.
+3. Download **QuietTube-1.0.0-21.38.2.ipa**. This is the actual IPA, not an artifact ZIP.
+4. The same release contains **BUILD-INFO.json** (source repository, commit, run and output SHA256) and **SHA256SUMS**. Check these if identifying or verifying a download. The Summary also shows the hash.
 
-Keep the base IPA outside the repository. From the source directory:
+The tag includes the run ID and attempt, so an older release is not silently overwritten. The publisher uploads as a draft, then publishes only after upload succeeds. Failed publication can leave a draft requiring cleanup, but the workflow does not write a success link. All generated releases are marked **prerelease** because successful packaging is not device testing of that particular artifact.
+
+For a private repository with access, sign in to GitHub before downloading. An ordinary fork of a public repository is generally public: do not assume that Actions inputs or release assets are private. The checked-out repository credentials are not persisted, and the release token is passed only to the publishing step. Temporary runner files are removed after the job; published assets remain until deleted by the fork owner.
+
+## 4. Import and enable
+
+1. Save the IPA to Files on your iPhone.
+2. Open LiveContainer, tap **+**, and select the IPA. Let LiveContainer sign/prepare the guest. Do not inject QuietTube a second time.
+3. When updating, preserve the guest's existing data/container and your known-working backup. Do not delete account data to troubleshoot a version mismatch.
+4. Fully stop the guest, then launch the intended updated copy.
+5. Open **You → Settings → General → Quiet controls**. The footer should show **1.0.0**.
+6. New users can preview and Apply **Ads & essentials** or **Focused feed**. Existing preferences are preserved on upgrade; no preset is silently applied.
+7. Fully restart the guest after changing settings. Refreshing Home is not a restart.
+
+Use YouTube's native PiP setting. QuietTube has a separate Background audio option; presets intentionally leave it and the next-video preference alone.
+
+## Troubleshooting
+
+| Symptom | What to check |
+| --- | --- |
+| Build job skipped | Run in your fork and enable the acknowledgement if you have the necessary rights. The upstream repository cannot run this publishing job. |
+| No Run workflow button | You are in your fork, Actions is enabled, and the selected branch has the current workflow. |
+| Mixed source error | Replace the entire release tree, including hidden `.github` and the manifest; remove listed obsolete files. Do not regenerate hashes to hide old code. |
+| Download rejected | Direct public HTTPS file, no login, exact input SHA256, size/time limits. The error intentionally avoids echoing your URL. |
+| Hash/encryption/version error | Wrong or incompatible input. The repository does not provide a replacement; do not bypass validation. |
+| Compile failure | Report the compiler error and source commit, not account details or your private download URL. |
+| Publish permission failure | Check repository/organization Actions permissions. The build job requests `contents: write`. Inspect Releases for an incomplete draft before starting a new run. |
+| Old UI or footer | Check the run/commit, downloaded IPA and selected LiveContainer guest; fully stop/relaunch. |
+| Playback/feed regression | Review the short support report, restart and restore your known-working build if necessary. |
+
+To pause QuietTube without clearing preferences, turn off **Enable QuietTube** and restart. [Settings and limits →](SETTINGS.md)
+
+## Optional offline packaging
+
+Advanced users can still compile on macOS with `bash scripts/build.sh`, or use their own matching compiled library. Python 3.11+ can package without uploading the base:
 
 ```sh
-python3 scripts/package.py "/absolute/path/to/your-authorized-base.ipa" "artifacts/QuietTube.dylib" "artifacts/QuietTube-1.0.0-local.ipa"
+python3 scripts/package.py "/path/to/authorized-base.ipa" "artifacts/QuietTube.dylib" "artifacts/QuietTube-1.0.0-local.ipa"
 ```
 
-Windows example (adjust paths):
-
-```powershell
-py -3 scripts/package.py "C:\Users\You\Downloads\your-authorized-base.ipa" "artifacts\QuietTube.dylib" "artifacts\QuietTube-1.0.0-local.ipa"
-```
-
-The tool checks the exact input hash, app ID/version, ARM64 Mach-O structure, encryption state and injection space; it rejects duplicate injection. It removes invalidated signatures and app extensions and adds QuietTube to the guest. LiveContainer must sign/prepare the result. Packaging success is not a runtime test.
-
-**Do not commit or upload the base, output IPA, credentials or signing files.** The `.gitignore` is a guardrail, not a permission grant or a substitute for checking your uploads. There is no cloud packaging step in this release.
-
-## 5. Import and enable
-
-1. Transfer `QuietTube-1.0.0-local.ipa` to your iPhone.
-2. In LiveContainer, tap **+** and select the local IPA. Let LiveContainer prepare it. **Do not separately inject the library a second time.**
-3. For an upgrade, preserve the existing guest data/container and your working backup. Do not delete account data to fix a version mismatch.
-4. Fully stop the guest before opening the updated one. Make sure you selected the intended guest if multiple copies exist.
-5. Open **You → Settings → General → Quiet controls**. Its footer should read **1.0.0**.
-6. New users: open **Presets**, review **Ads & essentials** or **Focused feed**, then tap **Apply**. Existing users can retain their preferences; nothing is automatically reset or enabled.
-7. Fully stop and relaunch the guest to apply changes. Refreshing Home is not a full restart.
-
-Use YouTube's own **Picture in Picture** setting. Background audio has its own QuietTube option. The presets intentionally do not change your background-audio or next-video preferences.
-
-## If something fails
-
-| Symptom | Check |
-| --- | --- |
-| No Run workflow button | You are in your fork, Actions is enabled and the selected branch contains `.github/workflows/build.yml`. |
-| Mixed/incomplete source error | Replace the entire release tree, including hidden `.github` and the manifest. Remove the listed obsolete files. Do not regenerate hashes to conceal a mismatch. |
-| Native build failure | Open the failed step and report the compiler error with the source commit. No app log is needed. |
-| Download is a ZIP, not an IPA | Expected: this is the library artifact. Follow local packaging, not direct import. |
-| Base hash/encryption/version error | The supplied app is not the exact supported input. Do not bypass the guard. No base download is provided by this project. |
-| Old settings/footer after an update | Check the source commit, library artifact, local output IPA and selected LiveContainer guest; fully stop/relaunch it. |
-| Playback error or feed regression | Keep the short support report, restart, and restore your known-working local build if needed. |
-
-To pause QuietTube without erasing preferences: turn off **Enable QuietTube** and restart. For a problem report, use **Advanced → Troubleshooting → View support report** and review it before sharing. [Settings and limitations →](SETTINGS.md)
+Windows users can run the Python packaging step with `py -3` and a matching compiled library. It has the same strict input checks. The cloud flow above is the primary supported tutorial; it does not need these local tools.

@@ -1,10 +1,10 @@
 {
   "release": "1.0.0",
   "sha256": {
-    ".github/workflows/build.yml": "41fecbee14fd4410b46413a09d732aa275e1ee46bffb297cfa62d7aeb30d2a4c",
+    ".github/workflows/build.yml": "fa1c302f6bd2033a6589acefae4fe500088a9d0e433bfafd712c24d5203c1222",
     ".github/workflows/checks.yml": "0da92ffae10d81efd36c2236a1170d77d286837266d282c7404d546df9a1fc29",
     "LICENSE": "9c8443bd28820bbf01e931c7f01662c6b90f0e9dd685bb0e9b0f5b1f338b6d30",
-    "Notices/REFERENCES.md": "44858c5077037c469941d881a348294afb012eb650ad9416a21f3a26cb00278a",
+    "Notices/REFERENCES.md": "a0659dd56dfd3da692a9dd2264bde7b995a28fa3a146003151d90c5fa836de32",
     "Notices/YTKACE-MIT.txt": "0af489e1c9ce6d6596272d0a2401d86d655399d9190ddaa842bc686d06278639",
     "Notices/YouPiP-LICENSE.txt": "19dac7dce4d517e7b00da8c020eac25d50427f019b3127523dd5f53847c2921f",
     "Notices/YouTube-X-MIT.txt": "6ba21263101a4593d986fd042ff6653cec9f674131bd1158eff3bc8213da7a59",
@@ -24,17 +24,19 @@
     "Sources/QTTemplateScan.h": "17f2e85a74b9d0dcef43a6d1005ed198ff82ff8d81e862bb34a7aedb7b880d4e",
     "VERSION": "59854984853104df5c353e2f681a15fc7924742f9a2e468c29af248dce45ce03",
     "scripts/build.sh": "ebeab22b98b62d3fc5db21b38238fd961ada498c5f0539b5c808a2352ebc3acf",
-    "scripts/build_info.py": "ba3f3a7646982e0e9bddfdaed7a16b6963cbdd1fb066348dc1385c49676617b5",
     "scripts/check.sh": "1a0b5e5f6cfd34d6a390e1a5f674c5153547f6ba75cdc653772d290dac741f96",
+    "scripts/download_base.py": "85001977dbdf9d5c88ae1953d2f2f93bd7dde412ead6902013fde4c7e6df94fb",
     "scripts/package.py": "adc9a3a728388aa0d140cc81759e44af9a84cf691d68aeafda70c2eddd0203bf",
-    "scripts/verify_release.py": "d4f68ce4fec4189489c5fa56f1380de50807c692a1249d0cb2c7f1561ec23226",
+    "scripts/publish.py": "2ab48495667a83bf105a8df2f7f91a437dba16f9b634246233cbc59000cd3441",
+    "scripts/verify_release.py": "dc7b1d6d58f43aed50b5fa3daebfb90667187f5c964d1425fc041de94660aa2f",
     "tests/fixtures/native-abi.json": "2d5f36b056d732a5dbb4d056393024f2ca79a02d8dbb725ccfa274e1e2230744",
     "tests/fixtures/preservation.json": "c2ea3cfe97926ef304d97e930e464cc0786802123ba4c230c7c0b5f4c0471949",
     "tests/test_ad_state.c": "9dc68068d4d9a40e11e9dbbfc482cb8306bc5d5eb9ab739e2943d83420d8898a",
-    "tests/test_distribution.py": "60549fd83d97f007e7fb7b4682f06935120d2a47dcc057a7404430af66a6dc77",
+    "tests/test_distribution.py": "a2f43918fdb2e4246a7d0b489dc536c7962ad50934669e9810548c1e1ca8254c",
     "tests/test_feed_features.py": "d3d29d321c1e00ff29fe66ed4984efb8075282816ac10b8a3db37d48eebfd3de",
     "tests/test_feed_insertion.py": "7e214b50578ec349acd529c37e5054fe76095987aaafe091b78331291862147c",
     "tests/test_feed_rules.c": "2384b09cd21fb9319e480d8962e5a5b74a90bf52006943ec4399469f01cf90da",
+    "tests/test_fork_pipeline.py": "5df5b964ce2bf787835cba187584201f3395c3d6165322471b3bd2d5a788576f",
     "tests/test_insertion_policy.c": "bbb0890f007fc49447606269a6cb1ce676b1dc354c09bd68c0a63b12e6ec5369",
     "tests/test_package.py": "0469064b34b757dc75cf6f9fe3d595b9756343f595053adfdcaad20ab9074fa9",
     "tests/test_player.py": "58462cd09456abc42fcd2278b9bd873da02a4996281c4bcbb5cfd165a9719385",
@@ -75,6 +77,7 @@
     "tests/test_release_manifest.py",
     "tests/test_release_ui.py",
     "tests/test_revision.py",
-    "tests/test_test2.py"
+    "tests/test_test2.py",
+    "scripts/build_info.py"
   ]
 }

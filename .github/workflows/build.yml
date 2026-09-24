@@ -1,50 +1,63 @@
-name: Build QuietTube library
-run-name: QuietTube 1.0.0 — library only
+name: Build QuietTube IPA
+run-name: QuietTube 1.0.0 — user-provided base
 on:
   workflow_dispatch:
+    inputs:
+      base_ipa_url:
+        description: 'Direct HTTPS URL to your authorized decrypted YouTube 21.38.2 IPA. Exact supported SHA256 required; see docs/INSTALL.md.'
+        type: string
+        required: true
+      acknowledge_rights:
+        description: 'I have the necessary rights to use, modify and publish this app. I understand the output is public if my fork is public.'
+        type: boolean
+        required: true
+        default: false
 permissions:
   contents: read
 jobs:
   build:
-    name: Test and build library (no YouTube app)
+    name: Build and release in your fork
+    if: github.event.repository.fork == true && inputs.acknowledge_rights == true
     runs-on: macos-15
-    timeout-minutes: 20
+    timeout-minutes: 25
+    permissions:
+      contents: write
+    env:
+      IPA_PATH: artifacts/QuietTube-1.0.0-21.38.2.ipa
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.12'
-      - name: Verify release files and run regression tests
+      - name: Verify sources and run regression tests
         run: bash scripts/check.sh
-      - name: Compile QuietTube only
-        run: bash scripts/build.sh
-      - name: Record library integrity and build identity
-        run: python scripts/build_info.py
-      - name: Upload library (not an IPA)
-        id: library
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: QuietTube-1.0.0-library
-          path: |
-            artifacts/QuietTube.dylib
-            artifacts/BUILD-INFO.json
-            artifacts/SHA256SUMS
-            LICENSE
-            Notices/*.txt
-            Notices/REFERENCES.md
-          if-no-files-found: error
-          retention-days: 7
-      - name: Show download and next steps
+      - name: Download and validate user-provided base
+        timeout-minutes: 7
         env:
-          ARTIFACT_URL: ${{ steps.library.outputs.artifact-url }}
+          BASE_IPA_URL: ${{ inputs.base_ipa_url }}
+        run: python scripts/download_base.py
+      - name: Compile the native tweak
+        run: bash scripts/build.sh
+      - name: Package and verify the exact output
         run: |
-          {
-            echo '# QuietTube library ready'
-            echo "[Download library artifact (ZIP)]($ARTIFACT_URL)"
-            echo ''
-            echo 'This contains QuietTube only, NOT an installable IPA or the YouTube app.'
-            echo 'Extract artifacts/QuietTube.dylib. Keep BUILD-INFO.json and SHA256SUMS for verification.'
-            echo 'Follow docs/INSTALL.md in this same source commit for local packaging with your own authorized compatible base.'
-            echo "Source commit: $GITHUB_SHA"
-            echo 'Artifacts expire after seven days. GitHub sign-in and repository access may be required.'
-          } >> "$GITHUB_STEP_SUMMARY"
+          python scripts/package.py "$RUNNER_TEMP/QuietTube-base.ipa" artifacts/QuietTube.dylib "$IPA_PATH"
+          test -s "$IPA_PATH" || { echo '::error::Expected IPA output missing'; exit 1; }
+          ls -lh "$IPA_PATH"
+      - name: Publish IPA to this fork and show download link
+        env:
+          GH_TOKEN: ${{ github.token }}
+          IS_FORK: ${{ github.event.repository.fork }}
+          ACKNOWLEDGE_RIGHTS: ${{ inputs.acknowledge_rights }}
+        run: python scripts/publish.py
+      - name: Remove downloaded base and temporary outputs
+        if: always()
+        run: |
+          rm -f "$RUNNER_TEMP/QuietTube-base.ipa"
+          rm -rf artifacts
+      - name: Explain failure
+        if: failure()
+        run: |
+          echo '## Build/publication failed — no successful download is confirmed' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Open the failed step. If publication failed, check Releases for an incomplete draft before rebuilding. Do not use an older IPA by mistake.' >> "$GITHUB_STEP_SUMMARY"

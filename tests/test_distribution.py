@@ -4,26 +4,23 @@ import json, re, sys, tempfile, unittest
 R=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(R/'scripts'))
 import verify_release
-import build_info
 
 class DistributionTests(unittest.TestCase):
- def test_manual_library_only_workflow(self):
+ def test_manual_fork_build_and_acknowledgement(self):
   s=(R/'.github/workflows/build.yml').read_text()
   self.assertIn('workflow_dispatch:',s)
-  self.assertIn('contents: read',s)
-  self.assertIn('bash scripts/build.sh',s)
-  self.assertIn('artifacts/QuietTube.dylib',s)
-  self.assertNotIn('contents: write',s)
-  for forbidden in ['curl ', 'wget ', 'python scripts/package.py','gh release','allow_public_release','IPA_PATH','pull_request_target']:
-   self.assertNotIn(forbidden,s)
- def test_artifact_is_allowlisted_not_directory(self):
+  self.assertIn('github.event.repository.fork == true && inputs.acknowledge_rights == true',s)
+  self.assertIn('contents: write',s)
+  self.assertIn('persist-credentials: false',s)
+  self.assertIn('BASE_IPA_URL: ${{ inputs.base_ipa_url }}',s)
+  self.assertNotIn('${{ inputs.base_ipa_url }}',s.split('run: python scripts/download_base.py')[1])
+ def test_exact_packaging_handoff_and_no_artifact_upload(self):
   s=(R/'.github/workflows/build.yml').read_text()
-  self.assertIn('artifacts/BUILD-INFO.json',s)
-  self.assertIn('artifacts/SHA256SUMS',s)
-  self.assertNotIn('artifacts/*',s)
-  self.assertNotIn('path: artifacts',s)
-  self.assertIn('retention-days: 7',s)
-  self.assertIn('artifact-url',s)
+  self.assertIn('artifacts/QuietTube.dylib "$IPA_PATH"',s)
+  self.assertIn('test -s "$IPA_PATH"',s)
+  self.assertIn('python scripts/publish.py',s)
+  self.assertNotIn('actions/upload-artifact',s)
+  self.assertIn('if: always()',s)
  def test_actions_are_commit_pinned(self):
   for file in (R/'.github/workflows').glob('*.yml'):
    for ref in re.findall(r'uses:\s*(\S+)',file.read_text()):
@@ -49,10 +46,6 @@ class DistributionTests(unittest.TestCase):
    root=Path(t);(root/'obsolete').write_text('')
    record={'release':'test','sha256':{},'forbidden_legacy_files':['obsolete']}
    self.assertIn('obsolete file',verify_release.verify(root,record)[0])
- def test_build_info_rejects_nonlibrary(self):
-  with tempfile.TemporaryDirectory() as t:
-   p=Path(t)/'lib';p.write_bytes(b'not Mach-O')
-   with self.assertRaises(ValueError):build_info.describe(p,'1.0.0','commit')
  def test_local_document_links_exist(self):
   for p in [R/'README.md',R/'CONTRIBUTING.md',*(R/'docs').glob('*.md')]:
    refs=re.findall(r'\]\(([^)]+)\)',p.read_text())+re.findall(r'(?:src|href)="([^"]+)"',p.read_text())
@@ -68,14 +61,3 @@ class DistributionTests(unittest.TestCase):
   self.assertIn(v,(R/'scripts/package.py').read_text())
   self.assertNotIn('0.14.0-rc1',(R/'Sources/QTSettings.m').read_text())
 
- def test_build_info_describes_library_without_an_app(self):
-  import struct
-  from test_package import fixture
-  with tempfile.TemporaryDirectory() as t:
-   p=Path(t)/'QuietTube.dylib'
-   data=bytearray(fixture()); struct.pack_into('<I',data,12,6); p.write_bytes(data)
-   info=build_info.describe(p,'1.0.0','source-commit')
-   self.assertEqual(info['source_commit'],'source-commit')
-   self.assertEqual(info['quiettube'],'1.0.0')
-   self.assertEqual(info['architecture'],'arm64')
-   self.assertEqual(len(info['library_sha256']),64)

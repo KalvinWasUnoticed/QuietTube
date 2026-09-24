@@ -28,7 +28,7 @@ def main():
         print('::error::Incomplete or mixed QuietTube release. Restore the matching files; do not regenerate hashes just to silence this check.', file=sys.stderr)
         print('\n'.join(errors), file=sys.stderr)
         return 1
-    print(f'QuietTube {manifest["release"]}: verified {len(manifest["sha256"])} build/source files. Library-only distribution.')
+    print(f'QuietTube {manifest["release"]}: verified {len(manifest["sha256"])} build/source files. User-provided base workflow.')
     return 0
 
 if __name__ == '__main__': raise SystemExit(main())

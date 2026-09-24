@@ -6,6 +6,8 @@ Detailed feed/template capture is optional. Everyday presets turn it off; upgrad
 
 Event rings and template capture are in memory and reset when the guest restarts. Preferences persist in the guest defaults. Clear template capture clears that capture, not all counters or preferences. Copied reports/screenshots persist wherever you share them.
 
-The public build workflow uses GitHub to build the QuietTube library only. It receives no base app, Apple credentials or signing certificate from you. Local packaging runs on your own computer and does not upload its input or output.
+The manual build workflow downloads the IPA URL you provide on GitHub's runner, checks the input and builds an output IPA. It deletes its temporary base/output files after the job. Successful output is published to Releases in your fork; it is publicly downloadable if the fork is public. Deleting runner files does not remove release assets, workflow metadata, logs, previous runs or history.
+
+The URL is a workflow input, **not a GitHub secret**. It may be retained in GitHub's event/workflow records. The downloader masks its own log output and does not echo URL-bearing exceptions, but that is not a secrecy guarantee. Do not include passwords, personal information or long-lived private tokens. No Apple credentials/signing certificate are requested by this workflow. A rights/publication acknowledgement is required.
 
 Never attach app binaries, tokens, cookies, passwords or unreviewed full captures to issues. If sensitive material has been exposed, remove it, revoke affected secrets where applicable and use GitHub's documented removal/reporting process rather than reposting it.

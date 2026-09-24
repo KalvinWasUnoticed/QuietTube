@@ -1,51 +1,34 @@
-# Publishing and maintaining the public repository
+# Publishing and maintenance
 
-## Scope and legal limits
+## Distribution policy
 
-This tree is source-first. Its manual workflow builds only QuietTube and uploads only the library, build identity/hashes and license notices. It neither obtains YouTube nor creates/releases an IPA. The local packager has no downloader and requires a user-supplied, authorized exact base.
+The repository supplies QuietTube source, not a YouTube base app link. Users fork it and manually provide an authorized decrypted 21.38.2 direct HTTPS IPA link. The workflow downloads that input, checks the exact pinned hash, compiles/packages and releases the output **in the invoking fork**, never the upstream repository. It requires explicit rights/publication acknowledgement. Public forks create publicly downloadable releases.
 
-These measures reduce obvious redistribution exposure; **they cannot ensure that no claim or takedown will occur**. Source code, functionality, links, circumvention allegations, trademarks and service terms can raise separate issues. Disclaimers and an MIT license do not settle those questions. Obtain qualified legal advice before making legal assurances or distributing material whose rights are uncertain. See GitHub's [DMCA policy](https://docs.github.com/en/site-policy/content-removal-policies/dmca-takedown-policy).
+This arrangement is **not a DMCA guarantee or legal clearance**. User-supplied input and fork-based publication do not establish permission to obtain, modify or distribute an app. Source functionality, circumvention allegations, trademarks, service terms and links may raise separate issues. Consult a qualified professional rather than making legal assurances. See [GitHub's DMCA policy](https://docs.github.com/en/site-policy/content-removal-policies/dmca-takedown-policy).
 
-## Replace the old tree cleanly
+## Replace the tree, not isolated workflow files
 
-Back up your work. Replace the old tracked repository contents with this package at the repository root, including `.github`. Keep the repository itself and your local `.git` directory. Do not merge in obsolete source stubs or old publishing workflows.
+Back up work. Replace the old tracked contents with this complete package at the repository root, including hidden `.github`. Preserve the repository and local `.git` directory. The manifest rejects mixed sources and known obsolete files. It is a consistency guard, not an authenticity signature.
 
-The release guard checks current build/source files and rejects known retired files. Confirm that Actions lists **Build QuietTube library** and **Source checks**, not the old IPA publication workflow. Fork users enable Actions and manually run the library build themselves. Automatic source CI does not build/package an app.
+Actions should list **Build QuietTube IPA** and **Source checks**. Source checks never download or publish apps; the IPA workflow is manual and fork/acknowledgement gated. Do not grant a personal token or store Apple credentials for it.
 
-## Clean existing GitHub content separately
+## Existing remote content is separate
 
-Replacing HEAD does not clean prior publications or history. Before promotion:
+Replacing HEAD does not remove earlier content. Review old IPA release assets, artifacts, Actions runs/logs, tags, branches, wiki/issues and historic hosted-base links. Delete material you lack rights to distribute and remove obsolete links. A deletion commit leaves history accessible. If necessary, coordinate a history rewrite or clean-history repository with appropriate advice, backups and collaborators. Force pushes cannot erase third-party clones, forks or every cache. Revoke any exposed credentials.
 
-- [ ] Review and remove old YouTube-containing IPA **release assets**, if any. Check all releases, not only the latest tag. Do not upload a replacement public IPA.
-- [ ] Review old **Actions artifacts, runs/logs, tags and release descriptions** for bundled apps or hosted-base links. Remove obsolete distribution links. Removing a tracked file does not remove an artifact.
-- [ ] Review **Git history**, other branches, wiki/issues/discussions and attached files for old hosted-base links, proprietary binaries or secrets. Choose with appropriate advice whether a clean-history source repository or a coordinated history rewrite is required. A normal deletion commit leaves older content accessible.
-- [ ] If rewriting history, back up first, coordinate with collaborators and follow GitHub's guidance. Force pushes do not erase third-party clones, forks, caches or every external copy. Do not promise complete removal.
-- [ ] Revoke exposed credentials if any; none are needed by the new workflow. Use GitHub support/removal processes where relevant.
-- [ ] Retain LICENSE and required Notices; don't remove attribution as “unused files.”
+No GitHub repository, release, artifact or history was modified during preparation of this package. The owner must review and perform remote cleanup. Keep LICENSE and required attribution; they are not disposable residue.
 
-No remote repository, release, artifact or Git history was modified during preparation of this package. Those actions need the owner's review and access.
+## Validate before promoting
 
-## Final acceptance before announcing 1.0.0
+- Run the source-integrity check, Python suite, four C sanitizer suites and shell checks.
+- Run the new workflow in an authorized fork with the actual pinned base and acknowledgement. A skipped job is not a successful build.
+- Confirm native compilation, packaging, upload and publication in that fork. Check the direct link, release source commit and IPA SHA256. If upload/publication fails, inspect any draft release; start a new run after correcting files.
+- Install that exact IPA locally in LiveContainer, preserving data/rollback. Confirm the 1.0.0 footer, sign-in, player/feed behavior, native PiP/background, settings/presets, restart status, light/dark and large text.
+- Only then announce a tested release. The automated per-run releases remain prereleases; source packaging alone is not a stable-device verdict.
+- Never advertise “DMCA-proof,” “undetectable,” “all ads blocked” or official affiliation.
 
-- [ ] Source checks pass and the manifest matches the intended complete commit.
-- [ ] A manual library build succeeds using the new pinned-action workflow; download its artifact and check build identity/hash.
-- [ ] Locally package the authorized pinned base and test the exact final artifact. Confirm the 1.0.0 footer and unchanged preferences.
-- [ ] Confirm player/feed behavior, sign-in, native PiP/background, preset preview/cancel/Apply, rapid toggles and restart status. Check light/dark and large text. Do not infer this from source hashes alone.
-- [ ] Set repository About text and Issues support policy. Suggested description: “A quieter native YouTube experience for LiveContainer. Open-source customization; library-only builds.”
-- [ ] Tag the reviewed commit `v1.0.0` and publish **source release notes only** if desired. GitHub's source archives are sufficient; do not attach a bundled app.
-- [ ] State the exact tested environment and limits. Do not claim “DMCA-proof,” “undetectable,” “every ad blocked” or official affiliation.
+## Files retained
 
-## Why these files remain
+Sources are the active implementation; scripts handle verification/tests/build/download/packaging/publication; tests/fixtures protect ABI/runtime and distribution behavior; `.github` holds workflows/issues; docs/assets support the README/tutorial; LICENSE/Notices retain attribution. VERSION and the manifest identify the complete source release. Every retained category has an active purpose.
 
-| Location | Purpose |
-| --- | --- |
-| Sources | Active implementation and headers, all consumed by the build |
-| scripts | Verification, checks, library build/provenance and offline local packaging |
-| tests + fixtures | Active behavior/ABI/packaging guards and frozen runtime comparisons |
-| .github | Library build, source CI and issue template |
-| docs + assets | Referenced installation/settings/privacy/maintenance guides and README graphics |
-| Notices + LICENSE | Attribution and license obligations |
-| VERSION + release-manifest.json | Build identity and mixed-upload protection |
-| README / CHANGELOG / CONTRIBUTING | User-facing entry point, release notes and maintenance rules |
-
-Removed from the public tree: retired player stubs, old public-IPA release script/tests, superseded ABI/baseline files, development history docs, unused companion/feature-hook research, insertion disassembly dumps and RC patch instructions. Necessary active metadata/preservation checks are consolidated into two test fixtures. No hidden runtime rewrite accompanied this cleanup.
+Retired stubs, development diaries, raw disassembly, obsolete baselines/tests and the old shell IPA publisher are removed. Current active metadata is consolidated in two fixtures. Do not restore built-in base-app URLs or silently loosen the exact-input checks.
