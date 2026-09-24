@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <string.h>
 
-enum { QTFeedShorts = 1, QTFeedAd = 2, QTFeedPlayable = 4, QTFeedPromo = 8, QTFeedTopics = 16, QTFeedEdgeVideo = 32 };
+enum { QTFeedShorts = 1, QTFeedAd = 2, QTFeedPlayable = 4, QTFeedPromo = 8, QTFeedTopics = 16, QTFeedEdgeVideo = 32, QTFeedDisplayAd = 64 };
 /* Bounded, case-sensitive template-token heuristics, NOT a protobuf decoder.
  * Never match generic words such as "shorts", "game", "featured" or "ad". */
 static int QTTokenChar(unsigned char c) {
@@ -30,7 +30,15 @@ static unsigned QTClassifyElementBytes(const unsigned char *bytes, size_t length
         {"feed_ad_metadata", QTFeedAd}, {"text_search_ad", QTFeedAd},
         {"playables_shelf", QTFeedPlayable}, {"playable_card", QTFeedPlayable},
         {"horizontal_gaming_shelf", QTFeedPlayable}, {"mini_game_card", QTFeedPlayable},
-        {"statement_banner", QTFeedPromo}, {"brand_promo", QTFeedPromo}
+        {"statement_banner", QTFeedPromo}, {"brand_promo", QTFeedPromo},
+        /* Display-ad candidates seen in public iOS filter references. Kept behind
+         * a separate switch because matching a nested template is not proof. */
+        {"text_image_button_layout", QTFeedDisplayAd},
+        {"square_image_layout", QTFeedDisplayAd},
+        {"carousel_footered_layout", QTFeedDisplayAd},
+        {"product_carousel", QTFeedDisplayAd},
+        {"carousel_headered_layout", QTFeedDisplayAd},
+        {"landscape_image_wide_button_layout", QTFeedDisplayAd}
     };
     unsigned result = 0;
     for (size_t i=0; i<sizeof(rules)/sizeof(rules[0]); i++)

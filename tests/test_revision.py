@@ -92,7 +92,23 @@ class V06AuditChecks(unittest.TestCase):
         signatures={m['name']:re.sub(r'\d+','',m['types']).replace('@:','',1) for m in record['methods']}
         source=(R/'Sources/QTLogo.m').read_text()
         hooks=re.findall(r'QTHook\(@"YTHeaderLogoControllerImpl",@"([^"]+)",@"([^"]+)"',source)
-        self.assertEqual(len(hooks),3)
+        self.assertEqual(len(hooks),2)
         for name,sig in hooks: self.assertEqual(signatures[name],sig)
         self.assertEqual(signatures['updateToDefaultLogo'],'v')
         self.assertEqual(signatures['defaultLogoImage'],'@')
+
+class V07HotfixChecks(unittest.TestCase):
+    def test_logo_default_pipeline_not_rescaled(self):
+        source=(R/'Sources/QTLogo.m').read_text()
+        self.assertNotIn('updateLogoWithImage:',source)
+        self.assertNotIn('needsRescaling',source)
+        self.assertNotIn('UIGraphicsImageRenderer',source)
+        self.assertNotIn('defaultLogoImage',source)
+        self.assertIn('NSSelectorFromString(@"updateToDefaultLogo")',source)
+        self.assertIn('QTLogoResetting',source)
+    def test_display_ad_extension_requires_both_flags(self):
+        features=(R/'Sources/QTFeatures.m').read_text()
+        self.assertIn('(kind & QTFeedDisplayAd) && QTOn(@"feedAds") && QTOn(@"displayAds")',features)
+        core=(R/'Sources/QTCore.m').read_text()
+        start=core.index('@"key":@"displayAds"')
+        self.assertIn('@"default":@NO',core[start:core.index('},',start)])

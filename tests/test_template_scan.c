@@ -18,5 +18,23 @@ int main(void) {
     assert(QTExtractTemplateNames(NULL,0,names,8)==0);
     assert(QTExtractTemplateNames(binary,262145,names,8)==0);
     assert(QTExtractTemplateNames(binary,sizeof(binary),names,0)==0);
-    puts("10 template-scanner assertions passed; lexical tests only");
+    const char *extless="video_lockup_with_attachment portrait_video_card full_width_portrait_image_layout";
+    assert(QTExtractTemplateNames((const unsigned char *)extless,strlen(extless),names,8)==3);
+    const char *shortext="video_card.e shelf.e";
+    assert(QTExtractTemplateNames((const unsigned char *)shortext,strlen(shortext),names,8)==2);
+    const char *prose="video shelf portrait games layout and shorts";
+    assert(QTExtractTemplateNames((const unsigned char *)prose,strlen(prose),names,8)==0);
+    const char *unrelated="access_token account_secret ordinary_name";
+    assert(QTExtractTemplateNames((const unsigned char *)unrelated,strlen(unrelated),names,8)==0);
+    const char *moreurls="https://host/video_card /video_card user@video_card video_card?token";
+    assert(QTExtractTemplateNames((const unsigned char *)moreurls,strlen(moreurls),names,8)==0);
+    unsigned state=19; unsigned char noise[256];
+    for (unsigned round=0;round<5000;round++) {
+        size_t length=round%sizeof(noise);
+        for(size_t i=0;i<length;i++) { state=state*1664525u+1013904223u; noise[i]=(unsigned char)(state>>24); }
+        size_t count=QTExtractTemplateNames(noise,length,names,8);
+        assert(count<=8);
+        for(size_t i=0;i<count;i++) assert(strlen(names[i])<=96);
+    }
+    puts("15 scanner fixtures + 5000 random-byte iterations passed; lexical tests only");
 }

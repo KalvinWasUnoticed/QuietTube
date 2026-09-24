@@ -28,7 +28,7 @@
     ];
     if ([self.group isEqualToString:@"Advanced"]) self.rows = @[
         @{@"title":@"Inspect unmatched templates", @"key":@"inspectElements",
-          @"note":@"Opt-in local capture of .eml-like names. Requires Extended feed formats and restart. Review before sharing."},
+          @"note":@"Opt-in local capture of identifier-shaped names. Requires Extended feed formats and restart. Review before sharing."},
         @{@"title":@"Clear template capture", @"action":@"clearCapture"},
         @{@"title":@"View diagnostics", @"action":@"diagnostics"},
         @{@"title":@"Disable all for next launch", @"action":@"reset"}
@@ -36,7 +36,7 @@
 }
 - (NSInteger)tableView:(UITableView *)tv numberOfRowsInSection:(NSInteger)section { return self.rows.count; }
 - (NSString *)tableView:(UITableView *)tv titleForFooterInSection:(NSInteger)section {
-    return @"0.6 · Restart the guest app to apply changes. Use YouTube’s own PiP setting. Player-ad blocking remains paused.";
+    return @"0.7 · Restart the guest app to apply changes. Use YouTube’s own PiP setting. Player-ad blocking remains paused.";
 }
 - (UITableViewCell *)tableView:(UITableView *)tv cellForRowAtIndexPath:(NSIndexPath *)index {
     NSDictionary *row = self.rows[index.row];
@@ -53,10 +53,12 @@
         UISwitch *toggle = [UISwitch new];
         toggle.accessibilityLabel = row[@"title"];
         toggle.accessibilityIdentifier = row[@"key"];
-        BOOL needsExtended = [@[@"topicsShelves",@"edgeCards",@"playables",@"eventPromos",@"inspectElements"] containsObject:row[@"key"]];
+        BOOL needsExtended = [@[@"topicsShelves",@"edgeCards",@"playables",@"eventPromos",@"inspectElements",@"displayAds"] containsObject:row[@"key"]];
         BOOL dependencyReady = !needsExtended || [NSUserDefaults.standardUserDefaults boolForKey:@"QuietTube.v1.extendedFeed"];
+        BOOL needsFeedAds = [row[@"key"] isEqualToString:@"displayAds"];
+        if (needsFeedAds && ![NSUserDefaults.standardUserDefaults boolForKey:@"QuietTube.v1.feedAds"]) dependencyReady = NO;
         toggle.enabled = ![row[@"disabled"] boolValue] && dependencyReady;
-        if (!dependencyReady) cell.detailTextLabel.text = @"Enable Extended feed formats first. Changes apply after restart.";
+        if (!dependencyReady) cell.detailTextLabel.text = needsFeedAds ? @"Enable Extended feed formats and Feed ads first. Restart to apply." : @"Enable Extended feed formats first. Restart to apply.";
         toggle.on = ![row[@"disabled"] boolValue] && [NSUserDefaults.standardUserDefaults boolForKey:[@"QuietTube.v1." stringByAppendingString:row[@"key"]]];
         [toggle addTarget:self action:@selector(changed:) forControlEvents:UIControlEventValueChanged];
         cell.accessoryView = toggle;

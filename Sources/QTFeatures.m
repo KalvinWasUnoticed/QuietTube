@@ -61,6 +61,9 @@ static BOOL QTDropNode(id node) {
     if ((kind & QTFeedPromo) && QTOn(@"eventPromos")) { QTCount(@"match promo element tokens"); return YES; }
     if ((kind & QTFeedTopics) && QTOn(@"topicsShelves")) { QTCount(@"match topics shelf element tokens"); return YES; }
     if ((kind & QTFeedEdgeVideo) && QTOn(@"edgeCards")) { QTCount(@"match inline portrait card heuristic"); return YES; }
+    if ((kind & QTFeedDisplayAd) && QTOn(@"feedAds") && QTOn(@"displayAds")) {
+        QTCount(@"match additional display-ad format"); return YES;
+    }
     QTObserveUnmatchedElement(data); // observation only; never changes the filtering decision
     QTCount(@"element retained — no active rule matched");
     return NO;

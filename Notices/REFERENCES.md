@@ -18,3 +18,7 @@ The YTPlaybackFix project was reviewed for comparison. Its automatic retry, clie
 - Source links: https://github.com/MorpheApp/morphe-patches/blob/main/extensions/youtube/src/main/java/app/morphe/extension/youtube/patches/components/LayoutComponentsFilter.java and https://github.com/MorpheApp/morphe-patches/blob/main/extensions/youtube/src/main/java/app/morphe/extension/youtube/patches/components/ShortsFilter.java . These are cross-platform identifier observations, not verification for iOS. The native matcher remains the custom bounded C implementation in this project; no Android patch/library is bundled.
 
 Logo class ownership and method encodings were subsequently parsed from the hash-verified supplied YouTube executable (BASE-LOGO-ABI.json). Static metadata does not establish runtime invocation or successful UI behavior; the implementation still uses runtime checks and records skipped hooks. The fallback wordmark drawing is local UIKit text rendering.
+
+## 0.7 display-ad candidate identifiers
+
+Retained research snapshot of https://github.com/dayanch96/YTLite (`ytlite.x`, ad-name array near line 41) includes text_image_button_layout, square_image_layout, carousel_footered_layout, product_carousel, carousel_headered_layout and landscape_image_wide_button_layout. Only observed identifier strings inform the independently implemented classifier; no implementation code was copied for this addition. Snapshot commit was not recorded, so these are reference observations, not claims about the current upstream or proof of the supplied screenshot's renderer.

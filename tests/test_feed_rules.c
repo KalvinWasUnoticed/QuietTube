@@ -30,6 +30,12 @@ int main(void) {
     assert(match("not_chips_shelf") == 0);
     assert(match("video_card.eml /frame0.jpg") == 0); /* common thumbnail excluded */
     assert(match("chips_shelf.eml shorts_shelf.eml") == (QTFeedTopics|QTFeedShorts));
+    assert(match("text_image_button_layout.eml") == QTFeedDisplayAd);
+    assert(match("product_carousel") == QTFeedDisplayAd);
+    assert(match("ordinary_video_layout") == 0);
+    assert(match("not_text_image_button_layout") == 0);
+    assert(match("text_image_button_layout_extra") == 0);
+    assert(match("shorts_shelf.eml square_image_layout") == (QTFeedShorts|QTFeedDisplayAd));
     /* Deterministic malformed-byte smoke test under ASan/UBSan. */
     unsigned state=1234567;
     unsigned char noise[257];
@@ -37,8 +43,8 @@ int main(void) {
         size_t n=round%sizeof(noise);
         for (size_t k=0;k<n;k++) { state=state*1664525u+1013904223u; noise[k]=(unsigned char)(state>>24); }
         unsigned value=QTClassifyElementBytes(noise,n);
-        assert((value & ~63u)==0);
+        assert((value & ~127u)==0);
     }
-    puts("26 classifier fixtures + 5000 bounded random-byte iterations passed");
+    puts("32 classifier fixtures + 5000 bounded random-byte iterations passed");
     return 0;
 }

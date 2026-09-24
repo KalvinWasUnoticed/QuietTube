@@ -18,6 +18,8 @@ NSArray<NSDictionary *> *QTOptions(void) {
     static dispatch_once_t once;
     dispatch_once(&once, ^{
         options = @[
+          @{ @"key":@"displayAds", @"title":@"Additional display-ad formats", @"group":@"Distractions", @"default":@NO,
+             @"note":@"Experimental image/display-ad template families. Requires Extended feed formats and Feed ads. May match nested promotional content." },
           @{ @"key":@"topicsShelves", @"title":@"Hide “Explore more topics” shelves", @"group":@"Distractions", @"default":@NO,
              @"note":@"Experimental chips-shelf / exact shelf-title matching. Requires Extended feed formats; other chips shelves may also match." },
           @{ @"key":@"edgeCards", @"title":@"Hide edge-to-edge video cards", @"group":@"Distractions", @"default":@NO,
@@ -25,7 +27,7 @@ NSArray<NSDictionary *> *QTOptions(void) {
           @{ @"key":@"plainLogo", @"title":@"Use plain YouTube logo", @"group":@"Distractions", @"default":@YES,
              @"note":@"Replaces event header images at logo-specific hooks. Restart required; verify logo hook status in diagnostics." },
           @{ @"key":@"inspectElements", @"title":@"Inspect unmatched templates", @"group":@"Advanced", @"default":@NO,
-             @"note":@"Opt-in local capture of .eml-like names, not raw payloads. Requires Extended feed formats and restart. Review before sharing." },
+             @"note":@"Opt-in capture of identifier-shaped names, including extensionless formats; not raw payloads. Requires Extended feed formats and restart. Review before sharing." },
           @{ @"key":@"extendedFeed", @"title":@"Extended feed formats", @"group":@"Distractions", @"default":@NO,
              @"note":@"Experimental element-template matching and deeper traversal. Off restores the earlier filter." },
           @{ @"key":@"playables", @"title":@"Hide Playables shelves", @"group":@"Distractions", @"default":@NO,
@@ -172,7 +174,7 @@ void QTObserveUnmatchedElement(NSData *data) {
 }
 NSString *QTDiagnostics(void) {
     NSMutableString *s = [NSMutableString stringWithFormat:
-        @"QuietTube 0.6 feed controls and direct IPA\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
+        @"QuietTube 0.7 logo hotfix and identifier capture\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
         [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"], UIDevice.currentDevice.systemVersion];
     [s appendString:@"ACTIVE THIS LAUNCH\n"];
     for (NSString *key in [[QTActiveFlags allKeys] sortedArrayUsingSelector:@selector(compare:)])
@@ -194,9 +196,9 @@ NSString *QTDiagnostics(void) {
     }
     [s appendString:@"\nUNMATCHED ELEMENT TEMPLATE CAPTURE\n"];
     [s appendFormat:@"capture enabled this launch: %@\n", QTOn(@"inspectElements") ? @"yes" : @"no"];
-    [s appendString:@"Lexical .eml-like names, not verified root renderers. Nested names may appear. Groups are NOT individual visible cards. Review before sharing.\n"];
+    [s appendString:@"Lexical identifier-shaped names, not verified root renderers. Nested names may appear. Groups are NOT individual visible cards. Review before sharing.\n"];
     @synchronized(QTElementGroups) {
-        [s appendFormat:@"unmatched elements sampled: %lu / 128\nelements without names: %lu\ngroup-cap drops: %lu\n",
+        [s appendFormat:@"unmatched elements sampled: %lu / 128\nelements without accepted identifiers: %lu\ngroup-cap drops: %lu\n",
           (unsigned long)QTElementsInspected,(unsigned long)QTElementsWithoutNames,(unsigned long)QTGroupsDropped];
         NSUInteger index=1;
         for (NSString *group in QTElementGroups)
