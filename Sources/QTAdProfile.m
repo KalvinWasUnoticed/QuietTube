@@ -67,17 +67,18 @@ void QTAdPlaybackError(NSError *error) {
 NSString *QTAdReport(void) {
     QTAdPrepare();
     QTAdInstallState state=QTAdState(QTOn(@"enabled"),QTOn(@"adTest"),atomic_load(&QTAdTripped),QTPlayerProfileInstalled,QTFeedProfileInstalled);
-    NSMutableString *s=[NSMutableString stringWithFormat:@"QUIETTUBE 0.13.1 AD TEST REPORT\nProfile requested this launch: %@\nInstallation state: %s\nSaved for next launch: %@\nBoth workarounds share this one switch. Old branch preferences are ignored.\nPlayer hook installed: %@; feed hook installed: %@\n",
+    NSMutableString *s=[NSMutableString stringWithFormat:@"QUIETTUBE 0.13.2 AD TEST REPORT\nProfile requested this launch: %@\nInstallation state: %s\nSaved for next launch: %@\nBoth workarounds share this one switch. Old branch preferences are ignored.\nPlayer hook installed: %@; feed hook installed: %@\n",
         QTOn(@"adTest")?@"on":@"off",QTAdStateName(state),
         [NSUserDefaults.standardUserDefaults boolForKey:@"QuietTube.v1.adTest"]?@"on":@"off",
         QTPlayerProfileInstalled?@"yes":@"no",QTFeedProfileInstalled?@"yes":@"no"];
     @synchronized(QTAdEvents) {
         unsigned long long calls=[QTAdTotals[@"player factory called"] unsignedLongLongValue];
         unsigned long long supplied=[QTAdTotals[@"native no-op coordinator supplied"] unsignedLongLongValue];
-        unsigned long long feed=[QTAdTotals[@"watch-while feed mutation disabled"] unsignedLongLongValue];
-        [s appendFormat:@"Player invocation: %llu calls; %llu native no-op objects supplied.\nFeed invocation: %llu disabled-feature reads.\n",calls,supplied,feed];
+        unsigned long long feed=[QTAdTotals[@"companion callback received"] unsignedLongLongValue];
+        unsigned long long cleared=[QTAdTotals[@"companion state empty after clear"] unsignedLongLongValue];
+        [s appendFormat:@"Player invocation: %llu calls; %llu native no-op objects supplied.\nFeed invocation: %llu companion callbacks; %llu empty states confirmed.\n",calls,supplied,feed,cleared];
         if (!supplied) [s appendString:@"PLAYER BLOCKING NOT DEMONSTRATED: no no-op substitution recorded.\n"];
-        if (!feed) [s appendString:@"FEED WORKAROUND NOT OBSERVED: no feature read recorded.\n"];
+        if (!feed) [s appendString:@"FEED WORKAROUND NOT OBSERVED: no companion callback recorded.\n"];
         [s appendString:@"Installation/invocation does not prove ad removal. Safety stop requires restart for existing players.\n\n"];
         for (NSString *key in [[QTAdTotals allKeys] sortedArrayUsingSelector:@selector(compare:)])
             [s appendFormat:@"%@ : %@\n",key,QTAdTotals[key]];
@@ -92,17 +93,35 @@ void QTInstallAdProfile(void) {
     QTAdPrepare();
     // Persistent success flags distinguish scheduled retries from failed installs.
     if (!QTFeedProfileInstalled) {
-        Class cls=NSClassFromString(@"YTHotConfig");
-        SEL sel=NSSelectorFromString(@"enableWatchWhileFeedMutationOnIos");
+        Class cls=NSClassFromString(@"YTCompanionAdObserverBehavior");
+        SEL sel=NSSelectorFromString(@"companionAdDidChange:interactionLoggingAdsClientData:");
         IMP before=cls?class_getMethodImplementation(cls,sel):NULL;
-        QTHook(@"YTHotConfig",@"enableWatchWhileFeedMutationOnIos",@"B",^id(IMP old,SEL selector) {
-            return ^BOOL(id object) {
-                if (QTAdActive()) { QTAdRecord(@"watch-while feed mutation disabled"); return NO; }
-                return ((BOOL (*)(id,SEL))old)(object,selector);
+        QTHook(@"YTCompanionAdObserverBehavior",@"companionAdDidChange:interactionLoggingAdsClientData:",@"v@@",^id(IMP old,SEL selector) {
+            return ^(id object,id update,id loggingData) {
+                if (!QTAdActive()) {
+                    ((void (*)(id,SEL,id,id))old)(object,selector,update,loggingData);
+                    return;
+                }
+                QTAdRecord(@"companion callback received");
+                if (QTGet(update,@"companionAd")) QTAdRecord(@"companion payload observed");
+                // Verified native nil-companion path: clearEntries, then
+                // pushStagedChanges; never touch the general feed view model.
+                // Native exceptions are NOT swallowed, and original is called once.
+                ((void (*)(id,SEL,id,id))old)(object,selector,nil,nil);
+                QTAdRecord(@"companion native clear applied");
+                SEL current=NSSelectorFromString(@"currentAd");
+                if (QTMatches(object,current,@"@")) {
+                    @try {
+                        id remaining=((id (*)(id,SEL))objc_msgSend)(object,current);
+                        QTAdRecord(remaining ? @"companion state still populated" : @"companion state empty after clear");
+                    } @catch (__unused NSException *exception) {
+                        QTAdRecord(@"companion state read failed");
+                    }
+                } else QTAdRecord(@"companion state getter unavailable");
             };
         });
         QTFeedProfileInstalled=cls && class_getMethodImplementation(cls,sel)!=before;
-        QTAdRecord(QTFeedProfileInstalled?@"feed mutation hook installed":@"feed mutation hook unavailable — native unchanged");
+        QTAdRecord(QTFeedProfileInstalled?@"companion observer hook installed":@"companion observer hook unavailable - native unchanged");
     }
     if (!QTPlayerProfileInstalled) {
         Class factoryClass=NSClassFromString(@"YTRealAdsPlayerServices");
