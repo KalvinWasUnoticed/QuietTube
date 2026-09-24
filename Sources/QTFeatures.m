@@ -33,6 +33,15 @@ static BOOL QTDropNode(id node) {
     if (QTOn(@"shorts") && (QTBool(node,@"hasReelShelfRenderer") || QTBool(node,@"hasReelItemRenderer")))
         { QTCount(@"match explicit Shorts field"); return YES; }
     if (!QTOn(@"extendedFeed")) return NO;
+    if (QTOn(@"mixes")) {
+        for (NSString *selector in @[@"hasAutomixPreviewVideoRenderer", @"hasAutomixPlaylistVideoRenderer",
+                                    @"hasRadioRenderer", @"hasPivotRadioRenderer"])
+            if (QTBool(node,selector)) { QTCount(@"match explicit Mix renderer field"); return YES; }
+        if ([@[@"YTIAutomixPreviewVideoRenderer", @"YTIAutomixPlaylistVideoRenderer",
+                @"YTIRadioRenderer", @"YTIPivotRadioRenderer"] containsObject:NSStringFromClass([node class])]) {
+            QTCount(@"match explicit Mix renderer class"); return YES;
+        }
+    }
     if (QTOn(@"topicsShelves")) {
         NSString *title = [[QTShelfTitle(node) stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet] lowercaseString];
         if ([title isEqualToString:@"explore more topics"]) {
@@ -63,6 +72,12 @@ static BOOL QTDropNode(id node) {
     if ((kind & QTFeedEdgeVideo) && QTOn(@"edgeCards")) { QTCount(@"match inline portrait card heuristic"); return YES; }
     if ((kind & QTFeedDisplayAd) && QTOn(@"feedAds") && QTOn(@"displayAds")) {
         QTCount(@"match additional display-ad format"); return YES;
+    }
+    if ((kind & QTFeedInlineShort) && QTOn(@"edgeCards")) {
+        QTCount(@"match inline overlay plus Shorts icon"); return YES;
+    }
+    if ((kind & QTFeedMix) && QTOn(@"mixes")) {
+        QTCount(@"match Mix element tokens"); return YES;
     }
     QTObserveUnmatchedElement(data); // observation only; never changes the filtering decision
     QTCount(@"element retained — no active rule matched");
@@ -130,7 +145,7 @@ void QTInstallFeatures(void) {
     // When the master switch is off, not even diagnostic feature hooks are installed.
     if (!QTOn(@"enabled")) return;
     QTInstallPlainLogo();
-    if (QTOn(@"feedAds") || QTOn(@"shorts") || (QTOn(@"extendedFeed") && (QTOn(@"playables") || QTOn(@"eventPromos") || QTOn(@"topicsShelves") || QTOn(@"edgeCards") || QTOn(@"inspectElements")))) {
+    if (QTOn(@"feedAds") || QTOn(@"shorts") || (QTOn(@"extendedFeed") && (QTOn(@"playables") || QTOn(@"eventPromos") || QTOn(@"topicsShelves") || QTOn(@"edgeCards") || QTOn(@"inspectElements") || QTOn(@"mixes")))) {
         QTHook(@"YTInnerTubeCollectionViewController",@"addSectionsFromArray:",@"v@",^id(IMP old,SEL sel) {
             return ^(id object,NSArray *sections) {
                 NSArray *filtered = sections;

@@ -28,6 +28,14 @@ int main(void) {
     assert(QTExtractTemplateNames((const unsigned char *)unrelated,strlen(unrelated),names,8)==0);
     const char *moreurls="https://host/video_card /video_card user@video_card video_card?token";
     assert(QTExtractTemplateNames((const unsigned char *)moreurls,strlen(moreurls),names,8)==0);
+    const char *ids="inline_injection_teaser_1790215880042_0 inline_injection_teaser_1790215880796_1";
+    assert(QTExtractTemplateNames((const unsigned char *)ids,strlen(ids),names,8)==1);
+    assert(!strcmp(names[0],"inline_injection_teaser"));
+    const char *mix="radio_playlist_mix playlist_lockup";
+    assert(QTExtractTemplateNames((const unsigned char *)mix,strlen(mix),names,8)==2);
+    const char *observed="video_lockup_overlay.eml-fe yt_fill_youtube_shorts_24pt";
+    assert(QTExtractTemplateNames((const unsigned char *)observed,strlen(observed),names,8)==2);
+    assert(!strcmp(names[0],"video_lockup_overlay.eml-fe"));
     unsigned state=19; unsigned char noise[256];
     for (unsigned round=0;round<5000;round++) {
         size_t length=round%sizeof(noise);
@@ -36,5 +44,5 @@ int main(void) {
         assert(count<=8);
         for(size_t i=0;i<count;i++) assert(strlen(names[i])<=96);
     }
-    puts("15 scanner fixtures + 5000 random-byte iterations passed; lexical tests only");
+    puts("20 scanner fixtures + 5000 random-byte iterations passed; lexical tests only");
 }

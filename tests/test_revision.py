@@ -112,3 +112,19 @@ class V07HotfixChecks(unittest.TestCase):
         core=(R/'Sources/QTCore.m').read_text()
         start=core.index('@"key":@"displayAds"')
         self.assertIn('@"default":@NO',core[start:core.index('},',start)])
+
+class V08Checks(unittest.TestCase):
+    def test_independent_mix_control(self):
+        core=(R/'Sources/QTCore.m').read_text()
+        start=core.index('@"key":@"mixes"')
+        self.assertIn('@"default":@NO',core[start:core.index('},',start)])
+        source=(R/'Sources/QTFeatures.m').read_text()
+        self.assertIn('(kind & QTFeedMix) && QTOn(@"mixes")',source)
+        self.assertIn('(kind & QTFeedInlineShort) && QTOn(@"edgeCards")',source)
+        self.assertNotIn('containsString:@"Mix',source)
+        self.assertIn('QTOn(@"inspectElements") || QTOn(@"mixes")',source)
+    def test_no_generic_home_or_nudge_removal(self):
+        source=(R/'Sources/QTFeedRules.h').read_text()
+        self.assertNotIn('"home_vertical_feed_prominence_group_key"',source)
+        self.assertNotIn('"inline_injection_teaser"',source)
+        self.assertNotIn('"feed_nudge"',source)

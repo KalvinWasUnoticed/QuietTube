@@ -10,7 +10,7 @@ static int QTTemplateChar(unsigned char c) {
 static int QTIdentifierFamily(const unsigned char *name, size_t n) {
     static const char *families[]={"shelf","video","lockup","inline","portrait",
         "thumbnail","banner","layout","carousel","feed","shorts","promoted",
-        "sponsor","ad","ads","display","chips","topic","reel"};
+        "sponsor","ad","ads","display","chips","topic","reel","radio","mix","automix","playlist"};
     int structured=0;
     for (size_t i=0;i<n;i++) if (name[i]=='_') structured=1;
     if (!structured) return 0; /* Don't log ordinary words from titles/prose. */
@@ -43,6 +43,16 @@ static size_t QTExtractTemplateNames(const unsigned char *data, size_t length,
             data[start-1]=='/' || data[start-1]=='@' || data[start-1]==':' || data[start-1]=='=')) continue;
         if (i<length && ((data[i]>='A'&&data[i]<='Z') || data[i]=='/' ||
             data[i]=='?' || data[i]=='=' || data[i]=='@')) continue;
+        /* Collapse observed per-injection numeric IDs before grouping. This
+         * prevents timestamp-like values from fragmenting otherwise equal groups. */
+        const char *teaser="inline_injection_teaser";
+        size_t base=strlen(teaser);
+        if (n>base && !memcmp(data+start,teaser,base) && data[start+base]=='_') {
+            int numeric=1;
+            for (size_t k=base+1;k<n;k++)
+                if ((data[start+k]<'0' || data[start+k]>'9') && data[start+k]!='_') numeric=0;
+            if (numeric) n=base;
+        }
         int duplicate=0;
         for (size_t j=0;j<found;j++)
             if (strlen(names[j])==n && !memcmp(names[j],data+start,n)) { duplicate=1; break; }

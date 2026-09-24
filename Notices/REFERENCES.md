@@ -22,3 +22,9 @@ Logo class ownership and method encodings were subsequently parsed from the hash
 ## 0.7 display-ad candidate identifiers
 
 Retained research snapshot of https://github.com/dayanch96/YTLite (`ytlite.x`, ad-name array near line 41) includes text_image_button_layout, square_image_layout, carousel_footered_layout, product_carousel, carousel_headered_layout and landscape_image_wide_button_layout. Only observed identifier strings inform the independently implemented classifier; no implementation code was copied for this addition. Snapshot commit was not recorded, so these are reference observations, not claims about the current upstream or proof of the supplied screenshot's renderer.
+
+## 0.8 Mix and inline Shorts candidates
+
+Retained `content.mm` research from https://github.com/itzzace/ytkace (reviewed commit 97456b0d63e37b9847b3fb7e3829a10ab9310d86): hasAutomixPreviewVideoRenderer, hasAutomixPlaylistVideoRenderer, hasRadioRenderer, hasPivotRadioRenderer and Mix identifier strings radioautomixplaylistid, radioplaylistmixplaylistid, radio_playlist_mix. Only selected names inform the independent signature-checked implementation. Broader feed_nudge and title matching not adopted. Existing MIT notice retained.
+
+Inline overlay / Shorts-icon combination comes directly from the user's 0.7 capture group 11, not an upstream geometry detector. No claim that the captured group has been uniquely mapped to the screenshot.

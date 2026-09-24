@@ -36,6 +36,19 @@ int main(void) {
     assert(match("not_text_image_button_layout") == 0);
     assert(match("text_image_button_layout_extra") == 0);
     assert(match("shorts_shelf.eml square_image_layout") == (QTFeedShorts|QTFeedDisplayAd));
+    assert(match("video_lockup_overlay.eml-fe yt_fill_youtube_shorts_24pt") == QTFeedInlineShort);
+    assert(match("video_lockup_overlay.eml-fe") == 0);
+    assert(match("yt_fill_youtube_shorts_24pt") == 0);
+    assert(match("home_vertical_feed_prominence_group_key inline_injection_teaser_1790215880042_0") == 0);
+    assert(match("post_lockup posts_lockup ic_video_youtube") == 0);
+    assert(match("not_video_lockup_overlay yt_fill_youtube_shorts_24pt") == 0);
+    assert(match("video_lockup_overlay yt_fill_youtube_shorts_24pt_extra") == 0);
+    assert(match("radio_playlist_mix.eml") == QTFeedMix);
+    assert(match("radioautomixplaylistid") == QTFeedMix);
+    assert(match("radioplaylistmixplaylistid") == QTFeedMix);
+    assert(match("Mix - Phantogram - Black Out Days") == 0);
+    assert(match("playlist_lockup feed_nudge_view remix video_card") == 0);
+    assert(match("not_radio_playlist_mix radio_playlist_mix_extra") == 0);
     /* Deterministic malformed-byte smoke test under ASan/UBSan. */
     unsigned state=1234567;
     unsigned char noise[257];
@@ -43,8 +56,8 @@ int main(void) {
         size_t n=round%sizeof(noise);
         for (size_t k=0;k<n;k++) { state=state*1664525u+1013904223u; noise[k]=(unsigned char)(state>>24); }
         unsigned value=QTClassifyElementBytes(noise,n);
-        assert((value & ~127u)==0);
+        assert((value & ~511u)==0);
     }
-    puts("32 classifier fixtures + 5000 bounded random-byte iterations passed");
+    puts("45 classifier fixtures + 5000 bounded random-byte iterations passed");
     return 0;
 }

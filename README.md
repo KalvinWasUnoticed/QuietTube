@@ -1,38 +1,42 @@
-# QuietTube 0.7 — logo hotfix and better feed diagnostics
+# QuietTube 0.8 — inline Shorts candidate and Mix control
 
-**Source + GitHub build workflow, not a compiled IPA.** Targets the same pinned YouTube 21.38.2 base. Keep your previous IPA as a fallback. Player-ad blocking remains paused.
+**Source + build workflow, not a compiled IPA.** Same pinned YouTube 21.38.2 base. Player-ad blocking remains paused.
 
-## What changed after your 0.6 test
+## Based on your 0.7 device report
 
-- **Tiny logo:** removed the entire image override, including the forced `needsRescaling=YES`. The two signature-checked event/animation hooks still ask YouTube to `updateToDefaultLogo`; its unhooked native image pipeline now controls sizing. No custom fonts, assets, view resizing, or global image hooks. This corrects the source-level rescaling mistake; the visual result still needs device verification.
-- **Unhelpful capture:** the previous 92 samples contained no accepted `.eml` names. Capture now accepts `.e` names and extensionless lowercase snake-case identifiers containing component-family words. It remains opt-in, bounded, session-local and observation-only. These are lexical candidates, not verified root renderers. No raw-payload dump or model description is taken; review a report before sharing because identifier-shaped text can still be content rather than metadata.
-- **Additional display-ad formats:** a new experimental switch, **off by default**, recognizes six exact identifier families observed in the retained YTLite reference: `text_image_button_layout`, `square_image_layout`, `carousel_footered_layout`, `product_carousel`, `carousel_headered_layout`, and `landscape_image_wide_button_layout`. Requires both **Extended feed formats** and **Feed ads**. Nested matches can hide a larger enclosing item or non-ad content using the same template. These are not confirmed identifiers for your Apple card.
-- **Full-height inline short:** not claimed fixed. Your enabled flags were correct, but the edge matcher recorded no matches. Its existing heuristic is unchanged while the broader capture seeks a usable signal. No blanket tall-card or normal-video removal was added.
+**The logo is confirmed fixed. Its implementation is byte-for-byte unchanged.**
 
-Working Shorts filters, independent Explore topics/edge-card switches, the top topic bar safeguards, background playback, native PiP, settings navigation, and the empty-batch safeguard are retained. No new login, player request, retry, PiP, or error-masking hook was introduced. This does not guarantee untested native behavior.
+The previous edge heuristic still had no matches. New capture group 11 contains both `video_lockup_overlay.eml-fe` and `yt_fill_youtube_shorts_24pt`. Version 0.8 adds a bounded co-occurrence rule under the existing **Hide edge-to-edge video cards** switch. Neither marker alone triggers the new rule. This is a payload-supported candidate, not a proven mapping from capture group to your screenshot or a guarantee that all full-height cards disappear. Nested metadata can still cause false positives.
+
+Generic `home_vertical_feed_prominence_group_key` and `inline_injection_teaser` are deliberately NOT removal criteria: they also accompany other content, including post lockups. Normal video titles, generic playlists, and portrait aspect ratio alone are not removal criteria either.
+
+**Hide Mix recommendations** is a new independent switch, off by default and requiring **Extended feed formats**. It recognizes selected explicit automix/radio renderer fields/classes and exact Mix identifier tokens from the retained ytkace reference. The supplied capture does not identify the pictured Mix's payload; this coverage is a candidate, not device-confirmed. It does not search for the word “Mix” in titles. Broad `feed_nudge` rules were deliberately omitted.
+
+Capture now normalizes the observed numeric suffix of `inline_injection_teaser_<digits>_<digits>` to `inline_injection_teaser`, making otherwise equal groups comparable and removing those timestamp-like values from reports. Mix/radio/playlist family words are also accepted for diagnostic capture. No sample-limit increase: 128 samples, 48 groups, eight names each, 96 characters each, 256 KiB payload maximum. If the cap is reached, reset capture before a focused sample. Resetting capture does not reset session counters.
+
+Your 0.7 report reached the sample cap: 60 of 128 samples contained accepted identifiers; 68 did not. Groups are not uniquely identified visible cards. No added display-ad-format hit appears in that report; two explicit-ad matches do not establish the Apple card's status.
 
 ## Build and download the actual IPA
 
-1. Extract `QuietTube-v0.7.zip` and replace the files in your existing repository with the **contents** of its `QuietTube-v0.7` folder, including hidden `.github/workflows/build.yml`.
+1. Extract `QuietTube-v0.8.zip` and replace the files in your existing repository with the **contents** of its `QuietTube-v0.8` folder, including hidden `.github/workflows/build.yml`.
 2. Prefer a private repository. Open **Actions → Build QuietTube IPA → Run workflow**. Public repositories require explicit approval before downloading/publishing the modified app; only approve if authorized.
-3. After success, open the run's **Summary → DOWNLOAD IPA — QuietTube 0.7**. It points directly to `QuietTube-0.7-21.38.2.ipa` in GitHub Releases, with no outer artifact ZIP. The release page is the fallback; ignore GitHub's autogenerated source ZIP/TAR links.
+3. After success, open the run's **Summary → DOWNLOAD IPA — QuietTube 0.8**. It points directly to `QuietTube-0.8-21.38.2.ipa` in GitHub Releases, with no outer artifact ZIP. The release page is the fallback; ignore GitHub's autogenerated source ZIP/TAR links.
 4. Import that IPA into LiveContainer. Preserve the same data container and fully stop/relaunch the guest. Do not inject the tweak a second time.
 
 Private download links require signing into GitHub with repository access. No personal GitHub token, Apple credentials, or Google credentials are requested. Built-in workflow permissions publish the release. The success link appears only after upload succeeds. Release assets remain until deleted; public release assets expose the modified IPA.
 
-## Focused check for this revision
+## Settings and focused check
 
-In **You → Settings → General → Quiet controls**, confirm version 0.7. Existing preferences are preserved; flags apply on full guest-process restart.
+1. Confirm version 0.8. Keep **Use plain YouTube logo**, **Extended feed formats** and **Hide edge-to-edge video cards** on.
+2. Enable the new **Hide Mix recommendations** switch. Preserve your working settings and fully restart the LiveContainer guest; no new preference reset was added.
+3. Check whether the full-height inline Shorts and Mix recommendations disappear, while normal videos and the top topic bar remain. The new counters are `match inline overlay plus Shorts icon`, `match explicit Mix renderer field`, `match explicit Mix renderer class`, and `match Mix element tokens`. Counters are not proof that a particular screenshot card was removed.
+4. If normal content disappears, disable the relevant edge or Mix switch and restart. Keep a previous IPA for rollback with the same data container.
+5. Check Home refresh, settings Done/back, background audio and native PiP. No changes to those implementations, Google sign-in, player requests, or error handling were made.
 
-1. Keep **Use plain YouTube logo** on; check normal header size and light/dark appearance. Turn it off and restart if the hotfix still regresses the header.
-2. To test added ad coverage, enable **Additional display-ad formats**, with **Feed ads** and **Extended feed formats** on, then restart. A hit increments `match additional display-ad format`; a hit elsewhere does not prove the Apple card was removed. Disable only this new switch if ordinary content vanishes.
-3. For a remaining full-height card, use the revised template capture: reset the in-memory capture, load a small amount of feed around the missed card, and share the newly captured identifier groups if there are any. This is a different diagnostic from the already supplied 0.6 counters; those counters do not need to be resent. If names remain absent, this release has not established the payload format and no exact edge fix is justified.
-4. Check Home refresh, ordinary videos, search/subscriptions, the top topic bar, settings Done/back, background audio and native PiP. Playback ads may still appear.
+Existing inspection remains optional and observation-only. You do not need to repeat the already supplied 0.7 counters. If a missed card needs further diagnosis, reset capture shortly before viewing it and use new groups from this version. Reports contain lexical candidates, not decoded root renderer IDs; review before sharing. No raw-payload dump, automatic upload, or persistent capture was added.
 
-Capture limits remain 128 samples, 48 groups, eight names per group, 96 characters per name and 256 KiB per inspected payload. No upload or persistent capture is implemented. Short ASCII identifier capture cannot decode compressed, indexed, opaque or other unrecognized data. Samples are not uniquely identified visible cards.
+## Validation and limits
 
-## Validation
+30 Python tests passed: 8 packaging, 6 mocked release, 16 static source/ABI checks. C tests passed under AddressSanitizer/UndefinedBehaviorSanitizer: 45 classifier fixtures + 5,000 random-byte iterations; 20 scanner fixtures + 5,000 random-byte iterations. Shell syntax, workflow YAML and source archive checked. Logo source verified unchanged from device-confirmed 0.7.
 
-28 Python tests passed (8 packaging, 6 mock release, 14 source/ABI checks). C tests passed under AddressSanitizer/UndefinedBehaviorSanitizer: 32 classifier fixtures plus 5,000 random-byte iterations; 15 scanner fixtures plus 5,000 random-byte iterations. See `AUDIT.md` and `VALIDATION.json` for limitations.
-
-**No Apple SDK build, real GitHub Release upload, or 0.7 device test was performed here.** Local checks do not establish compilation, rendered size, sign-in, uninterrupted playback, or either screenshot's removal.
+**0.8 was not compiled with an Apple SDK or tested on a device here.** No actual GitHub release was uploaded here. Static/C tests cannot establish native renderer coverage, disappearance of these cards, authentication or playback stability. The existing copy-before-mutation and preserve-empty-batch safeguards remain, so a batch consisting only of matched items may be retained rather than crashing.

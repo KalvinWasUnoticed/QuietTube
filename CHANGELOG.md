@@ -1,3 +1,11 @@
+# 0.8 — follow-up to 0.7 capture
+
+- Preserve user-confirmed logo fix unchanged.
+- Add overlay + Shorts-icon candidate under the existing edge-card switch.
+- Add separate off-by-default Mix recommendation control with explicit renderer/token candidates.
+- Normalize numeric injection teaser capture suffixes; add Mix-related diagnostic families.
+- Add negative and positive regression fixtures; retain direct IPA download workflow.
+
 # 0.7 — targeted follow-up to 0.6 device failures
 
 - Remove forced native-logo image rescaling and custom image fallbacks; retain two native-default reset hooks.

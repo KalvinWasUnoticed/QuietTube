@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <string.h>
 
-enum { QTFeedShorts = 1, QTFeedAd = 2, QTFeedPlayable = 4, QTFeedPromo = 8, QTFeedTopics = 16, QTFeedEdgeVideo = 32, QTFeedDisplayAd = 64 };
+enum { QTFeedShorts = 1, QTFeedAd = 2, QTFeedPlayable = 4, QTFeedPromo = 8, QTFeedTopics = 16, QTFeedEdgeVideo = 32, QTFeedDisplayAd = 64, QTFeedMix = 128, QTFeedInlineShort = 256 };
 /* Bounded, case-sensitive template-token heuristics, NOT a protobuf decoder.
  * Never match generic words such as "shorts", "game", "featured" or "ad". */
 static int QTTokenChar(unsigned char c) {
@@ -27,6 +27,8 @@ static unsigned QTClassifyElementBytes(const unsigned char *bytes, size_t length
         {"shorts_shelf", QTFeedShorts}, {"reel_shelf", QTFeedShorts},
         {"shorts_lockup", QTFeedShorts}, {"shorts_video_cell", QTFeedShorts},
         {"shortslockup", QTFeedShorts}, {"shortslockupviewmodel", QTFeedShorts},
+        {"radio_playlist_mix", QTFeedMix},
+        {"radioautomixplaylistid", QTFeedMix}, {"radioplaylistmixplaylistid", QTFeedMix},
         {"feed_ad_metadata", QTFeedAd}, {"text_search_ad", QTFeedAd},
         {"playables_shelf", QTFeedPlayable}, {"playable_card", QTFeedPlayable},
         {"horizontal_gaming_shelf", QTFeedPlayable}, {"mini_game_card", QTFeedPlayable},
@@ -54,6 +56,11 @@ static unsigned QTClassifyElementBytes(const unsigned char *bytes, size_t length
                         QTTokenPresent(bytes,length,"oar3.jpg");
     if (QTTokenPresent(bytes,length,"inline_shorts") || (videoLockup && portraitThumb))
         result |= QTFeedEdgeVideo;
+    /* Co-occurrence observed in user capture group 11; neither signal alone
+     * identifies a full-height Short. No generic Home/injection-key matching. */
+    if (QTTokenPresent(bytes,length,"video_lockup_overlay") &&
+        QTTokenPresent(bytes,length,"yt_fill_youtube_shorts_24pt"))
+        result |= QTFeedInlineShort;
     return result;
 }
 #endif
