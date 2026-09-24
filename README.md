@@ -1,40 +1,52 @@
-# QuietTube 0.10 — player test 0: observation only
+# QuietTube 0.11 — player experiment 1 + post-play sponsored-card experiment
 
-**This source package does not block in-video ads.** It is the agreed observation stage before trying blocking solutions one at a time. The release workflow builds an IPA for the same pinned YouTube 21.38.2 base; no compiled IPA is included here.
+**Source + build workflow, not a compiled IPA.** Same pinned YouTube 21.38.2 base. Both new experiments are OFF by default. Test them separately before combining them. No undetectability or uninterrupted-playback guarantee.
 
-## What changed
+## Evidence from your 0.10 test
 
-New **Playback → Observe player ad coordinator** switch, off by default. It adds one signature-checked hook candidate: `YTLocalPlaybackController / createAdsPlaybackCoordinator`. With the probe enabled, it counts calls and object/nil results, calls the original exactly once, and returns the same object. Native exceptions are not swallowed; counter exceptions alone are isolated. No payloads or objects are described or stored by the probe.
+The coordinator hook ran three times and returned an object three times. One of several videos showed ads. These are not ad counts: returning a coordinator does not prove an ad played. No playback-error counter appears in the supplied report, but that does not establish all playback paths are error-free.
 
-The selector comes from reviewed public YouTube-X source; availability/ABI are checked on device, not assumed. It has NOT been statically verified against the supplied executable for this release. An unavailable or mismatched selector is skipped. A non-nil coordinator does not prove an ad played or that suppressing it is safe. An installed hook does not prove it ran.
+The MIVI and MadMuscles screenshots establish missed sponsored cards appearing after a video is minimized. The capture contains ordinary metadata and generic injection keys, and reached its cap. It does not identify those cards or prove which update path inserted them. Do not block video_metadata, metadata carousels, generic injection keys, or all external links.
 
-**Player-ad blocking — paused** remains disabled. The new switch is observation, not a hidden ad-removal mode. No player response arrays, requests, client identity, login signals, ad beacons, retries, seeks or fake ad-completion events are altered. Undetectability and zero errors are not promised. Even observation hooks add runtime overhead and require device testing.
+## New control 1 — Playback → Player test 1: skip ad coordinator
 
-## Preserved baseline
+Uses the SAME runtime-signature-checked method that was observed on your device. When enabled, returns nil without calling the native coordinator creator. It does NOT create an object and then discard it. When disabled, the existing observation mode still calls the original once and returns the same result. When both player controls are off, this hook is not installed.
 
-Your 0.9.1 playback-with-ads baseline is confirmed stable and feed cleanup is working by your report. All existing feed rules (including Mix RD, inline Shorts and Watch again), logo implementation, settings navigation, background audio, native PiP behavior, playback error observer and preference migration are preserved. Hash checks cover 11 prior source/build files after removing only the probe integration and normalizing version/headline. Full review is in AUDIT.md.
+This is intentionally a single blocking change. No global ad-array getters, request rewriting, client spoofing, signal removal, fake ad-completion events, retries, seeking or error suppression. A nil coordinator may cause a stall, error or crash, or may fail to remove some ads. The result is unverified. The old disabled **Player-ad blocking — paused** control remains unavailable; use the NEW **Player test 1** control.
 
-## Build and download
+If both Player test 1 and Observe player ad coordinator are on, TEST 1 takes precedence. Diagnostics states the effective mode. Suppressed calls increment `player test 1 coordinator creation suppressed`, NOT the original-return counters. Counts do not prove an ad was removed. Restart the whole guest to apply changes.
 
-1. Extract `QuietTube-v0.10.zip`. Replace repository files with the contents of `QuietTube-v0.10`, including hidden `.github/workflows/build.yml`, the new `Sources/QTPlayerProbe.m`, and tests/baseline records.
-2. Use a private repository where possible. Run **Actions → Build QuietTube IPA → Run workflow**. Public repositories require explicit publication approval; release assets would expose the modified IPA.
-3. After success use **Summary → DOWNLOAD IPA — QuietTube 0.10**. The asset is `QuietTube-0.10-21.38.2.ipa`, not an outer artifact ZIP. GitHub's automatic source ZIP/TAR links are not the IPA. Private downloads require an authorized GitHub login.
-4. Import into LiveContainer, preserve the same data container and fully restart the guest. Keep 0.9.1 available for rollback. Do not inject the tweak again.
+## New control 2 — Distractions → Post-play sponsored-card experiment
 
-## Run the first test
+Requires **Feed ads** and **Extended feed formats**. Separate from Player test 1; displayAds is not an extra dependency for this new switch.
 
-Settings path: **You → Settings → General → Quiet controls → Playback**.
+- Adds four exact display-ad candidates from reviewed YouTube-X source: full_width_portrait_image_layout, full_width_square_image_layout, video_display_full_layout, video_display_full_buttoned_layout.
+- Adds a runtime-signature-checked `YTInnerTubeCollectionViewController / loadWithModel:` candidate boundary alongside the existing addSections boundary. Its selector comes from a public header, not a device observation. Only YTI-prefixed model inputs are traversed; unknown objects are passed through.
+- Uses the existing bounded copy-before-edit traversal. A nil result or exception retains the original model; it does not hide views or touch the player model. The prior thread-local traversal budget is restored afterward.
 
-1. Leave existing working flags unchanged. First check 0.10 with **Observe player ad coordinator OFF**: an ad-bearing normal video should play as before. Player-ad blocking remains paused.
-2. Enable **Observe player ad coordinator**, fully stop/relaunch the guest, and verify diagnostics says `PLAYER TEST 0: observation enabled` and `playerProbe = on` under ACTIVE THIS LAUNCH. Refreshing the feed is not a process restart.
-3. Play two normal videos, preferably one where a preroll occurs and one long enough for a midroll opportunity. Watch at least five minutes beyond the ad-to-content transition. Ad delivery varies, so absence of an ad on a repeat is not evidence of blocking.
-4. If stable, briefly seek, background/lock the phone, and try native PiP. Check the feed and logo remain normal.
-5. Share the hook-status line, the three new probe counters, any `playback error … code …` lines, and a short description of what you actually saw. See TEST-PLAN.md. The existing feed-template capture is not needed for this player test; it can be turned off and the guest restarted if desired.
+Neither the four identifiers nor the new boundary is confirmed to correspond to these screenshots. Dynamic insertion may use another path. Nested template matches can remove larger items, and the shared controller is not Home-only. This switch also runs your existing active feed rules at the new boundary, so watch for unrelated content disappearing. A wholly filtered model is kept rather than passing a nil model that could crash.
 
-If playback fails, stop the test. Disable the probe and fully restart; if necessary revert to 0.9.1 in the same container. Do not repeatedly retry to mask the failure. Capture the error screen/diagnostics if available. Native crashes may need a separately reviewed crash report; this probe cannot guarantee capture before a crash.
+## Build / download
 
-## Validation / limitations
+1. Replace repository contents with the contents of `QuietTube-v0.11`, including hidden `.github`, all Sources and tests. Keep 0.10/0.9.1 IPAs for rollback and preserve the same data container.
+2. Run **Actions → Build QuietTube IPA → Run workflow**. Prefer a private repository; public publication requires explicit approval and exposes the modified IPA.
+3. After success use **Summary → DOWNLOAD IPA — QuietTube 0.11**, downloading `QuietTube-0.11-21.38.2.ipa` directly. Ignore GitHub's autogenerated source archives. Private downloads require an authorized GitHub login.
+4. Import into LiveContainer; no second tweak injection. Fully restart the guest.
 
-39 Python tests passed (8 packaging, 6 release mocks, 25 source/ABI/scope checks). C tests passed under ASan/UBSan: 79 classifier fixtures + 5,000 random-byte iterations and 20 scanner fixtures + 5,000 random-byte iterations. Build/release shell syntax, workflow YAML and archive integrity checked.
+## Test order — change only one new control per comparison
 
-**No Apple SDK compilation, actual GitHub release upload or 0.10 device test was performed here.** Source tests do not execute the native hook or prove unchanged ARC/runtime behavior. GitHub will compile it. Probe data will determine whether this candidate merits a separate default-off blocking experiment; no blocking solution has yet been demonstrated.
+A. **Both new switches OFF:** verify the previous behavior. Existing observation can stay on. The supplied 0.10 result is already recorded; do not resend it.
+
+B. **Player test 1 ON, post-play experiment OFF:** restart. Try the same videos, including one where you saw an ad. Watch at least 5–10 minutes, seek, and check background audio/native PiP. Ads vary between sessions, so one ad-free play is not proof. Stop at the first error, crash or persistent stall. Disable test 1 and restart; if the app cannot reach settings, reinstall 0.10, which does not read the new experiment key. No automatic rollback or crash recovery is implemented. The stored new flag can persist if you later reinstall 0.11.
+
+C. **Player test 1 OFF, post-play experiment ON:** restart. Tap a Home video, swipe down to minimize, and check the card below it. Repeat after normal scrolling/refresh. Note whether the newly loaded sponsored card appears. Use the new model-load and template counters to distinguish an unused boundary from an unmatched format.
+
+D. Combine only if B and C separately work. Re-check ordinary recommendations, logo, settings Done/back, audio and PiP.
+
+See TEST-PLAN.md for the short report format. New flags use the existing immutable launch snapshot; no preference reset or change to your established flags was introduced.
+
+## Validation
+
+43 Python tests passed (8 packaging, 6 release mocks, 29 static/ABI/scope checks). C under ASan/UBSan: 89 classifier fixtures + 5,000 random-byte iterations, 20 capture fixtures + 5,000 random-byte iterations. Shell syntax, YAML and archive integrity checked. Existing baseline hashes still pass after explicitly accounting for the opt-in additions, version and diagnostic text.
+
+**No Apple SDK build, real release upload, device test, successful player blocking or removal of these sponsored cards was demonstrated here.** Runtime checks skip unavailable/wrong-signature methods but cannot establish that returning nil or passing a filtered model is semantically safe. Player test 1 is the first mutation experiment, not a proven fix.

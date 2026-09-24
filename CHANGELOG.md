@@ -1,3 +1,10 @@
+# 0.11 — first player mutation and separate sponsored-card experiment
+
+- New default-off playerExperiment1 skips coordinator creation; the observed native hook is reused, not duplicated. Observation-only still available.
+- New default-off companionAds adds four reference-observed display-ad families and a guarded model-load boundary. No claim that these are the pictured cards' templates/path.
+- Preserve existing working rules, logo, background/PiP, login, navigation, preferences and direct IPA release workflow.
+- New diagnostics, rollback instructions and separate test matrix. Neither experiment device-tested here.
+
 # 0.10 — player test 0, observation only
 
 - Add default-off Observe player ad coordinator control and one signature-checked pass-through hook.

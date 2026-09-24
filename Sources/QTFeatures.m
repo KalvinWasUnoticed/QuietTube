@@ -105,6 +105,11 @@ static BOOL QTDropNode(id node) {
         QTCount(@"match Watch again horizontal shelf candidate"); return YES;
     }
 // END 0.9.1 WATCH AGAIN
+// BEGIN 0.11 EXPERIMENTS
+    if ((kind & QTFeedCompanionAd) && QTOn(@"feedAds") && QTOn(@"companionAds")) {
+        QTCount(@"match post-play display-ad template candidate"); return YES;
+    }
+// END 0.11 EXPERIMENTS
     QTObserveUnmatchedElement(data); // observation only; never changes the filtering decision
     QTCount(@"element retained — no active rule matched");
     return NO;
@@ -201,6 +206,32 @@ void QTInstallFeatures(void) {
             };
         });
     }
+// BEGIN 0.11 EXPERIMENTS
+    // Header-observed alternate model handoff. No view hiding or player-model hooks.
+    // Runtime ABI check and opt-in gate; unknown/non-protobuf inputs are untouched.
+    if (QTOn(@"companionAds") && QTOn(@"feedAds") && QTOn(@"extendedFeed")) {
+        QTHook(@"YTInnerTubeCollectionViewController",@"loadWithModel:",@"v@",^id(IMP old,SEL sel) {
+            return ^(id object,id model) {
+                QTCount(@"post-play model-load boundary invoked");
+                id filtered = model;
+                if ([NSStringFromClass([model class]) hasPrefix:@"YTI"]) {
+                    NSUInteger savedBudget = QTNodeBudget;
+                    @try {
+                        QTNodeBudget = 1200;
+                        id candidate = QTFilteredNode(model,0);
+                        if (candidate) filtered = candidate;
+                        else QTCount(@"empty model-load result prevented — kept original");
+                        if (filtered != model) QTCount(@"post-play model-load changed");
+                    } @catch (__unused NSException *error) {
+                        QTCount(@"model-load filter exception — kept original");
+                        filtered = model;
+                    } @finally { QTNodeBudget = savedBudget; }
+                } else QTCount(@"post-play model-load input unsupported — kept original");
+                ((void (*)(id,SEL,id))old)(object,sel,filtered);
+            };
+        });
+    }
+// END 0.11 EXPERIMENTS
     if (QTOn(@"background")) {
         QTBoolHook(@"YTIPlayabilityStatus",@"isPlayableInBackground",@"background",YES);
         QTBoolHook(@"MLVideo",@"playableInBackground",@"background",YES);

@@ -1,3 +1,9 @@
+# Current status: 0.11 first mutation experiment
+
+0.10 device probe recorded 3 original coordinator calls, 3 object returns, while the user saw ads on one of multiple videos. That justifies testing this active boundary, not declaring it safe. 0.11 adds playerExperiment1, off by default: skip creation and return nil. It is the sole player-blocking mutation. Observation-only remains available. No response/request/signal changes or automatic retries. Failure means disable/restart or roll back, not conceal the error. See TEST-PLAN.md and AUDIT.md.
+
+## Historical rationale below (superseded status headings retained as history)
+
 # Current status: 0.10 observation stage
 
 0.9.1 is user-confirmed stable with playerAds off and ads playing. 0.10 implements the read-only candidate coordinator probe proposed below, behind playerProbe (off by default). This is NOT ad blocking. Runtime method availability/signature and call activity still need device confirmation; no base-binary ABI verification was performed for this selector. See README.md, AUDIT.md and TEST-PLAN.md for current implementation and limitations.

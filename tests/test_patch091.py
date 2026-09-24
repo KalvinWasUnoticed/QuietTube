@@ -8,14 +8,19 @@ class PatchScopeTests(unittest.TestCase):
         for name,expected in baseline.items():
             with self.subTest(file=name):
                 text=(R/name).read_text()
+                text=re.sub(r'// BEGIN 0\.11 EXPERIMENTS\n.*?// END 0\.11 EXPERIMENTS\n','',text,flags=re.S)
+                text=text.replace(', QTFeedCompanionAd = 2048','')
+                text=text.replace(',@"companionAds"]',']')
+                text=text.replace(' || [row[@"key"] isEqualToString:@"companionAds"]','')
+                text=text.replace('Player test 1 is experimental and off by default.','Player-ad blocking remains paused.')
                 text=re.sub(r'// BEGIN 0\.10 PLAYER PROBE\n.*?// END 0\.10 PLAYER PROBE\n','',text,flags=re.S)
                 text=text.replace(' Sources/QTPlayerProbe.m','')
-                text=text.replace('Playback test 0 — observation only','Mix playlist destination filtering')
+                text=text.replace('Playback test 1 and post-play ad experiments','Mix playlist destination filtering')
                 text=re.sub(r'// BEGIN 0\.9\.1 WATCH AGAIN\n.*?// END 0\.9\.1 WATCH AGAIN\n','',text,flags=re.S)
                 text=text.replace(', QTFeedWatchAgain = 1024','')
                 text=text.replace(' || QTOn(@"watchAgain")','')
                 text=text.replace(',@"watchAgain"]',']')
-                text=text.replace('0.10','VERSION')
+                text=text.replace('0.11','VERSION')
                 self.assertEqual(hashlib.sha256(text.encode()).hexdigest(),expected)
     def test_independent_opt_in_and_dependency(self):
         core=(R/'Sources/QTCore.m').read_text()
@@ -25,7 +30,7 @@ class PatchScopeTests(unittest.TestCase):
         self.assertIn('(kind & QTFeedWatchAgain) && QTOn(@"watchAgain")',source)
         self.assertIn('QTOn(@"mixes") || QTOn(@"watchAgain")',source)
         self.assertLess(source.index('if (!QTOn(@"extendedFeed")) return NO;'),source.index('if (QTOn(@"watchAgain"))'))
-        self.assertIn('@"mixes",@"watchAgain"]',(R/'Sources/QTSettings.m').read_text())
+        self.assertIn('@"mixes",@"watchAgain",@"companionAds"]',(R/'Sources/QTSettings.m').read_text())
     def test_native_title_is_shelf_only(self):
         s=(R/'Sources/QTFeatures.m').read_text()
         helper=s[s.index('static NSString *QTShelfTitle'):s.index('static BOOL QTDropNode')]

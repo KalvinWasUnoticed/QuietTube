@@ -7,14 +7,19 @@ class PlayerProbeChecks(unittest.TestCase):
         for name,expected in json.loads((R/'BASELINE-0.9.1.json').read_text()).items():
             with self.subTest(file=name):
                 text=(R/name).read_text()
+                text=re.sub(r'// BEGIN 0\.11 EXPERIMENTS\n.*?// END 0\.11 EXPERIMENTS\n','',text,flags=re.S)
+                text=text.replace(', QTFeedCompanionAd = 2048','')
+                text=text.replace(',@"companionAds"]',']')
+                text=text.replace(' || [row[@"key"] isEqualToString:@"companionAds"]','')
+                text=text.replace('Player test 1 is experimental and off by default.','Player-ad blocking remains paused.')
                 text=re.sub(r'// BEGIN 0\.10 PLAYER PROBE\n.*?// END 0\.10 PLAYER PROBE\n','',text,flags=re.S)
                 text=text.replace(' Sources/QTPlayerProbe.m','')
-                text=text.replace('Playback test 0 — observation only','Mix playlist destination filtering')
-                text=text.replace('0.10','VERSION').replace('0.9.1','VERSION')
+                text=text.replace('Playback test 1 and post-play ad experiments','Mix playlist destination filtering')
+                text=text.replace('0.11','VERSION').replace('0.9.1','VERSION')
                 self.assertEqual(hashlib.sha256(text.encode()).hexdigest(),expected)
     def test_opt_in_and_master_gates(self):
         source=(R/'Sources/QTPlayerProbe.m').read_text()
-        self.assertIn('if (!QTOn(@"enabled") || !QTOn(@"playerProbe")) return;',source)
+        self.assertIn('if (!QTOn(@"enabled") || (!QTOn(@"playerProbe") && !QTOn(@"playerExperiment1"))) return;',source)
         core=(R/'Sources/QTCore.m').read_text()
         start=core.index('@"key":@"playerProbe"')
         self.assertIn('@"default":@NO',core[start:core.index('},',start)])
@@ -22,7 +27,7 @@ class PlayerProbeChecks(unittest.TestCase):
         self.assertIn('@"disabled":@YES',core[start:core.index('},',start)])
     def test_one_original_call_and_same_result(self):
         s=(R/'Sources/QTPlayerProbe.m').read_text()
-        body=s[s.index('return ^id(id object)'):]
+        body=s[s.index('QTProbeCount(@"player probe coordinator call entered")'):]
         self.assertEqual(body.count('((id (*)(id,SEL))old)(object,sel)'),1)
         self.assertIn('return coordinator;',body)
         self.assertNotIn('return nil;',body)
@@ -37,5 +42,5 @@ class PlayerProbeChecks(unittest.TestCase):
         self.assertIn('Sources/QTPlayerProbe.m',(R/'scripts/build.sh').read_text())
     def test_diagnostics_report_actual_launch_mode(self):
         s=(R/'Sources/QTCore.m').read_text()
-        self.assertIn('PLAYER TEST 0:',s)
-        self.assertIn('QTOn(@"playerProbe") ? @"observation enabled" : @"off"',s)
+        self.assertIn('PLAYER MODE:',s)
+        self.assertIn('QTOn(@"playerExperiment1") ? @"TEST 1 — coordinator suppression"',s)

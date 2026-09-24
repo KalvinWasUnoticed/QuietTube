@@ -1,37 +1,36 @@
-# 0.10 — player experiment register
+# 0.11 test report — two independent experiments
 
-## Test 0: observe the ad coordinator, do not block
+Keep existing flags constant. Fully stop/relaunch LiveContainer's guest between runs. Session counters reset on process restart; Clear template capture does NOT reset counters.
 
-Known comparison: user reports 0.9.1 plays through ads without the earlier 10–20-second failures. Those failures came from other modifications, not the current paused player-ad mode. Detection is not established as their cause.
+## Run B: player test 1 only
 
-Variable: playerProbe OFF vs ON; all other flags and the same account/app/container stay constant. Both modes should still show ads. Restart the entire guest between modes. No stable ad delivery is assumed across repeats.
+Settings: playerExperiment1 ON; companionAds OFF. playerProbe may remain ON, but suppression takes precedence. Diagnostics must say TEST 1 — coordinator suppression.
 
-| Run | Probe | Expected | Record manually |
-|---|---|---|---|
-| A | OFF | Existing behavior; no new coordinator hook installed | Ad occurred? Ad-to-content transition worked? At least 5 minutes of content? |
-| B | ON | Same playback; hook may be installed or reported unavailable | Hook status and counters; preroll/midroll actually seen; errors/stalls and approximate timing |
-| B transitions | ON | Normal seek/background/PiP behavior | What worked/failed; whether any failure preceded or followed an ad |
-| Recovery if needed | OFF after full restart | Return to prior behavior | Whether the failure stops; revert to 0.9.1 if necessary |
+Record:
+- Video played / stalled / showed error / crashed?
+- Preroll or midroll actually seen? Approximate uninterrupted playback duration?
+- Seeking, background audio, native PiP results?
+- `player test 1 coordinator creation suppressed` counter.
+- Any `playback error … code …` counter and the visible error text/time.
 
-## What to share
+An installed hook or suppressed call is not proof of ad removal. Zero omitted counters mean no recorded event, not necessarily no failure. If it fails, stop and restore test 1 OFF + full restart; if settings are inaccessible, revert to 0.10. Restoring 0.10 leaves the unknown experiment flag stored but ignored; remember to turn it off if returning to 0.11. Do not keep retrying or change network/client settings to hide the failure.
 
-- Version and ACTIVE THIS LAUNCH `playerProbe` value.
-- `YTLocalPlaybackController / createAdsPlaybackCoordinator` hook status.
-- `player probe coordinator call entered`.
-- `player probe coordinator returned object`.
-- `player probe coordinator returned nil`.
-- Any `playback error YouTube code …` or `playback error other code …` counters.
-- What you saw: ads, normal content, stall/error; approximate time into the video; foreground/background/PiP.
+## Run C: post-play sponsored cards only
 
-Zero-valued counters are omitted. Counts are process-session totals, not video or ad counts. Do not compare them to a different session without noting the restart. There is no probe reset control; restart for a fresh run. Existing capture-reset only clears feed capture, not these counters. A crash may prevent a report. Review any crash report before sharing; do not share tokens, signed media URLs or account data.
+Settings: playerExperiment1 OFF; companionAds ON; feedAds ON; extendedFeed ON. Diagnostics should report observation-only or native player mode.
 
-## How results determine the next step
+Tap a Home video, minimize with a downward swipe, and inspect the card beneath the selected video. Compare with this new switch OFF. Record normal Home content and search/subscription behavior too, because the controller is shared.
 
-- Unavailable/signature mismatch: do not force-install or guess a signature. Inspect the matching native executable or find a different verified entry point.
-- Installed, no calls during observed ads: this method is not a demonstrated active boundary for the tested path. Do not assume suppression here will help.
-- Calls with object returns: method is active, but this does not establish ad identity, coordinator necessity, or safety of returning nil.
-- Nil returns while ads play: another path may exist; not evidence of blocking.
-- Error with probe on but not off: halt mutation work and investigate the probe regression first.
-- Stable observation and relevant activity: choose one explicitly opt-in blocking hypothesis for the next build. Do not combine coordinator suppression, response transformations and request changes.
+Relevant NEW evidence:
+- `YTInnerTubeCollectionViewController / loadWithModel:` hook status.
+- `post-play model-load boundary invoked`.
+- `post-play model-load input unsupported — kept original`.
+- `post-play model-load changed`.
+- `match post-play display-ad template candidate`.
+- `empty model-load result prevented — kept original` or `model-load filter exception — kept original`.
 
-The existing error observer always forwards to YouTube's original handler. This build makes no retry/seek/error-masking changes and contains no hidden blocking mode. No assumption that server-side detection caused prior failures. No promise of undetectability or uninterrupted ad-free playback.
+A model-load hit is not proof of a post-minimize insertion; the hook can run for other loads. A format hit is not uniquely tied to a screenshot. If cards remain, clear template capture immediately BEFORE reproducing to avoid the already-observed 128-sample cap, then share only fresh groups and these new counters. Do not resend the old 0.10 capture as new evidence. Never block generic injection or video_metadata keys as a workaround.
+
+## Stop conditions / privacy
+
+Stop on crash, repeatable playback failure, missing ordinary content or navigation regression. Disable only the implicated new experiment, restart and compare. No automatic retries, error masking, crash recovery or server-side invisibility is implemented. Existing error observer forwards to YouTube unchanged. No raw player/request/response objects, signed URLs, cookies or tokens are logged. Review reports/screenshots before sharing.

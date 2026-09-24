@@ -18,6 +18,12 @@ NSArray<NSDictionary *> *QTOptions(void) {
     static dispatch_once_t once;
     dispatch_once(&once, ^{
         options = @[
+// BEGIN 0.11 EXPERIMENTS
+          @{ @"key":@"playerExperiment1", @"title":@"Player test 1: skip ad coordinator", @"group":@"Playback", @"default":@NO,
+             @"note":@"Experimental: may cause stalls, errors or crashes. Returns nil instead of creating the ad coordinator. Restart required. Overrides observation-only mode; disable and restart if playback fails." },
+          @{ @"key":@"companionAds", @"title":@"Post-play sponsored-card experiment", @"group":@"Distractions", @"default":@NO,
+             @"note":@"Additional display-ad templates and model-load filtering. Requires Feed ads and Extended feed formats. May miss other insertion paths or match nested content. Test separately from player test 1." },
+// END 0.11 EXPERIMENTS
 // BEGIN 0.10 PLAYER PROBE
           @{ @"key":@"playerProbe", @"title":@"Observe player ad coordinator", @"group":@"Playback", @"default":@NO,
              @"note":@"Test 0: counters only, NOT ad blocking. Keeps the native coordinator unchanged. Restart to enable/disable; compare with probe off." },
@@ -184,10 +190,10 @@ void QTObserveUnmatchedElement(NSData *data) {
 }
 NSString *QTDiagnostics(void) {
     NSMutableString *s = [NSMutableString stringWithFormat:
-        @"QuietTube 0.10 Playback test 0 — observation only\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
+        @"QuietTube 0.11 Playback test 1 and post-play ad experiments\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
         [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"], UIDevice.currentDevice.systemVersion];
 // BEGIN 0.10 PLAYER PROBE
-    [s appendFormat:@"PLAYER TEST 0: %@\nAd blocking is NOT implemented by this probe. Original coordinator result is preserved. Counts are not ad counts.\n\n", QTOn(@"playerProbe") ? @"observation enabled" : @"off"];
+    [s appendFormat:@"PLAYER MODE: %@\nCounts are not ad counts. Experiment 1 skips the native creator; disable and restart on errors. No undetectability or playback guarantee.\n\n", QTOn(@"playerExperiment1") ? @"TEST 1 — coordinator suppression" : (QTOn(@"playerProbe") ? @"TEST 0 — observation only" : @"OFF — native playback")];
 // END 0.10 PLAYER PROBE
     [s appendString:@"ACTIVE THIS LAUNCH\n"];
     for (NSString *key in [[QTActiveFlags allKeys] sortedArrayUsingSelector:@selector(compare:)])

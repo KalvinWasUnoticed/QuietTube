@@ -85,6 +85,16 @@ int main(void) {
     assert(match("chip_cloud \x0a\x0eWatch it again") == 0);
     assert(match("home_vertical_feed_prominence_group_key inline_injection_teaser") == 0);
     assert(match("horizontal_shelf \x0a\x0eWatch it again ?list=RDabc") == (QTFeedWatchAgain|QTFeedMixURL));
+    assert(match("full_width_portrait_image_layout.eml-fe") == QTFeedCompanionAd);
+    assert(match("full_width_square_image_layout") == QTFeedCompanionAd);
+    assert(match("video_display_full_layout") == QTFeedCompanionAd);
+    assert(match("video_display_full_buttoned_layout") == QTFeedCompanionAd);
+    assert(match("not_video_display_full_layout") == 0);
+    assert(match("video_display_full_layout_extra") == 0);
+    assert(match("video_metadata.eml-fe video_metadata_carousel_collection") == 0);
+    assert(match("inline_injection_teaser ic_video_youtube id.video.add_to.button") == 0);
+    assert(match("Sponsored MIVI MadMuscles Visit site") == 0);
+    assert(match("full_width_portrait_image_layout shorts_shelf") == (QTFeedCompanionAd|QTFeedShorts));
     /* Deterministic malformed-byte smoke test under ASan/UBSan. */
     unsigned state=1234567;
     unsigned char noise[257];
@@ -92,8 +102,8 @@ int main(void) {
         size_t n=round%sizeof(noise);
         for (size_t k=0;k<n;k++) { state=state*1664525u+1013904223u; noise[k]=(unsigned char)(state>>24); }
         unsigned value=QTClassifyElementBytes(noise,n);
-        assert((value & ~2047u)==0);
+        assert((value & ~4095u)==0);
     }
-    puts("79 classifier fixtures + 5000 bounded random-byte iterations passed");
+    puts("89 classifier fixtures + 5000 bounded random-byte iterations passed");
     return 0;
 }
