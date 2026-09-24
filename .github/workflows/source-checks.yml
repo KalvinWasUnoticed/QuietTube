@@ -1,0 +1,21 @@
+name: Source checks (no app download)
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s tests -v
+      - name: Pure C and shell checks
+        run: |
+          for source in tests/test_feed_rules.c tests/test_template_scan.c tests/test_ad_state.c tests/test_insertion_policy.c; do
+            output="$RUNNER_TEMP/$(basename "$source" .c)"
+            cc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined "$source" -o "$output"
+            "$output"
+          done
+          bash -n scripts/build.sh scripts/release.sh
