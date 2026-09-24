@@ -1,5 +1,5 @@
 name: Build QuietTube IPA
-run-name: QuietTube 0.6 — direct IPA download
+run-name: QuietTube 0.7 — direct IPA download
 on:
   workflow_dispatch:
     inputs:
@@ -60,7 +60,7 @@ jobs:
       - name: Package the IPA for LiveContainer
         run: |
           python scripts/package.py "$RUNNER_TEMP/YouTube-base.ipa" \
-            artifacts/QuietTube.dylib artifacts/QuietTube-0.6-21.38.2.ipa
+            artifacts/QuietTube.dylib artifacts/QuietTube-0.7-21.38.2.ipa
       - name: DOWNLOAD IPA — publish direct link in Summary and Releases
         env:
           GH_TOKEN: ${{ github.token }}
