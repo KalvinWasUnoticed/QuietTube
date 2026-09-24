@@ -22,7 +22,7 @@ NSArray<NSDictionary *> *QTOptions(void) {
              @"note":@"Read-only bounded event timeline. Prepare ad test enables this. Restart required." },
 // BEGIN 0.13 AD PROFILE
           @{ @"key":@"adTest", @"title":@"Ad test profile", @"group":@"Playback", @"default":@NO,
-             @"note":@"Native player no-op plus companion-ad clearing. One switch. Experimental; restart required. Stops on observed playback errors." },
+             @"note":@"Native player no-op plus scoped feed insertion filtering (requires feed ads). Experimental; restart required. Stops on observed playback errors." },
 // END 0.13 AD PROFILE
 // BEGIN 0.9.1 WATCH AGAIN
           @{ @"key":@"watchAgain", @"title":@"Hide “Watch it again” shelves", @"group":@"Distractions", @"default":@NO,
@@ -182,7 +182,7 @@ void QTObserveUnmatchedElement(NSData *data) {
 }
 NSString *QTDiagnostics(void) {
     NSMutableString *s = [NSMutableString stringWithFormat:
-        @"QuietTube 0.13.4 Ad profile and bounded troubleshooting\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
+        @"QuietTube 0.13.5 Ad profile and bounded troubleshooting\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
         [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"], UIDevice.currentDevice.systemVersion];
 // BEGIN 0.13 AD PROFILE
     [s appendString:QTAdReport()];

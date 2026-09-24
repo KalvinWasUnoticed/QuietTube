@@ -1,3 +1,11 @@
+# 0.13.5 update
+
+Actual scoped blocking replaces the zero-call companion hook. Device 0.13.4 evidence: one inserted YTIElementRenderer had explicit adLogging=yes with byte mask 0. Apply the existing marker rule at the binary-verified array insertion boundary, only within the observed app-collection handler's synchronous scope. Preserve normal entries and native results/errors; exact ABI guards, fail-open preparation, 512-entry cap, thread-local @finally restoration. Empty input's native no-op branch was inspected. No generic template blacklist or player changes.
+
+70 Python checks clean/overlay, four C sanitizer suites and frozen player/cleanup checks pass. Native compile/device behavior remains unverified. Read README and BASE-FEED-INSERTION-ABI.json for scope/limits. Historical sections below do not describe current installed companion behavior.
+
+---
+
 # 0.13.4 update
 
 Device trace: didCollapse followed 403 ms later by applyMutationOperation → handleInsertItemSectionContent → one YTIElementRenderer insert notification. All flags ON; five player substitutions; zero companion callbacks; sponsored card persists. Native event correlation is observed, but exact payload/ad identity is not yet established.

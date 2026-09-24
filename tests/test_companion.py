@@ -11,14 +11,11 @@ class CompanionChecks(unittest.TestCase):
         m=next(m for m in rec['methods'] if m['name']=='companionAdDidChange:interactionLoggingAdsClientData:')
         self.assertEqual(re.sub(r'\d+','',m['types']).replace('@:','',1),'v@@')
         self.assertEqual(rec['class'],'YTCompanionAdObserverBehavior')
-    def test_native_clear_and_disabled_passthrough(self):
+    def test_unused_companion_hook_retired(self):
         s=(R/'Sources/QTAdProfile.m').read_text()
-        feed=s[s.index('    if (!QTFeedProfileInstalled) {'):s.index('    if (!QTPlayerProfileInstalled) {')]
-        self.assertIn('if (!QTAdActive())',feed)
-        self.assertIn('old)(object,selector,update,loggingData)',feed)
-        self.assertIn('old)(object,selector,nil,nil)',feed)
-        self.assertNotIn('clearEntries]',feed) # native method performs clearing; no general model editing
-        self.assertLess(feed.index('old)(object,selector,nil,nil)'),feed.index('@try'))
+        self.assertNotIn('YTCompanionAdObserverBehavior',s)
+        self.assertNotIn('companionAdDidChange:',s)
         self.assertNotIn('enableWatchWhileFeedMutationOnIos',s)
+        self.assertIn('QTInstallFeedInsertion()',s)
     def test_c_status_strings_are_ascii(self):
         (R/'Sources/QTAdState.h').read_bytes().decode('ascii')

@@ -98,6 +98,10 @@ static void QTTraceRecord(NSUInteger slot, id receiver, id argument, NSString *d
         }
     } @catch (__unused NSException *exception) { /* Diagnostic failure never replaces native behavior. */ }
 }
+void QTTraceFeedInsertion(id receiver, id operation) {
+    if (QTOn(@"enabled") && QTOn(@"mutationTrace"))
+        QTTraceRecord(5,receiver,operation,@"enter (shared scope hook)");
+}
 static void QTTraceHook(NSUInteger slot, NSString *clsName, NSString *selName, NSString *abi, id (^factory)(IMP,SEL)) {
     if (QTTraceInstalled[slot]) return;
     Class cls=NSClassFromString(clsName);
@@ -135,6 +139,11 @@ void QTInstallMutationTrace(void) {
         };
     });
     for (NSUInteger slot=3;slot<8;slot++) {
+        // One owner per selector: the feed scope hook supplies this trace event.
+        if (slot==5 && QTFeedInsertionHandlerInstalled()) {
+            QTTraceInstalled[slot]=YES;
+            continue;
+        }
         QTTraceHook(slot,@"YTInnerTubeCollectionViewController",QTTraceNames()[slot],@"@@^",^id(IMP old,SEL sel) {
             return ^id(id obj, id operation, NSError *__autoreleasing *error) {
                 QTTraceRecord(slot,obj,operation,@"enter");
@@ -162,7 +171,7 @@ NSString *QTMutationReport(void) {
         [s appendFormat:@"Element detail samples: %lu / 6 per window; max 3 entries/call, 8 template candidates/entry, 256 KiB/entry.\n",(unsigned long)QTTraceElementSamples];
         [s appendString:@"Template candidates are lexical clues, not decoded roots or a deletion verdict. No raw bytes/titles/URLs are printed.\n"];
         [s appendFormat:@"Up to 24 pre-events / 96 total; 12s window. Discarded=%lu; outside-window=%lu.\n",(unsigned long)QTTraceDropped,(unsigned long)QTTraceOutside];
-        [s appendString:@"Calls are pass-through. Nearby events do not prove ad identity or causation. No monitored call does not mean no native mutation.\n"];
+        [s appendString:@"Trace callbacks are observational. The shared handler scopes explicit-ad filtering separately (see feed counters). Nearby events alone do not prove ad identity. No monitored call does not mean no native mutation.\n"];
         NSTimeInterval anchor=QTTraceCollapse ?: [QTTraceEvents.firstObject[@"time"] doubleValue];
         for (NSDictionary *event in QTTraceEvents)
             [s appendFormat:@"%+.3fs %@\n",[event[@"time"] doubleValue]-anchor,event[@"text"]];

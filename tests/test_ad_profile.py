@@ -30,7 +30,8 @@ class AdProfileTests(unittest.TestCase):
         s=(R/'Sources/QTAdProfile.m').read_text()
         self.assertIn('!QTPlayerProfileInstalled',s)
         self.assertIn('!QTFeedProfileInstalled',s)
-        self.assertEqual(s.count('QTHook('),2)
+        self.assertEqual(s.count('QTHook('),1)
+        self.assertIn('QTInstallFeedInsertion()',s)
     def test_error_latch_and_native_error_forwarding(self):
         s=(R/'Sources/QTAdProfile.m').read_text()
         self.assertIn('atomic_exchange(&QTAdTripped,true)',s)
@@ -60,4 +61,5 @@ class AdProfileTests(unittest.TestCase):
         self.assertNotIn('Effective now:',s)
         self.assertIn('QTAdState(',s)
         self.assertIn('PLAYER BLOCKING NOT DEMONSTRATED',s)
-        self.assertIn('FEED WORKAROUND NOT OBSERVED',s)
+        self.assertIn('QTFeedInsertionReport()',s)
+        self.assertIn('FEED BLOCKING NOT DEMONSTRATED',(R/'Sources/QTFeedInsertion.m').read_text())

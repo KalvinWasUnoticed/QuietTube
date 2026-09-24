@@ -31,3 +31,9 @@ void QTAdPlaybackError(NSError *error);
 void QTInstallMutationTrace(void);
 void QTPrepareAdTest(void);
 NSString *QTMutationReport(void);
+
+BOOL QTAdProfileActive(void);
+BOOL QTInstallFeedInsertion(void);
+BOOL QTFeedInsertionHandlerInstalled(void);
+NSString *QTFeedInsertionReport(void);
+void QTTraceFeedInsertion(id receiver, id operation);
