@@ -1,9 +1,15 @@
-# 0.13.5 test
+# Release-candidate acceptance
 
-Build a new committed workflow and download its direct IPA release link. Tap Prepare ad test, fully stop/relaunch the LiveContainer guest. Play one video, swipe down once, wait about 12 seconds, copy Advanced → Ad test report. State sponsored-card appearance and any playback/feed regression. Avoid additional swipes/scrolling before copying. No new flags or full diagnostics.
+First build with unchanged existing preferences. Do not immediately apply a preset: confirm upgrade preserves the known-working configuration. Keep the previous IPA/data container for rollback.
 
-Expected distinction: handler hook + array hook installed; handler invoked; array insertion called inside eligible scope; explicit marker matched; filtered original array call returned; withheld count positive. These stages are not interchangeable. If no scoped array calls occur, the proposed native boundary was not exercised; do not claim success. An all-ad filtered batch can produce no insert notification. Partial batches must preserve ordinary entry order. Positive withheld counts plus a visible card indicate another path/card or reinsertion needing investigation.
+1. Open Quiet controls. All controls have clear labels; existing settings retain their values. Back/Done stays visible.
+2. Toggle several options rapidly. No modal confirmation should appear. The notice resets its three-second timeout and the footer retains pending-restart status. Toggle back to launch values; the pending state should clear.
+3. Enable a cleanup option with its prerequisite off. Required matching turns on too; no alert interrupts the action. Disable extended matching deliberately; dependent selections are retained with an explanation.
+4. Open a preset, review every before/after value, then back out: nothing changes. Reopen and Apply: only listed settings change; background and next-video choices are retained.
+5. Restart the guest. Confirm the pending footer clears, playback and swipe-down feed-ad blocking still work, and native PiP/background, sign-in and existing cleanup have no regression. Logging-off protection should work because runtime gating did not change.
+6. Check dark/light mode and large Dynamic Type, scrolling, page titles, footer and switch labels. Check Advanced → Troubleshooting support report; enabling its test preparation gives a non-modal notice.
+7. Test master OFF preserves individual values. Only Disable all options clears selections, after confirmation.
 
-Regression checks: with profile/feedAds inactive or safety-stopped, unknown/unmarked entries, outside-scope calls and other controllers must remain native. Filtering must work with mutationTrace disabled. Scope must restore after nested calls/exceptions. Original handler result/NSError pointer and original array call are forwarded exactly once, without a catch around native operations. Empty batches are allowed only because this specific native method was inspected. Do not generalize to section arrays or notifications.
+Native UI/device results are pending; report any mismatch before public promotion. No repeated forced ad-test matrix is required for normal use.
 
-Offline: python -m unittest discover -s tests; GCC ASan/UBSan tests/test_{feed_rules,template_scan,ad_state,insertion_policy}.c; bash -n scripts/build.sh scripts/release.sh; parse workflow YAML; repeat Python tests overlaid onto 0.13.4. Source and C tests cannot validate Objective-C execution; Apple build and device test remain separate.
+Offline: python -m unittest discover -s tests; four tests/test_*.c with ASan/UBSan; bash syntax and workflow YAML parse; overlay onto 0.13.5 then rerun Python tests. Hash protection covers runtime modules and accepted integration boundaries; settings UI expectations were intentionally updated.

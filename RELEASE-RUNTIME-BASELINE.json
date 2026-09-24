@@ -1,0 +1,10 @@
+{
+  "Sources/QTFeatures.m": "25312b93db7ad5de50927c17c74c5f15654a474a8b661c13044a8b6a22efe589",
+  "Sources/QTLogo.m": "0eb9f6e10bdcb77caa4e018c9fde13468725c844fd9a5beafdb5866cc82b41df",
+  "Sources/QTAdProfile.m": "9df95d393af1afb05071b54dbcc088ae9d527d2451fdac8190c1830e68e4ea5d",
+  "Sources/QTFeedInsertion.m": "3ebff67ea5acf4137a164bdf0352beb8a0285e7d3127f32ea9dc280f95062ddf",
+  "Sources/QTMutationTrace.m": "f895093d3dbcd12a155c24b765dd81e36b026d4f13bd3912792efc94eea00e14",
+  "Sources/QTInsertionPolicy.h": "abf297c7aacb9113fff01239e20c5f657ea61c683a00fbe0e1ede7eef9caed6c",
+  "Sources/QTFeedRules.h": "152f5052c7649ebb01d3462454b88bf3fd7920ee05f55345283d570076273a6f",
+  "Sources/QTTemplateScan.h": "17f2e85a74b9d0dcef43a6d1005ed198ff82ff8d81e862bb34a7aedb7b880d4e"
+}
