@@ -1,0 +1,168 @@
+{
+  "logo": {
+    "base_sha256": "d0f6f5c9d27f7fea8f040ae59c425b3a8222f67d891937374b21ef8937deba11",
+    "method_owner": "YTHeaderLogoControllerImpl",
+    "methods": [
+      {
+        "name": "updateToDefaultLogo",
+        "types": "v16@0:8"
+      },
+      {
+        "name": "updateLogoFromNitrateIfNeeded",
+        "types": "v16@0:8"
+      },
+      {
+        "name": "updateLogoWithLottieAnimation:",
+        "types": "v24@0:8@16"
+      },
+      {
+        "name": "updateLogoWithImage:needsRescaling:withYoodle:",
+        "types": "v32@0:8@16B24B28"
+      },
+      {
+        "name": "defaultLogoImage",
+        "types": "@16@0:8"
+      },
+      {
+        "name": "pageStyle",
+        "types": "q16@0:8"
+      }
+    ]
+  },
+  "trace": {
+    "base_sha256": "d0f6f5c9d27f7fea8f040ae59c425b3a8222f67d891937374b21ef8937deba11",
+    "classes": [
+      {
+        "class": "YTAppWatchControllerImpl",
+        "methods": [
+          {
+            "name": "handleWatchViewLayoutChangedFromLayout:toLayout:",
+            "types": "v32@0:8q16q24"
+          }
+        ]
+      },
+      {
+        "class": "YTWatchLayerViewController",
+        "methods": [
+          {
+            "name": "willCollapseWatchFlowWithAnimationStyle:",
+            "types": "v24@0:8q16"
+          },
+          {
+            "name": "didCollapseWatchFlowWithGestureType:",
+            "types": "v20@0:8i16"
+          }
+        ]
+      },
+      {
+        "class": "YTInnerTubeCollectionViewController",
+        "methods": [
+          {
+            "name": "applyMutationOperation:error:",
+            "types": "@32@0:8@16^@24"
+          },
+          {
+            "name": "handleReplaceSection:error:",
+            "types": "@32@0:8@16^@24"
+          },
+          {
+            "name": "handleInsertSectionOperation:error:",
+            "types": "@32@0:8@16^@24"
+          },
+          {
+            "name": "handleInsertItemSectionContent:error:",
+            "types": "@32@0:8@16^@24"
+          },
+          {
+            "name": "handleReplaceItemSectionContent:error:",
+            "types": "@32@0:8@16^@24"
+          }
+        ]
+      },
+      {
+        "class": "YTArraySectionViewModel",
+        "methods": [
+          {
+            "name": "didInsertEntries:atIndexes:",
+            "types": "v32@0:8@16@24"
+          }
+        ]
+      }
+    ]
+  },
+  "insertion": {
+    "base_sha256": "d0f6f5c9d27f7fea8f040ae59c425b3a8222f67d891937374b21ef8937deba11",
+    "surfaces": [
+      {
+        "class": "YTInnerTubeCollectionViewController",
+        "methods": [
+          {
+            "name": "handleInsertItemSectionContent:error:",
+            "types": "@32@0:8@16^@24"
+          },
+          {
+            "name": "insertContents:byPosition:inSection:error:",
+            "types": "@44@0:8@16i24@28^@36"
+          },
+          {
+            "name": "insertContents:byRelativePosition:toTargetId:inSection:error:",
+            "types": "@52@0:8@16i24@28@36^@44"
+          }
+        ]
+      },
+      {
+        "class": "YTArraySectionViewModel",
+        "methods": [
+          {
+            "name": "appendEntries:",
+            "types": "v24@0:8@16"
+          },
+          {
+            "name": "prependEntries:",
+            "types": "v24@0:8@16"
+          },
+          {
+            "name": "insertEntries:beforeEntry:",
+            "types": "q32@0:8@16@24"
+          },
+          {
+            "name": "insertEntries:afterEntry:",
+            "types": "q32@0:8@16@24"
+          },
+          {
+            "name": "insertEntries:atIndex:",
+            "types": "v32@0:8@16Q24"
+          }
+        ]
+      }
+    ]
+  },
+  "player": {
+    "surfaces": [
+      {
+        "class": "YTRealAdsPlayerServices",
+        "methods": [
+          {
+            "name": "adsPlaybackCoordinatorWithOverlayManager:delegate:parentResponder:contentPlayerResponse:",
+            "types": "@48@0:8@16@24@32@40"
+          }
+        ],
+        "ivars": [
+          {
+            "name": "_serviceRegistryScope",
+            "type": "@\"<YTServiceRegistryScope>\""
+          }
+        ]
+      }
+    ],
+    "no_op": {
+      "class": "YTNoOpAdsPlaybackCoordinator",
+      "methods": [
+        {
+          "name": "initWithServiceRegistryScope:delegate:",
+          "types": "@32@0:8@16@24"
+        }
+      ]
+    }
+  }
+}

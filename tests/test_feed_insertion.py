@@ -3,9 +3,8 @@ import json, unittest
 R=Path(__file__).resolve().parents[1]
 S=(R/'Sources/QTFeedInsertion.m').read_text()
 class FeedInsertionTests(unittest.TestCase):
- def test_verified_boundaries_and_native_empty_branch(self):
-  record=json.loads((R/'BASE-FEED-INSERTION-ABI.json').read_text())
-  self.assertIn('0x100505714',record['evidence']['empty_array_noop'])
+ def test_verified_boundary_signatures(self):
+  record=json.loads((R/'tests/fixtures/native-abi.json').read_text())['insertion']
   for name,typ,compact in [('handleInsertItemSectionContent:error:','@32@0:8@16^@24','@@^'),('insertEntries:atIndex:','v32@0:8@16Q24','v@Q')]:
    self.assertTrue(any(m['name']==name and m['types']==typ for c in record['surfaces'] for m in c['methods']))
    self.assertIn('"'+typ+'"',S)

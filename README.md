@@ -1,68 +1,81 @@
-# QuietTube · 0.14.0-rc1
+<p align="center">
+  <img src="docs/assets/banner.svg" width="100%" alt="QuietTube — Less noise. More video. A simpler way to watch, still the native app.">
+</p>
 
-**Installing the consolidated update? Read [START-HERE.md](START-HERE.md). This is the full settings release plus the handoff fix, not a patch-only package.**
+<p align="center">
+  <strong>An annoyance-free idea. A quieter way to watch.</strong><br>
+  Native YouTube customization for iOS, built around the video—not everything surrounding it.
+</p>
 
-An unofficial YouTube customization focused on fewer distractions, native playback and understandable settings. **Not affiliated with or endorsed by YouTube or Google.**
+<p align="center">
+  <a href="https://github.com/KalvinWasUnoticed/QuietTube/fork"><strong>Fork & build ↗</strong></a>
+  &nbsp; · &nbsp; <a href="docs/INSTALL.md">Installation guide</a>
+  &nbsp; · &nbsp; <a href="https://github.com/KalvinWasUnoticed/QuietTube/issues">Get help</a>
+</p>
 
-**Release candidate — source and build workflow, not a compiled IPA.** The new settings UI needs native build/device validation before general release. Nothing has been published by this preparation pass.
+> **Source-first release.** Actions builds **QuietTube's library only**. No YouTube app, base-app download or prebuilt IPA is provided. Local packaging requires a computer, Python 3.11+ and your own authorized, exactly compatible base. [Read the requirements first →](docs/INSTALL.md#before-you-start)
 
-## What's new
+## Why QuietTube?
 
-- Native grouped settings: **Presets, Ads, Feed, Playback, Appearance, Advanced**.
-- Plain-language option labels, descriptions and retained feature limitations.
-- Non-modal “Saved · Restart to apply” notice: automatically dismisses after three seconds; rapid changes replace the notice rather than stacking dialogs. A persistent footer shows pending changes until the guest restarts.
-- Enabling a dependent setting also saves its prerequisites. Disabling a prerequisite preserves dependent selections and explains when they are paused.
-- Optional presets with a complete before/after preview and explicit Apply. Leaving the preview makes no changes.
-- Troubleshooting tools moved under Advanced, with local-capture/privacy explanations.
-- Existing preference keys, defaults and launch snapshot behavior retained. **No preset or migration is silently applied to existing users.** New-install modifications remain off until enabled.
+QuietTube started with a simple frustration: opening YouTube to watch a video, then dealing with ads, promotional shelves and recommendations you never asked for.
 
-### Presets
+The goal isn't to add another screen full of features. It's to make watching feel simple again: fewer interruptions, a calmer feed and controls that stay out of the way. The familiar native player stays. You choose what disappears.
 
-| Preset | Saves | Leaves alone |
-|---|---|---|
-| Ads & essentials | Master, video/feed ad blocking, additional ad formats, extended matching, classic logo ON; detailed tracing/template capture OFF | Other feed choices, background audio, next-video setting |
-| Focused feed | Ads & essentials plus all available feed cleanup ON | Background audio and next-video setting |
+## Keep the video. Lose the clutter.
 
-Presets are targeted bundles, not a reset. Choosing Ads & essentials after Focused feed does **not** undo the earlier feed cleanup. The preview lists every affected setting, including unchanged ones. Basic bounded support counters remain available when detailed capture is off.
+| A little less… | A little more… |
+| :--- | :--- |
+| **Ad interruption** | Video-ad protection and filtering for recognized feed ads, including the tested post-minimize insertion path. |
+| **Feed noise** | Optional hiding of Shorts shelves, Mixes, Watch it again, topic suggestions, Playables, promotional shelves and large portrait cards. |
+| **Unwanted next videos** | A switch to stop supported automatic next-video actions. |
+| **Settings friction** | Two preview-before-Apply presets, automatic prerequisite handling and restart notices without confirmation dialogs. |
+| **Unnecessary reinvention** | Background audio, YouTube's native PiP setting and the classic header logo. |
 
-## Stable runtime baseline
+These are scoped rules, not a promise to remove every ad or every matching surface. Shorts-tab removal, downloads and SponsorBlock are **not** included. [Coverage & limitations →](docs/SETTINGS.md)
 
-The user reported successful feed blocking in 0.13.5: one explicit-ad entry matched and withheld, native insertion returned, and no sponsored card appeared. Further use was reported working well. Earlier 0.13.1 player tests reported active native no-op substitution without player ads or playback errors in that session.
+## Your settings, not another dashboard
 
-This candidate does not redesign those paths. Frozen hashes protect eight runtime modules plus the accepted integration/cleanup boundaries. This is limited device evidence, not a guarantee for all videos, ads or future YouTube updates.
+<p align="center">
+  <a href="docs/assets/settings.png"><img src="docs/assets/settings.png" width="300" alt="Quiet controls home: master switch, Presets, Ads, Feed, Playback, Appearance and Advanced."></a>
+  &nbsp;&nbsp;
+  <a href="docs/assets/presets.png"><img src="docs/assets/presets.png" width="300" alt="Preset chooser with Ads and essentials and Focused feed."></a>
+</p>
+<p align="center"><sub>Real screenshots supplied from the tested RC1 settings build. Cropped/resized only; the layout is retained in 1.0.0. Right: preset chooser, not the Apply preview.</sub></p>
 
-## Compatibility and installation
+**Ads & essentials** enables ad protection and the classic logo, with detailed logging off. **Focused feed** adds the available feed-cleanup options. Both show what will change before you apply them and leave background-audio/next-video preferences alone.
 
-- Exact inspected base: **YouTube 21.38.2**, pinned SHA256 in the build/evidence records. Do not substitute a newer IPA without revalidating private APIs.
-- Reported test environment: iPhone 14, iOS 26.5, LiveContainer 3.8.0. Broad device compatibility is not established.
-- The library targets iOS 17+. This is a build target, not proof of support on every device/version.
-- Use YouTube's native Picture in Picture setting. No replacement player or separate PiP control is added.
+Find everything at **You → Settings → General → Quiet controls**. Existing preferences are kept on upgrade. Fresh installs opt in. Changes apply after fully stopping and reopening the LiveContainer guest.
 
-For your private evaluation build:
-1. Copy all repository contents, including hidden `.github`, and commit. When upgrading the repository, remove obsolete root `AUDIT.md`, `BINARY-RESEARCH.md` and `PLAYER-ADS-RESEARCH.md`; their historical versions now live under `docs/history`. Start a **new** Build QuietTube IPA workflow run.
-2. On success use **Summary → DOWNLOAD IPA — QuietTube 0.14.0-rc1**. The link downloads the actual `.ipa`, not an artifact ZIP. Private downloads require GitHub login with repository access.
-3. Import into the same LiveContainer data container, without a second injection. Keep 0.13.5 for rollback. Do not delete existing app data.
-4. Open **You → Settings → General → Quiet controls**. Existing users can keep their preferences; new users can preview a preset.
-5. Fully stop/relaunch the LiveContainer guest after changing settings. Refreshing Home is not a restart.
+## Build it on your fork
 
-The workflow fetches a third-party-hosted base and verifies its exact hash; host availability and redistribution authority are separate concerns. Public IPA publishing remains explicitly gated. Prefer a public **source-only** release unless you have established the necessary redistribution rights. See [RELEASE-CHECKLIST.md](RELEASE-CHECKLIST.md).
+1. **Fork** this repository into your GitHub account.
+2. In **your fork**, open **Actions** and enable workflows if prompted.
+3. Select **Build QuietTube library → Run workflow**. No Apple credentials or base-app URL are requested.
+4. Download the **library artifact ZIP** from the successful run's Summary. It is **not an IPA**.
+5. Follow the [local packaging and LiveContainer guide](docs/INSTALL.md) using your own authorized compatible base.
 
-## Troubleshooting and rollback
+The complete guide also links the official SideStore setup instructions. The cloud build needs no local Xcode; the local packaging step still needs a computer with Python. Nothing runs automatically to build an app when someone forks the repository.
 
-Advanced → Troubleshooting → View support report is the short report (previously “Ad test report”). Prepare a support test is only for diagnosing issues: it enables protection, extended matching and detailed local capture, preserving unrelated preferences. Review reports before sharing.
+## Tested, with boundaries
 
-The playback-error safety latch remains unchanged: future calls revert to native behavior and protection is saved OFF. It does not repair existing players or restore withheld feed entries. Restart after errors; revert the IPA for crashes/stalls or broken feed updates.
+| Component | Reported test environment |
+| :--- | :--- |
+| Device | **iPhone 14** |
+| iOS | **26.5** |
+| LiveContainer | **3.8.0**, installed through SideStore |
+| YouTube base | **21.38.2**, exact SHA256 checked by the local packager |
+| Confirmed by the maintainer | Ad blocking, Google sign-in, native PiP, background audio and the redesigned settings |
 
-To pause QuietTube without erasing preferences, turn off its master switch and restart. Advanced → Disable all options deliberately clears all toggle selections and still asks for confirmation.
+That evidence comes from the working 0.13.5 runtime and RC1 settings build retained for 1.0.0. It is not a broad compatibility matrix or a fresh test of every 1.0.0 artifact. The library targets iOS 17+ / arm64; other devices, app binaries and future server changes are not validated. [Validation & development →](CONTRIBUTING.md)
 
-## Validation and project documents
+## Small by design
 
-78 Python source/ABI/packaging/release checks pass clean and in a 0.13.5 upgrade overlay. Four C sanitizer suites pass. These are **not native UI or device tests**. See VALIDATION.json and TEST-PLAN.md.
+No automatic QuietTube diagnostic upload, activation service or added analytics endpoint. Optional local support reports are available under **Advanced → Troubleshooting**. Review them before sharing. YouTube and LiveContainer have their own data practices. [Privacy →](docs/PRIVACY.md)
 
-- [Release checklist](RELEASE-CHECKLIST.md): publication gates, compatibility and rights review
-- [Privacy](PRIVACY.md): local reports and third-party app data practices
-- [Contributing](CONTRIBUTING.md): protect the stable runtime
-- [Changelog](CHANGELOG.md)
-- [Historical research](docs/history): prior iterations retained for provenance, not current instructions
+For problems, [open an issue](https://github.com/KalvinWasUnoticed/QuietTube/issues/new/choose) with your version, device and steps to reproduce—never credentials or app binaries. Keep your known-working local build for rollback.
 
-QuietTube source is MIT licensed; third-party notices remain in Notices. The license does not license YouTube's binary, trademarks or services. No anti-detection, universal blocking or uninterrupted-playback promise is made.
+---
+
+Made by **[KalvinWasUnoticed](https://github.com/KalvinWasUnoticed)** · [MIT source license](LICENSE) · [Credits & third-party notices](Notices/REFERENCES.md) · [Changelog](CHANGELOG.md)
+
+<sub>QuietTube is unofficial and is not affiliated with or endorsed by YouTube or Google. YouTube and Google are their owners' trademarks. The source license does not license their app, services or branding. Source-only distribution reduces some risks; it does not guarantee immunity from legal claims or takedowns.</sub>

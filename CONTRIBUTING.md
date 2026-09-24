@@ -1,11 +1,41 @@
 # Contributing
 
-Use 0.13.5 as the device-tested runtime baseline. Settings/branding changes must not casually modify the player factory, scoped feed insertion, safety latch, accepted cleanup, native PiP/sign-in behavior or settings integration.
+Keep QuietTube small, readable and focused on watching. Do not add unrelated features merely because another enhancer has them.
 
-Run the Python suite and four C sanitizer tests. RELEASE-RUNTIME-BASELINE.json protects runtime files (version text normalized). Do not regenerate it merely to make a failing test pass. Changes to protected behavior require a separate rationale, native ABI evidence and device validation. UI-source tests are guardrails, not UI automation.
+## Check a change
 
-Keep preference keys stable; use QTSettingsModel for labels, prerequisite changes and preset definitions. Do not reset/enable options on upgrade, add live hook installation to a switch, remove feature caveats, or make basic toggling modal. Update preset previews and tests when bundles change.
+Use Python 3.11+ and a C compiler:
 
-Do not submit proprietary app binaries, credentials or personal diagnostic captures. Maintain third-party notices. Source publication and app-binary redistribution have different permission requirements.
+```sh
+bash scripts/check.sh
+```
 
-The two retired player-source stubs remain intentionally for safe repository overlays and are not compiled. Historical ABI records support reproducibility. Backend preference and diagnostic identifiers are kept stable; plain-language UI copy is centralized in the presentation catalog.
+This runs the release-integrity guard, Python source/packaging/distribution tests, four C suites under AddressSanitizer/UndefinedBehaviorSanitizer and shell checks. Native compilation requires macOS/Xcode's iPhoneOS SDK, locally through `scripts/build.sh` or through the manual Actions workflow. Actual iOS behavior requires device testing.
+
+`tests/fixtures/preservation.json` protects the tested runtime (version labels normalized), player constructor suffix and accepted integration boundaries. `native-abi.json` contains only method/ivar metadata used by current ABI tests, not executable disassembly. **Do not regenerate preservation hashes just to make a failure pass.** A runtime change needs a separate rationale, ABI review, regression tests and device evidence.
+
+The release manifest catches mixed uploads; it is not a trust signature. Intentional source changes require a reviewed manifest update after tests are updated. It must not be used to bless accidentally restored old code. The runtime-preservation baseline is a separate safeguard.
+
+## Preparation validation
+
+The final tree passed 73 Python checks, including a synthetic end-to-end local packaging test, plus four C sanitizer suites: 79 classifier fixtures + 5,000 random iterations; 20 template-scanner fixtures + 5,000 random iterations; 32 status combinations + an inactive-session regression; 26 insertion-policy checks. Workflow YAML, shell syntax, relative documentation links, the source manifest and ZIP integrity were checked. No proprietary base or real GitHub build was used for these final preparation tests.
+
+## Scope of this release
+
+Every compiled runtime module is retained from the tested RC1 baseline, apart from release-label text; the About copy now describes the confirmed test environment. Do not refactor hook logic during documentation/distribution work. Keep preference keys and defaults stable. Use QTSettingsModel for public labels, prerequisite changes and preset bundles.
+
+Preserve the safety latch, thread-local feed scope, unknown-content pass-through, native results/errors, nonempty-section safeguards, native PiP/sign-in behavior and settings-sheet navigation. No reset on upgrade, no live hook installation from switches and no confirmation dialog for ordinary toggles.
+
+## Test evidence and limits
+
+Maintainer-reported: iPhone 14 / iOS 26.5 / LiveContainer 3.8.0, installed through SideStore; ad blocking, Google sign-in, native PiP, background audio and the RC1 settings worked. One captured feed transaction explicitly withheld an ad-marked entry and produced no subsequent insert notification/card. This is limited device evidence, not an all-ads/all-devices guarantee.
+
+Before tagging/publishing, run a new library build, verify its artifact metadata, package locally with the authorized pinned base, and test navigation, fast toggles, preset cancellation/Apply, light/dark/large text, restart state, player/feed behavior, native PiP/background and sign-in. Keep a working local backup. The final new distribution pipeline was not executed on GitHub during repository preparation.
+
+## Repository hygiene
+
+- Keep active sources, build/local-packaging helpers, tests/fixtures, concise docs, referenced graphics and required notices.
+- Do not restore the old IPA publishing workflow, hosted base URL, development diaries, disassembly dumps or retired stub modules.
+- Do not commit proprietary app binaries, compiled libraries, credentials, signing data or personal diagnostic captures.
+- Third-party license notices are intentionally retained even when not compiled. They are not disposable build residue.
+- For maintainer publication and old-release cleanup, see [docs/MAINTAINERS.md](docs/MAINTAINERS.md).

@@ -1,9 +1,0 @@
-# 0.13.5 test
-
-Build a new committed workflow and download its direct IPA release link. Tap Prepare ad test, fully stop/relaunch the LiveContainer guest. Play one video, swipe down once, wait about 12 seconds, copy Advanced → Ad test report. State sponsored-card appearance and any playback/feed regression. Avoid additional swipes/scrolling before copying. No new flags or full diagnostics.
-
-Expected distinction: handler hook + array hook installed; handler invoked; array insertion called inside eligible scope; explicit marker matched; filtered original array call returned; withheld count positive. These stages are not interchangeable. If no scoped array calls occur, the proposed native boundary was not exercised; do not claim success. An all-ad filtered batch can produce no insert notification. Partial batches must preserve ordinary entry order. Positive withheld counts plus a visible card indicate another path/card or reinsertion needing investigation.
-
-Regression checks: with profile/feedAds inactive or safety-stopped, unknown/unmarked entries, outside-scope calls and other controllers must remain native. Filtering must work with mutationTrace disabled. Scope must restore after nested calls/exceptions. Original handler result/NSError pointer and original array call are forwarded exactly once, without a catch around native operations. Empty batches are allowed only because this specific native method was inspected. Do not generalize to section arrays or notifications.
-
-Offline: python -m unittest discover -s tests; GCC ASan/UBSan tests/test_{feed_rules,template_scan,ad_state,insertion_policy}.c; bash -n scripts/build.sh scripts/release.sh; parse workflow YAML; repeat Python tests overlaid onto 0.13.4. Source and C tests cannot validate Objective-C execution; Apple build and device test remain separate.

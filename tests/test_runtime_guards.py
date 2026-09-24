@@ -87,7 +87,7 @@ class V06AuditChecks(unittest.TestCase):
         self.assertNotIn('NSUserDefaults',body)
     def test_logo_hook_signatures_match_inspected_metadata(self):
         import json,re
-        record=json.loads((R/'BASE-LOGO-ABI.json').read_text())
+        record=json.loads((R/'tests/fixtures/native-abi.json').read_text())['logo']
         self.assertEqual(record['method_owner'],'YTHeaderLogoControllerImpl')
         signatures={m['name']:re.sub(r'\d+','',m['types']).replace('@:','',1) for m in record['methods']}
         source=(R/'Sources/QTLogo.m').read_text()

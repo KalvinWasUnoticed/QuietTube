@@ -4,7 +4,7 @@ R=Path(__file__).resolve().parents[1]
 S=(R/'Sources/QTMutationTrace.m').read_text()
 class MinimizeTraceTests(unittest.TestCase):
  def test_binary_methods(self):
-  evidence=json.loads((R/'BASE-MINIMIZE-ABI.json').read_text())
+  evidence=json.loads((R/'tests/fixtures/native-abi.json').read_text())['trace']
   methods=[m for c in evidence['classes'] for m in c['methods']]
   self.assertEqual(len(methods),9)
   for m in methods:self.assertIn(m['name'],S)
@@ -45,7 +45,7 @@ class MinimizeTraceTests(unittest.TestCase):
   self.assertIn('collapse completion (start not observed in this window)',S)
   self.assertNotIn('Collapse start observed:',S)
  def test_all_installer_signatures_match_normalized_binary(self):
-  evidence=json.loads((R/'BASE-MINIMIZE-ABI.json').read_text())
+  evidence=json.loads((R/'tests/fixtures/native-abi.json').read_text())['trace']
   for c in evidence['classes']:
    for m in c['methods']:
     tokens=re.findall(r'\^?[@:vqiQBi]',m['types'])

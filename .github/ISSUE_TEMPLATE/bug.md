@@ -1,11 +1,16 @@
 ---
 name: Bug report
-about: Settings, playback or feed regression
+about: A settings, playback, feed or build problem
 ---
-Version / source commit:
-Device, iOS and LiveContainer versions:
-Fresh install or upgrade:
-What happened / what you expected:
+QuietTube version and source commit:
+Device / iOS / LiveContainer version:
+YouTube base version:
+New install or upgrade:
+
+What happened:
+What you expected:
 Steps to reproduce:
 
-For a player/feed issue, optionally include the reviewed short support report from Quiet controls → Advanced → Troubleshooting. Do not post credentials, account identifiers, cookies, tokens or unreviewed full diagnostics. Screenshots are optional; redact personal information.
+For a build failure, paste the relevant failed-step error. For a playback/feed problem, optionally include a REVIEWED short report from Quiet controls → Advanced → Troubleshooting.
+
+Do not attach IPAs, account identifiers, passwords, cookies, tokens or unreviewed full diagnostics. Requests for base-app downloads or encryption bypass instructions are outside this project's distribution policy.

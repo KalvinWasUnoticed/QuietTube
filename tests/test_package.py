@@ -56,4 +56,26 @@ class PackagingTests(unittest.TestCase):
             p.safe_extract(z,Path(td))
             self.assertEqual((Path(td)/'Payload/App.app/Info.plist').read_text(),'ok')
 
+
+class LocalPackageIntegrationTests(unittest.TestCase):
+    def test_synthetic_local_package_creates_expected_output(self):
+        # Synthetic, non-runnable fixtures. No proprietary base is used in tests.
+        import hashlib,plistlib
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as td:
+            root=Path(td); base=root/'base.ipa'; lib=root/'QuietTube.dylib'; result=root/'result.ipa'
+            info={'CFBundleIdentifier':'com.google.ios.youtube','CFBundleShortVersionString':'21.38.2','CFBundleExecutable':'YouTube'}
+            with zipfile.ZipFile(base,'w') as z:
+                z.writestr('Payload/YouTube.app/Info.plist',plistlib.dumps(info))
+                z.writestr('Payload/YouTube.app/YouTube',fixture())
+            dylib=bytearray(fixture());struct.pack_into('<I',dylib,12,6);lib.write_bytes(dylib)
+            with patch.object(p,'EXPECTED_SHA256',hashlib.sha256(base.read_bytes()).hexdigest()):
+                p.package(base,lib,result)
+            self.assertTrue(result.is_file())
+            with zipfile.ZipFile(result) as z:
+                self.assertIsNone(z.testzip())
+                self.assertEqual(z.read('Payload/YouTube.app/Frameworks/QuietTube.dylib'),bytes(dylib))
+                self.assertIn(p.DYLIB_PATH.encode(),z.read('Payload/YouTube.app/YouTube'))
+                self.assertIn(b'MIT License',z.read('Payload/YouTube.app/QuietTube-Notices/QuietTube-MIT.txt'))
+
 if __name__=='__main__': unittest.main()

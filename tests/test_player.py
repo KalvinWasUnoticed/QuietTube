@@ -18,14 +18,11 @@ class AdProfileTests(unittest.TestCase):
         self.assertNotIn('return nil;',s)
         self.assertIn('old)(object,selector,overlay,delegate,parent,response)',s)
     def test_noop_and_feed_abi_records(self):
-        record=json.loads((R/'BASE-AD-PROFILE-ABI.json').read_text())
+        record=json.loads((R/'tests/fixtures/native-abi.json').read_text())['player']
         factory=next(c for c in record['surfaces'] if c['class']=='YTRealAdsPlayerServices')
         self.assertTrue(any(v['name']=='_serviceRegistryScope' and v['type'].startswith('@') for v in factory['ivars']))
         init=next(m for m in record['no_op']['methods'] if m['name']=='initWithServiceRegistryScope:delegate:')
         self.assertEqual(init['types'],'@32@0:8@16@24')
-        methods=next(c for c in record['flags'] if c['class']=='YTHotConfig')['methods']
-        self.assertTrue(methods)
-        self.assertTrue(all(m['types']=='B16@0:8' for m in methods))
     def test_retry_installation_is_idempotent(self):
         s=(R/'Sources/QTAdProfile.m').read_text()
         self.assertIn('!QTPlayerProfileInstalled',s)
@@ -63,3 +60,16 @@ class AdProfileTests(unittest.TestCase):
         self.assertIn('PLAYER BLOCKING NOT DEMONSTRATED',s)
         self.assertIn('QTFeedInsertionReport()',s)
         self.assertIn('FEED BLOCKING NOT DEMONSTRATED',(R/'Sources/QTFeedInsertion.m').read_text())
+
+    def test_successful_player_constructor_byte_preservation(self):
+        import hashlib
+        record=json.loads((R/'tests/fixtures/preservation.json').read_text())['player']
+        s=(R/'Sources/QTAdProfile.m').read_text()
+        self.assertEqual(hashlib.sha256(s[s.index(record['start']):].encode()).hexdigest(),record['sha256'])
+
+    def test_retired_hooks_and_modules_do_not_return(self):
+        all_source='\n'.join(p.read_text() for p in (R/'Sources').glob('*.m'))
+        self.assertNotIn('QTHook(@"YTCompanionAdObserverBehavior"',all_source)
+        self.assertNotIn('enableWatchWhileFeedMutationOnIos',all_source)
+        self.assertFalse((R/'Sources/QTPlayerProbe.m').exists())
+        self.assertFalse((R/'Sources/QTPlayerTest2.m').exists())

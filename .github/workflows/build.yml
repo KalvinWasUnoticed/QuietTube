@@ -1,80 +1,50 @@
-name: Build QuietTube IPA
-run-name: QuietTube 0.14.0-rc1 — direct IPA download
+name: Build QuietTube library
+run-name: QuietTube 1.0.0 — library only
 on:
   workflow_dispatch:
-    inputs:
-      allow_public_release:
-        description: 'Allow publishing the modified IPA publicly if this repository is public. Leave OFF for a private repository.'
-        type: boolean
-        required: false
-        default: false
 permissions:
   contents: read
 jobs:
   build:
-    name: Build and publish direct IPA
+    name: Test and build library (no YouTube app)
     runs-on: macos-15
-    timeout-minutes: 25
-    env:
-      IPA_PATH: artifacts/QuietTube-0.14.0-rc1-21.38.2.ipa
-    permissions:
-      contents: write
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.12'
-      - name: Check release visibility approval
-        env:
-          REPO_PRIVATE: ${{ github.event.repository.private }}
-          ALLOW_PUBLIC_RELEASE: ${{ inputs.allow_public_release }}
-        run: |
-          if [[ "$REPO_PRIVATE" != "true" && "$ALLOW_PUBLIC_RELEASE" != "true" ]]; then
-            echo '::error::This repository is public. Use a private repository, or explicitly approve public IPA publishing in Run workflow if you have the rights to do so.'
-            echo '## Build stopped before downloading: release visibility approval required' >> "$GITHUB_STEP_SUMMARY"
-            echo 'Use a private repository, or re-run with the public-release approval checkbox if authorized. No IPA has been published.' >> "$GITHUB_STEP_SUMMARY"
-            exit 1
-          fi
-      - name: Verify complete RC1 sources (reject mixed uploads)
-        run: python scripts/verify_release.py
-      - name: Regression tests — packaging, source safeguards, release links
-        run: python -m unittest discover -s tests -v
-      - name: Compile and test pure C classifiers with sanitizers
-        run: |
-          for source in tests/test_feed_rules.c tests/test_template_scan.c tests/test_ad_state.c tests/test_insertion_policy.c; do
-            output="$RUNNER_TEMP/$(basename "$source" .c)"
-            cc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined "$source" -o "$output"
-            "$output"
-          done
-          bash -n scripts/build.sh scripts/release.sh
-      - name: Compile the native tweak
+      - name: Verify release files and run regression tests
+        run: bash scripts/check.sh
+      - name: Compile QuietTube only
         run: bash scripts/build.sh
-      - name: Download the exact inspected base IPA
-        run: |
-          curl --fail --location --retry 2 --connect-timeout 30 --max-time 240 \
-            'https://files.catbox.moe/xky0ag.ipa' -o "$RUNNER_TEMP/YouTube-base.ipa"
-          python - "$RUNNER_TEMP/YouTube-base.ipa" <<'PY'
-          import hashlib, sys
-          with open(sys.argv[1], 'rb') as f:
-              digest = hashlib.file_digest(f, 'sha256').hexdigest()
-          if digest != 'd0f6f5c9d27f7fea8f040ae59c425b3a8222f67d891937374b21ef8937deba11':
-              raise SystemExit('Input IPA SHA-256 mismatch')
-          print('Base IPA hash verified')
-          PY
-      - name: Package the IPA for LiveContainer
-        run: |
-          python scripts/package.py "$RUNNER_TEMP/YouTube-base.ipa" \
-            artifacts/QuietTube.dylib "$IPA_PATH"
-          test -s "$IPA_PATH" || { echo "::error::Packaging did not produce $IPA_PATH"; exit 1; }
-          ls -lh "$IPA_PATH"
-      - name: DOWNLOAD IPA — publish direct link in Summary and Releases
+      - name: Record library integrity and build identity
+        run: python scripts/build_info.py
+      - name: Upload library (not an IPA)
+        id: library
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: QuietTube-1.0.0-library
+          path: |
+            artifacts/QuietTube.dylib
+            artifacts/BUILD-INFO.json
+            artifacts/SHA256SUMS
+            LICENSE
+            Notices/*.txt
+            Notices/REFERENCES.md
+          if-no-files-found: error
+          retention-days: 7
+      - name: Show download and next steps
         env:
-          GH_TOKEN: ${{ github.token }}
-          REPO_PRIVATE: ${{ github.event.repository.private }}
-          ALLOW_PUBLIC_RELEASE: ${{ inputs.allow_public_release }}
-        run: bash scripts/release.sh
-      - name: Explain failed build
-        if: failure()
+          ARTIFACT_URL: ${{ steps.library.outputs.artifact-url }}
         run: |
-          echo '## No successful IPA download is confirmed for this run' >> "$GITHUB_STEP_SUMMARY"
-          echo 'Open the red failed step above. A compile/test failure is not an installable update. A release permission failure may require checking repository Actions permissions. Do not use an older artifact by mistake.' >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo '# QuietTube library ready'
+            echo "[Download library artifact (ZIP)]($ARTIFACT_URL)"
+            echo ''
+            echo 'This contains QuietTube only, NOT an installable IPA or the YouTube app.'
+            echo 'Extract artifacts/QuietTube.dylib. Keep BUILD-INFO.json and SHA256SUMS for verification.'
+            echo 'Follow docs/INSTALL.md in this same source commit for local packaging with your own authorized compatible base.'
+            echo "Source commit: $GITHUB_SHA"
+            echo 'Artifacts expire after seven days. GitHub sign-in and repository access may be required.'
+          } >> "$GITHUB_STEP_SUMMARY"

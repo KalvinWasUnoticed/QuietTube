@@ -1,38 +1,22 @@
-# References and attribution
+# Credits and third-party notices
 
-QuietTube 0.1 is a small custom runtime-hook implementation. Private class/selector names and integration approaches were researched using:
+QuietTube is maintained by [KalvinWasUnoticed](https://github.com/KalvinWasUnoticed). Its own source is distributed under the root MIT license. Existing third-party attribution is retained conservatively for researched interface patterns and adapted integration ideas; none of these projects endorses QuietTube.
 
-- **YTKACE**, MIT, copyright 2026 YTKACE contributors. Reviewed commit `97456b0d63e37b9847b3fb7e3829a10ab9310d86` at https://github.com/itzzace/ytkace . Native settings factory/section integration, pivot identifier traversal, selected feature hook points and ad-renderer markers informed this implementation. See `YTKACE-MIT.txt`.
-- **YouTube-X**, MIT, copyright 2022–2026 PoomSmart. Reviewed commit `48b901532f9e12152684f3326d4250efcdea61e5` at https://github.com/PoomSmart/YouTube-X . Player-response ad-array hook points and explicit ad-renderer metadata informed this implementation. See `YouTube-X-MIT.txt`.
-- **YouPiP**, MIT, copyright 2018–2020 SpicaT and 2020–2026 PoomSmart, https://github.com/PoomSmart/YouPiP . Reviewed main-branch source on 23 September 2026 for native PiP eligibility methods. Its full player/bootstrap/overlay implementation is not bundled. See `YouPiP-LICENSE.txt`.
+## Technical references
 
-Attribution is included conservatively for interface patterns and adapted integration ideas; this project does not claim novel discovery of those techniques. None of these projects endorses or has tested QuietTube. No upstream binary tweaks are downloaded by the workflow. These references are not runtime network dependencies.
+- **[YTKACE](https://github.com/itzzace/ytkace)** — MIT, copyright 2026 YTKACE contributors. Reviewed commit `97456b0d63e37b9847b3fb7e3829a10ab9310d86`. Native settings integration, feature hook points, navigation traversal and renderer markers informed this implementation. See `YTKACE-MIT.txt`.
+- **[YouTube-X](https://github.com/PoomSmart/YouTube-X)** — MIT, copyright 2022–2026 PoomSmart. Reviewed commit `48b901532f9e12152684f3326d4250efcdea61e5`. Explicit ad-renderer metadata and selected element families informed research. Early response-array experiments are not active player hooks in this release. See `YouTube-X-MIT.txt`.
+- **[YouPiP](https://github.com/PoomSmart/YouPiP)** — MIT, copyright 2018–2020 SpicaT and 2020–2026 PoomSmart. Native PiP eligibility research informed development; its player/bootstrap/overlay implementation is not bundled. The final app uses YouTube's native PiP setting. See `YouPiP-LICENSE.txt`.
+- **[Morphe patches](https://github.com/MorpheApp/morphe-patches)** — cross-platform identifier observations for chips, portrait/Shorts layouts and radio-playlist destinations were consulted. No Android patch implementation/library is bundled. Relevant Mix discussion: [PR 1835](https://github.com/MorpheApp/morphe-patches/pull/1835). These observations alone do not prove iOS renderer identity.
 
-The YTPlaybackFix project was reviewed for comparison. Its automatic retry, client rewriting and network interception code are not included. No YouMod GPL code is included.
+Player construction and scoped feed-insertion boundaries were also inspected in the exact supported native binary. Only active API metadata needed by regression checks remains under tests/fixtures; the app binary, raw payloads and disassembly dumps are not distributed here. These compatibility observations are not a claim of permission to redistribute the original app.
 
-0.4 also consulted YTKACE `Tweak/Features/Interface/ContentVisibilityHooks.mm` for Shorts/Playables renderer and element-template families, and YouTube-X `Tweak.x` for selected ad/promo element families. QuietTube's bounded C token matcher and opt-in integration are custom code. The references do not establish compatibility with any particular server-provided layout. Broad whole-model description matching and arbitrary whole-response serialization are not included.
+## Presentation references
 
-0.6 research observations (no Morphe implementation code copied into this project):
-- `chips_shelf` is identified as an Explore Topics shelf component in Morphe's Android `LayoutComponentsFilter.java`.
-- `inline_shorts`, video-lockup/card names, and portrait-thumbnail filename families are documented in its `ShortsFilter.java`.
-- Source links: https://github.com/MorpheApp/morphe-patches/blob/main/extensions/youtube/src/main/java/app/morphe/extension/youtube/patches/components/LayoutComponentsFilter.java and https://github.com/MorpheApp/morphe-patches/blob/main/extensions/youtube/src/main/java/app/morphe/extension/youtube/patches/components/ShortsFilter.java . These are cross-platform identifier observations, not verification for iOS. The native matcher remains the custom bounded C implementation in this project; no Android patch/library is bundled.
+[YTLite / YouTube Plus](https://github.com/dayanch96/YTLite), [YTKACE](https://github.com/itzzace/ytkace) and [MaxTube](https://github.com/Mark02-2012/MaxTube) informed the idea of concise feature sections, real screenshots and a separate build guide. No repository artwork or README layout was copied. The QuietTube banner is original vector artwork. Screenshots were supplied by the maintainer, cropped/resized without changing UI content, and show the preceding RC1 settings build.
 
-Logo class ownership and method encodings were subsequently parsed from the hash-verified supplied YouTube executable (BASE-LOGO-ABI.json). Static metadata does not establish runtime invocation or successful UI behavior; the implementation still uses runtime checks and records skipped hooks. The fallback wordmark drawing is local UIKit text rendering.
+Pinterest inspiration was requested, but its direct search page was access-blocked during preparation; no Pinterest images or layouts were obtained or reused.
 
-## 0.7 display-ad candidate identifiers
+No upstream binary tweak is downloaded by the workflow. YTPlaybackFix was reviewed for comparison; its client rewriting/retry/network implementation is not included. No YouMod GPL implementation is included. Do not infer extra features or licensing permissions from these references.
 
-Retained research snapshot of https://github.com/dayanch96/YTLite (`ytlite.x`, ad-name array near line 41) includes text_image_button_layout, square_image_layout, carousel_footered_layout, product_carousel, carousel_headered_layout and landscape_image_wide_button_layout. Only observed identifier strings inform the independently implemented classifier; no implementation code was copied for this addition. Snapshot commit was not recorded, so these are reference observations, not claims about the current upstream or proof of the supplied screenshot's renderer.
-
-## 0.8 Mix and inline Shorts candidates
-
-Retained `content.mm` research from https://github.com/itzzace/ytkace (reviewed commit 97456b0d63e37b9847b3fb7e3829a10ab9310d86): hasAutomixPreviewVideoRenderer, hasAutomixPlaylistVideoRenderer, hasRadioRenderer, hasPivotRadioRenderer and Mix identifier strings radioautomixplaylistid, radioplaylistmixplaylistid, radio_playlist_mix. Only selected names inform the independent signature-checked implementation. Broader feed_nudge and title matching not adopted. Existing MIT notice retained.
-
-Inline overlay / Shorts-icon combination comes directly from the user's 0.7 capture group 11, not an upstream geometry detector. No claim that the captured group has been uniquely mapped to the screenshot.
-
-## 0.9 RD playlist destination evidence
-
-[1](https://github.com/MorpheApp/morphe-patches/pull/1835) describes changing Android Mix detection to ?list=RD and &list=RD instead of an unstable Mix8 marker. Used as a behavioral/reference observation only; no upstream implementation code copied. QuietTube's bounded C query scanner and native signature-checked navigation-endpoint check are independently implemented. Not proof of the user's iOS screenshot payload.
-
-## 0.9.1 Watch it again candidate
-
-English label comes from the user's supplied IMG_2400 screenshot; horizontal_shelf.eml-fe appears in the 0.9 unmatched capture. The capture is not uniquely mapped to the screenshot and does not prove the title's encoding. Native shelf-title checks and the bounded exact string-field candidate scanner are independently implemented; no external code added for this feature.
+YouTube/Google and other product names belong to their respective owners. QuietTube is independent and unaffiliated. The MIT license covers the QuietTube source, not YouTube's binary, service or trademarks.

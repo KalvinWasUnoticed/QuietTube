@@ -128,21 +128,24 @@ def package(ipa, dylib, output):
         # Guest app extensions cannot be assumed to work in this install route.
         if (app/'PlugIns').exists(): shutil.rmtree(app/'PlugIns')
         (app/'QuietTube-build.json').write_text(json.dumps({
-            'prototype':'0.14.0-rc1-feed-controls','base_sha256':digest,'youtube':'21.38.2',
-            'status':'experimental; not device-verified',
+            'quiettube':'1.0.0','base_sha256':digest,'youtube':'21.38.2',
+            'status':'locally packaged; this tool does not validate runtime behavior',
             'signing':'LiveContainer must sign this guest app',
             'extensions_removed':True,
         },indent=2))
         # Ship attribution with the packaged app as well as the source archive.
         notices = Path(__file__).resolve().parents[1]/'Notices'
         if notices.exists(): shutil.copytree(notices,app/'QuietTube-Notices')
+        own_license = Path(__file__).resolve().parents[1]/'LICENSE'
+        (app/'QuietTube-Notices').mkdir(exist_ok=True)
+        shutil.copy2(own_license,app/'QuietTube-Notices'/'QuietTube-MIT.txt')
         output.parent.mkdir(parents=True,exist_ok=True)
         with zipfile.ZipFile(output,'w',zipfile.ZIP_DEFLATED,compresslevel=6) as z:
             for path in sorted((root/'Payload').rglob('*')):
                 if path.is_file(): z.write(path,path.relative_to(root).as_posix())
         with zipfile.ZipFile(output) as z:
             if z.testzip(): raise ValueError('Output CRC failure')
-    print(f'Created {output}; import into LiveContainer for re-signing. NOT a verified playback fix.')
+    print(f'Created {output}; import into LiveContainer for re-signing. Packaging is not runtime validation.')
 
 if __name__ == '__main__':
     p=argparse.ArgumentParser()

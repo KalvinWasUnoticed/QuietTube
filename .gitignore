@@ -1,5 +1,11 @@
+# Never commit base apps, packaged apps, compiled libraries or signing data.
 artifacts/
 *.ipa
 *.dylib
+*.p12
+*.p8
+*.mobileprovision
+.env
+.env.*
 __pycache__/
 .DS_Store

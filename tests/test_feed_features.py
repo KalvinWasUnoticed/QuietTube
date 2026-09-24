@@ -4,9 +4,9 @@ from pathlib import Path
 R=Path(__file__).resolve().parents[1]
 class PatchScopeTests(unittest.TestCase):
     def test_preserved_baseline_functions_and_modules(self):
-        rec=json.loads((R/'BASELINE-0.13-CLEANUP.json').read_text())
+        rec=json.loads((R/'tests/fixtures/preservation.json').read_text())['cleanup']
         for file,expected in rec['files'].items():
-            text=(R/file).read_text().replace('0.14.0-rc1','VERSION')
+            text=(R/file).read_text().replace('1.0.0','VERSION')
             self.assertEqual(hashlib.sha256(text.encode()).hexdigest(),expected,file)
         for item in rec['ranges']:
             text=(R/item['file']).read_text()

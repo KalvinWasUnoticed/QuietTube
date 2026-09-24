@@ -1,0 +1,58 @@
+{
+  "runtime": {
+    "Sources/QTFeatures.m": "25312b93db7ad5de50927c17c74c5f15654a474a8b661c13044a8b6a22efe589",
+    "Sources/QTLogo.m": "0eb9f6e10bdcb77caa4e018c9fde13468725c844fd9a5beafdb5866cc82b41df",
+    "Sources/QTAdProfile.m": "9df95d393af1afb05071b54dbcc088ae9d527d2451fdac8190c1830e68e4ea5d",
+    "Sources/QTFeedInsertion.m": "3ebff67ea5acf4137a164bdf0352beb8a0285e7d3127f32ea9dc280f95062ddf",
+    "Sources/QTMutationTrace.m": "f895093d3dbcd12a155c24b765dd81e36b026d4f13bd3912792efc94eea00e14",
+    "Sources/QTInsertionPolicy.h": "abf297c7aacb9113fff01239e20c5f657ea61c683a00fbe0e1ede7eef9caed6c",
+    "Sources/QTFeedRules.h": "152f5052c7649ebb01d3462454b88bf3fd7920ee05f55345283d570076273a6f",
+    "Sources/QTTemplateScan.h": "17f2e85a74b9d0dcef43a6d1005ed198ff82ff8d81e862bb34a7aedb7b880d4e",
+    "Sources/QTCore.m": "1797b82cd3de48362e698b90003c230eadfc5109fcd8f4fb41fd0ddb95285450",
+    "Sources/QTSettingsModel.m": "b5839817e2af03ad6df02d605849248026f6eb3b22dfdbc627018b2c6cae9dd8"
+  },
+  "cleanup": {
+    "files": {
+      "Sources/QTLogo.m": "0eb9f6e10bdcb77caa4e018c9fde13468725c844fd9a5beafdb5866cc82b41df",
+      "Sources/QTFeedRules.h": "152f5052c7649ebb01d3462454b88bf3fd7920ee05f55345283d570076273a6f",
+      "Sources/QTTemplateScan.h": "17f2e85a74b9d0dcef43a6d1005ed198ff82ff8d81e862bb34a7aedb7b880d4e"
+    },
+    "ranges": [
+      {
+        "file": "Sources/QTCore.m",
+        "start": "void QTRegisterDefaults(void)",
+        "end": "NSString *QTDiagnostics(void)",
+        "sha256": "ccc57fe535cd36a37507d03586c299c0d1a583158e020a42457b3000e497c370"
+      },
+      {
+        "file": "Sources/QTFeatures.m",
+        "start": "static _Thread_local NSUInteger QTNodeBudget",
+        "end": "void QTInstallFeatures(void)",
+        "sha256": "d7b882e53f4598448b3c1c40cc63bbe127d7058c297c325de9cfda424cfba2d4"
+      },
+      {
+        "file": "Sources/QTFeatures.m",
+        "start": "    if (QTOn(@\"feedAds\") ||",
+        "end": "    if (QTOn(@\"background\")) {",
+        "sha256": "e78cabe8732ddfd09e3ff383bbe74d8ddc50c145616fbaa251ced94cb23f9398"
+      },
+      {
+        "file": "Sources/QTSettings.m",
+        "start": "static const void *QTRowMarker",
+        "end": null,
+        "sha256": "ceb11a5bd9d75553eb8601db3ff2690e7c6e82fe5a64fb2cd5331473568d7215"
+      },
+      {
+        "file": "scripts/package.py",
+        "start": "def commands(",
+        "end": "def package(",
+        "sha256": "2ae8ebdac1765a7b8287c1284dc9530552d249718ff3b84e4f3b4714c275937e"
+      }
+    ]
+  },
+  "player": {
+    "baseline": "0.13.1",
+    "start": "    if (!QTPlayerProfileInstalled) {",
+    "sha256": "f1cdacfd403f885d7b0e27b7987771e712580a84c1af7b3117161e530cb13563"
+  }
+}
