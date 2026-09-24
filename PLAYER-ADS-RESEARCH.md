@@ -1,3 +1,9 @@
+# Current finding for 0.13.1
+
+Latest supplied 0.13 logs show zero workaround activity because both subordinate settings were saved OFF. Missing ads during one stable run cannot be attributed to player blocking; cause not identifiable from logs. 0.13.1 removes those controls, cleans retired hooks and reports installation/invocation separately. The constructor/feed-feature hypotheses are unchanged, awaiting an actually active test. Read README for the upgrade activation change and safety limits.
+
+## Historical notes below
+
 # 0.13 current status
 
 0.12 did not activate no-op behavior: missing response/config on three factory calls; delayed install retries caused misleading not-installed logs. Insertion candidate saw zero calls. Both paths removed. 0.13 uses native no-op designated initializer with verified factory scope/delegate and disables the native watch-while-feed-mutation feature, combined into one opt-in profile with independent diagnostic counters, bounded trace, underlying numeric errors and a safety latch. This remains unverified on device. Read README, BINARY-RESEARCH and AUDIT for current behavior.

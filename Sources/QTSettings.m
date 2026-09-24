@@ -32,7 +32,6 @@
         @{@"title":@"Clear template capture", @"action":@"clearCapture"},
 // BEGIN 0.13 AD PROFILE
         @{@"title":@"Ad test report", @"action":@"adReport"},
-        @{@"title":@"Ad test options", @"page":@"Ad test options"},
 // END 0.13 AD PROFILE
         @{@"title":@"View diagnostics", @"action":@"diagnostics"},
         @{@"title":@"Disable all for next launch", @"action":@"reset"}
@@ -40,7 +39,7 @@
 }
 - (NSInteger)tableView:(UITableView *)tv numberOfRowsInSection:(NSInteger)section { return self.rows.count; }
 - (NSString *)tableView:(UITableView *)tv titleForFooterInSection:(NSInteger)section {
-    return @"0.13 · Restart the guest app to apply changes. Use YouTube’s own PiP setting. Player-ad blocking remains paused.";
+    return @"0.13.1 · Restart the guest app to apply changes. Use YouTube’s own PiP setting. Ad profile is experimental; see Advanced → Ad test report.";
 }
 - (UITableViewCell *)tableView:(UITableView *)tv cellForRowAtIndexPath:(NSIndexPath *)index {
     NSDictionary *row = self.rows[index.row];

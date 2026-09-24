@@ -1,50 +1,44 @@
-# QuietTube 0.13 — one ad-test profile, targeted workarounds, bounded report
+# QuietTube 0.13.1 — real single-switch activation and cleanup
 
-**Source + GitHub build workflow, NOT a compiled IPA.** Same pinned YouTube 21.38.2 base. These are implemented workarounds requiring native/device validation, not a promise of ad-free, error-free or undetectable playback.
+**Source + GitHub build workflow, not a compiled IPA or a confirmed player-ad fix.** Same pinned YouTube 21.38.2.
 
-## One test, one report
+## What your latest report establishes
 
-1. Build/install 0.13 as below. Keep 0.10 as a rollback IPA and preserve the guest data container.
-2. Open **You → Settings → General → Quiet controls → Playback → Ad test profile**. Turn this ONE new switch on. Leave the two Ad test options at their defaults (both on); your established feed/appearance/audio settings stay unchanged.
-3. Fully stop/relaunch the LiveContainer guest. Play a video where ads occurred, continue watching beyond the old failure window, and swipe down to minimize. Check whether a sponsored card is pushed into the feed. No mandatory two-run matrix.
-4. Open **Quiet controls → Advanced → Ad test report** and send only that short report plus “player ads: yes/no; pushed card: yes/no; playback: worked/error”. Ads vary between plays; one ad-free run is not definitive.
+0.13 had adTest ON but adTestPlayer/adTestFeed OFF, neither workaround hook installed and zero events. Thus the stable five-minute session did not exercise either new workaround. We cannot identify why that video had no ads from those logs, or attribute it to player blocking. Variable ad delivery is possible, not a proven explanation. The report does establish that the post-minimize card appeared while the feed workaround was inactive.
 
-Stop at any playback error or sustained stall. A detected playback error trips the safety latch, reverts NEW calls to native behavior and saves the profile OFF for the next launch. **Restart the guest afterward**: an existing coordinator/player cannot be repaired by this latch. Stalls/crashes may not trigger the existing error hook; disable manually or revert to 0.10 if needed. There are no retry/seek loops or hidden errors.
+The original “Effective now: on” label only reflected the top-level gate and was misleading. Saved OFF values override registerDefaults defaults; the supplied report does not establish what originally saved those values. 0.13.1 removes the extra gates instead of asking you to navigate another hidden toggle page.
 
-## What actually changed
+## Changes
 
-### Player: verified native constructor, no missing-config dependency
+- **Ad test profile is now the sole ad-workaround control.** If ON, both the native no-op factory substitution and watch-while-feed-mutation feature hook are attempted. Stale adTestPlayer/adTestFeed preferences are not read or registered.
+- **Upgrade behavior:** your saved adTest=ON now requests BOTH workarounds after full restart. Turn it off before upgrading if you want native playback first. New installs still default OFF. No global preference reset.
+- Removed the separate pass-through player probe from the build, its initializer/declaration/control/report, the Ad test options page, legacy disabled playerAds control and disabled Home-hiding control. Old keys are ignored. No active nil-coordinator, scoped-config, model-load or insertion experiment remains.
+- Empty source stubs and replacement retired-test filenames are retained ONLY for safe overlay uploads, not compiled. This avoids the old stale-file build failure.
+- Unified report distinguishes requested state, hook installation, native no-op objects actually supplied, and disabled-feed-feature reads. With zero relevant invocations, it explicitly says blocking/workaround activation was not demonstrated. Hook invocation still does not prove a particular ad was removed.
+- Existing working feed cleanup, default logo, navigation, background audio, native PiP, preference snapshot/migration, playback-error forwarding and direct IPA release flow retained. Native player/feed workarounds themselves are unchanged from the unexercised 0.13 implementation.
 
-The 0.12 run never selected the native no-op coordinator: three factory calls had missing config, no scoped flag reads/no-op results were reported. The three “hook not installed” lines were also a diagnostic bug: the install retry compared the already-installed IMP to itself. This was not evidence that no-op playback had been successfully tested and failed.
+## The two workarounds being activated
 
-0.13 removes the config getter hook and pointer-scoping approach. At the verified native factory method it reads the verified object ivar `_serviceRegistryScope` and calls the native `YTNoOpAdsPlaybackCoordinator` initializer `initWithServiceRegistryScope:delegate:` using that scope and the original delegate. It does not use parameterless init (known to return nil). The typed initializer preserves ARC init-family ownership conventions. It does not require a response/config to exist yet.
+Player: construct the native no-op coordinator with the binary-verified designated initializer, original factory scope and original delegate; fall back to the original factory if checks/construction fail. No synthetic nil, global ad-array overrides, request spoofing or manual fake-completion calls.
 
-Only a valid native no-op object is substituted. Missing scope/delegate, unavailable constructor ABI or construction failure leaves the original factory behavior available. No synthetic nil coordinator, global response-array overrides, serialized config edits, request rewrites, signal suppression or fabricated ad-completion calls. The native object's own lifecycle callbacks still run. This can still be incompatible with particular responses or playback modes and may leave ads or cause errors; no device success claim yet.
+Post-minimize feed: disable the binary-verified enableWatchWhileFeedMutationOnIos feature, which gates registration of ad-driven feed mutations. No guessed renderer-title filter, id.sponsor_button removal, arbitrary external-link filtering or whole-view hiding. This is a supported candidate mechanism, not yet confirmed as the source of the user's exact card.
 
-### Feed: native watch-while mutation feature, not another guessed UI insertion hook
+These paths were not active in the latest report. No additional invasive ad filter is added on the basis of that inactive test. If an installed/invoked feed workaround still misses the card, its new report will distinguish that from the activation failure.
 
-Fresh inspection of the pinned binary located `YTInFeedDynamicSectionListLayoutRenderingAdapter`. Its initializer checks `YTHotConfig.enableWatchWhileFeedMutationOnIos` before registering a layout-enter listener with mutation operations. 0.13 returns NO from this specific feature getter while the profile/feed branch is effective. Native code handles the disabled path. This targets a verified ad-specific mutation mechanism; it does NOT prove that every pictured card uses it. Other readers of this feature flag may also be affected.
+## Build and one short test
 
-The unused insertBelowVisibleSection hook and failed broad loadWithModel hook are not active. Generic metadata, id.sponsor_button, external links and ordinary horizontal shelves are not removed. Existing batch feed cleanup remains unchanged. Native disabled-feature/error behavior is not hidden from YouTube and is not an undetectability technique.
+1. Replace repository contents with this folder's contents, including hidden .github, all Sources and tests. Commit and launch a NEW Actions run; an old run rerun uses its old commit.
+2. After success choose **Summary → DOWNLOAD IPA — QuietTube 0.13.1**. Actual asset: `QuietTube-0.13.1-21.38.2.ipa`. Prefer a private repo; public release approval exposes the modified IPA. Private links require GitHub authentication.
+3. Import into LiveContainer with the same data container, no second injection. Keep 0.10 for rollback. Ensure **Quiet controls → Playback → Ad test profile** is ON, then fully stop/relaunch the guest. No branch switches remain.
+4. Play a video and minimize it. If stable, check beyond the old failure window and native PiP/background.
+5. Send **Advanced → Ad test report** plus only: player ad appeared? pushed sponsored card appeared? playback worked/error? Do not repeat the old 0.13 report as new evidence.
 
-### Diagnostics and safety
+## Safety / honest limits
 
-Installation-success flags persist through scheduled retries, avoiding false “not installed” reports. The new report shows requested/effective/saved state, branch settings, installed states, fixed event totals, and the last 80 relative-time events. Numeric error domain categories and up to three underlying-error levels are included. No video/account IDs, signed URLs, localized error descriptions, raw userInfo, response bodies or automatic uploads. Reports are session-local; restart resets them.
+A detected playback NSError trips the atomic safety latch and saves only adTest OFF for the next launch. Future calls use native behavior; existing player objects are NOT repaired. Restart after errors. If saving OFF fails, the report instructs manual disable. A crash or stall may not reach the observer: disable manually or roll back to 0.10 if settings are inaccessible. No retries or error hiding. The report is session-local, fixed-label totals plus last80 events, at most three numeric/domain-bucket error levels; no payloads/IDs/URLs or uploads.
 
-The safety latch activates only when the existing native playback-error observer sees an NSError while this profile is enabled. It cannot guarantee interception of every failure. It does not retry, suppress the native error handler, reset the player, roll back an existing coordinator or recover from crashes. If saving OFF fails, the report says so; turn it off manually.
+**No guarantee of zero errors, invisible blocking or complete ad removal.** 0.13.1 has not been compiled with an Apple SDK or tested on device here. 0.13 did build/run on your phone, but these newly activated paths still require validation.
 
-Advanced → Ad test options exposes **Player workaround** and **Post-play feed workaround** for troubleshooting only. Both default on but do nothing without Ad test profile. Normally do not change them. Old playerExperiment1/companionAds/playerExperiment2/insertionAds2 keys are ignored, even if previously saved on. The old paused playerAds control is not this profile.
+## Validation
 
-## Build / actual IPA download
-
-Extract QuietTube-v0.13.zip. Upload/replace the CONTENTS of its QuietTube-v0.13 folder at your repository root, including hidden .github, Sources/QTAdProfile.m and all tests. Retired test filenames and an empty retired source stub are included so overlay upgrades overwrite stale content. Commit changes and start a NEW workflow run (not a rerun of an old commit).
-
-Prefer a private repository. Public release publication requires explicit approval. After success click **Summary → DOWNLOAD IPA — QuietTube 0.13** for `QuietTube-0.13-21.38.2.ipa` directly, not GitHub's source ZIP/TAR. Private downloads require an authorized GitHub login. Import into LiveContainer without another injection; restart the guest.
-
-## Preservation and validation
-
-Based on the 0.10 stable feed/player-with-ads baseline. Existing logo, batch feed/Watch again/Mix/Shorts/topic rules, settings navigation/Done, background audio, native PiP and sign-in paths remain. New code does not change server identity or authentication. The native playback-error handler still executes; the new observer only records/trips the profile.
-
-51 Python tests passed clean AND after overlaying onto 0.12. Existing source-baseline comparisons pass after accounting for marked additions/version/UI/report changes. C under ASan/UBSan: 79 classifier fixtures + 5,000 randomized iterations, 20 scanner fixtures + 5,000 randomized iterations. Shell syntax, workflow YAML and ZIP checked. Relevant class/method/ivar metadata parsed from the re-downloaded hash-verified base; original IPA/executable removed afterward.
-
-**No Apple SDK/native compile, real release upload or 0.13 device execution here.** Static ABI/disassembly and source/C tests do not establish ARC/runtime behavior, successful ad blocking or absence of regressions. See AUDIT.md and BINARY-RESEARCH.md for limits.
+50 Python tests passed clean and after an overlay onto 0.13. Protected-module/function hashes verify the working feed classifier, scanner, logo, packager, runtime-hook utilities, settings navigation integration and batch filter. C under ASan/UBSan:79 classifier fixtures +5000 random iterations;20 scanner fixtures +5000 random iterations;32 status combinations plus the reported inactive-session regression. Shell syntax, YAML and ZIP checked. New status tests prevent “enabled means blocking works” reporting. Static tests cannot establish native behavior.

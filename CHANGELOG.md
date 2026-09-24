@@ -1,3 +1,11 @@
+# 0.13.1 — repair activation and clean residual experiments
+
+- Single adTest flag now gates both workarounds; remove stale subordinate settings/page.
+- Remove unused player observer and disabled legacy controls; preserve overlay-safe tombstones/tests.
+- Replace misleading Effective status with installation state and actual invocation counts; add inactive-run regression.
+- No new blocking algorithm or claimed player success: latest 0.13 report exercised neither workaround.
+- Existing profile ON now requests both paths after restart. Production/native/device validation pending.
+
 # 0.13 — single-profile workarounds and troubleshooting
 
 - Correct 0.12 repeated-install false failures; remove missing-config-dependent no-op selection and unused insertion hook.

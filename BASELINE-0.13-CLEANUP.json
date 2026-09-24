@@ -1,0 +1,34 @@
+{
+  "files": {
+    "Sources/QTLogo.m": "0eb9f6e10bdcb77caa4e018c9fde13468725c844fd9a5beafdb5866cc82b41df",
+    "Sources/QTFeedRules.h": "152f5052c7649ebb01d3462454b88bf3fd7920ee05f55345283d570076273a6f",
+    "Sources/QTTemplateScan.h": "17f2e85a74b9d0dcef43a6d1005ed198ff82ff8d81e862bb34a7aedb7b880d4e",
+    "scripts/package.py": "21a9e048284dd0eb3869908807640197ec169680ed802d8e25897fa90f3f90ec"
+  },
+  "ranges": [
+    {
+      "file": "Sources/QTCore.m",
+      "start": "void QTRegisterDefaults(void)",
+      "end": "NSString *QTDiagnostics(void)",
+      "sha256": "ccc57fe535cd36a37507d03586c299c0d1a583158e020a42457b3000e497c370"
+    },
+    {
+      "file": "Sources/QTFeatures.m",
+      "start": "static _Thread_local NSUInteger QTNodeBudget",
+      "end": "void QTInstallFeatures(void)",
+      "sha256": "d7b882e53f4598448b3c1c40cc63bbe127d7058c297c325de9cfda424cfba2d4"
+    },
+    {
+      "file": "Sources/QTFeatures.m",
+      "start": "    if (QTOn(@\"feedAds\") ||",
+      "end": "    if (QTOn(@\"background\")) {",
+      "sha256": "e78cabe8732ddfd09e3ff383bbe74d8ddc50c145616fbaa251ced94cb23f9398"
+    },
+    {
+      "file": "Sources/QTSettings.m",
+      "start": "static const void *QTRowMarker",
+      "end": null,
+      "sha256": "ceb11a5bd9d75553eb8601db3ff2690e7c6e82fe5a64fb2cd5331473568d7215"
+    }
+  ]
+}

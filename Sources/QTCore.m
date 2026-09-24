@@ -20,16 +20,8 @@ NSArray<NSDictionary *> *QTOptions(void) {
         options = @[
 // BEGIN 0.13 AD PROFILE
           @{ @"key":@"adTest", @"title":@"Ad test profile", @"group":@"Playback", @"default":@NO,
-             @"note":@"One switch: native no-op player + disable watch-while feed mutations. Experimental. Automatic safety stop on observed playback errors; restart required." },
-          @{ @"key":@"adTestPlayer", @"title":@"Player workaround", @"group":@"Ad test options", @"default":@YES,
-             @"note":@"Only active with Ad test profile. Leave on for the normal test." },
-          @{ @"key":@"adTestFeed", @"title":@"Post-play feed workaround", @"group":@"Ad test options", @"default":@YES,
-             @"note":@"Only active with Ad test profile. Leave on for the normal test." },
+             @"note":@"Both workarounds together. No hidden branch switches. Experimental; restart required. Stops on observed playback errors." },
 // END 0.13 AD PROFILE
-// BEGIN 0.10 PLAYER PROBE
-          @{ @"key":@"playerProbe", @"title":@"Observe player ad coordinator", @"group":@"Playback", @"default":@NO,
-             @"note":@"Test 0: counters only, NOT ad blocking. Keeps the native coordinator unchanged. Restart to enable/disable; compare with probe off." },
-// END 0.10 PLAYER PROBE
 // BEGIN 0.9.1 WATCH AGAIN
           @{ @"key":@"watchAgain", @"title":@"Hide “Watch it again” shelves", @"group":@"Distractions", @"default":@NO,
              @"note":@"English shelf-title matching, including an experimental horizontal-element fallback. Requires Extended feed formats. Does not delete watch history." },
@@ -59,10 +51,6 @@ NSArray<NSDictionary *> *QTOptions(void) {
           @{ @"key":@"background", @"title":@"Background audio", @"group":@"Playback", @"default":@NO },
           @{ @"key":@"autoplay", @"title":@"Stop automatic next video", @"group":@"Playback", @"default":@NO,
              @"note":@"Stops selected next-video actions, not in-feed video previews." },
-          @{ @"key":@"playerAds", @"title":@"Player-ad blocking — paused", @"group":@"Playback", @"default":@NO,
-             @"disabled":@YES, @"note":@"Old response-array getter hooks removed pending a safer implementation." },
-          @{ @"key":@"home", @"title":@"Home hiding — paused", @"group":@"Distractions", @"default":@NO,
-             @"disabled":@YES, @"note":@"Layout-based hiding removed while investigating flicker." }
         ];
     });
     return options;
@@ -192,11 +180,8 @@ void QTObserveUnmatchedElement(NSData *data) {
 }
 NSString *QTDiagnostics(void) {
     NSMutableString *s = [NSMutableString stringWithFormat:
-        @"QuietTube 0.13 Ad profile and bounded troubleshooting\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
+        @"QuietTube 0.13.1 Ad profile and bounded troubleshooting\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
         [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"], UIDevice.currentDevice.systemVersion];
-// BEGIN 0.10 PLAYER PROBE
-    [s appendFormat:@"PLAYER TEST 0: %@\nAd blocking is NOT implemented by this probe. Original coordinator result is preserved. Counts are not ad counts.\n\n", QTOn(@"playerProbe") ? @"observation enabled" : @"off"];
-// END 0.10 PLAYER PROBE
 // BEGIN 0.13 AD PROFILE
     [s appendString:QTAdReport()];
 // END 0.13 AD PROFILE

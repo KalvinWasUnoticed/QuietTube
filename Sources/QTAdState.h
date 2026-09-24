@@ -1,0 +1,22 @@
+#ifndef QT_AD_STATE_H
+#define QT_AD_STATE_H
+/* Pure status logic: an enabled preference alone is never "effective blocking". */
+typedef enum { QTAdOff, QTAdStopped, QTAdPending, QTAdPartial, QTAdInstalled } QTAdInstallState;
+static QTAdInstallState QTAdState(int master, int requested, int stopped, int player, int feed) {
+    if (!master || !requested) return QTAdOff;
+    if (stopped) return QTAdStopped;
+    if (player && feed) return QTAdInstalled;
+    if (player || feed) return QTAdPartial;
+    return QTAdPending;
+}
+static const char *QTAdStateName(QTAdInstallState state) {
+    switch (state) {
+        case QTAdOff: return "OFF";
+        case QTAdStopped: return "SAFETY STOP — restart required";
+        case QTAdPending: return "WAITING/UNAVAILABLE — no workaround hooks installed";
+        case QTAdPartial: return "PARTIAL — one workaround hook installed";
+        case QTAdInstalled: return "BOTH HOOKS INSTALLED — invocation/removal not implied";
+    }
+    return "UNKNOWN";
+}
+#endif

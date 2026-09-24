@@ -20,8 +20,8 @@ class RetiredExperiment1Checks(unittest.TestCase):
         source = (R / 'Sources/QTPlayerProbe.m').read_text()
         self.assertNotIn('return nil;', source)
         self.assertNotIn('creation suppressed', source)
-        self.assertEqual(source.count('((id (*)(id,SEL))old)(object,sel)'), 1)
-        self.assertIn('return coordinator;', source)
+        self.assertNotIn('QTHook(', source)
+        self.assertNotIn('Sources/QTPlayerProbe.m', (R / 'scripts/build.sh').read_text())
 
     def test_broad_model_load_hook_stays_removed(self):
         source = (R / 'Sources/QTFeatures.m').read_text()

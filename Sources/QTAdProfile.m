@@ -2,6 +2,7 @@
 #include <stdatomic.h>
 #include <stdbool.h>
 #include <string.h>
+#include "QTAdState.h"
 
 // A typed initializer keeps ARC's init-family ownership rules. Never use -init.
 @protocol QTNativeNoOpInitializer <NSObject>
@@ -65,12 +66,19 @@ void QTAdPlaybackError(NSError *error) {
 }
 NSString *QTAdReport(void) {
     QTAdPrepare();
-    NSMutableString *s=[NSMutableString stringWithFormat:@"QUIETTUBE 0.13 AD TEST REPORT\nRequested at launch: %@\nEffective now: %@\nSaved for next launch: %@\nPlayer branch: %@; feed branch: %@\nPlayer factory hook installed: %@; feed mutation hook installed: %@\nNo ad-free/stability guarantee. Safety stop cannot repair an already-failed player.\n\n",
-        QTOn(@"adTest")?@"on":@"off",QTAdActive()?@"on":@"off",
+    QTAdInstallState state=QTAdState(QTOn(@"enabled"),QTOn(@"adTest"),atomic_load(&QTAdTripped),QTPlayerProfileInstalled,QTFeedProfileInstalled);
+    NSMutableString *s=[NSMutableString stringWithFormat:@"QUIETTUBE 0.13.1 AD TEST REPORT\nProfile requested this launch: %@\nInstallation state: %s\nSaved for next launch: %@\nBoth workarounds share this one switch. Old branch preferences are ignored.\nPlayer hook installed: %@; feed hook installed: %@\n",
+        QTOn(@"adTest")?@"on":@"off",QTAdStateName(state),
         [NSUserDefaults.standardUserDefaults boolForKey:@"QuietTube.v1.adTest"]?@"on":@"off",
-        QTOn(@"adTestPlayer")?@"on":@"off",QTOn(@"adTestFeed")?@"on":@"off",
         QTPlayerProfileInstalled?@"yes":@"no",QTFeedProfileInstalled?@"yes":@"no"];
     @synchronized(QTAdEvents) {
+        unsigned long long calls=[QTAdTotals[@"player factory called"] unsignedLongLongValue];
+        unsigned long long supplied=[QTAdTotals[@"native no-op coordinator supplied"] unsignedLongLongValue];
+        unsigned long long feed=[QTAdTotals[@"watch-while feed mutation disabled"] unsignedLongLongValue];
+        [s appendFormat:@"Player invocation: %llu calls; %llu native no-op objects supplied.\nFeed invocation: %llu disabled-feature reads.\n",calls,supplied,feed];
+        if (!supplied) [s appendString:@"PLAYER BLOCKING NOT DEMONSTRATED: no no-op substitution recorded.\n"];
+        if (!feed) [s appendString:@"FEED WORKAROUND NOT OBSERVED: no feature read recorded.\n"];
+        [s appendString:@"Installation/invocation does not prove ad removal. Safety stop requires restart for existing players.\n\n"];
         for (NSString *key in [[QTAdTotals allKeys] sortedArrayUsingSelector:@selector(compare:)])
             [s appendFormat:@"%@ : %@\n",key,QTAdTotals[key]];
         [s appendFormat:@"\nLast %lu events (older discarded: %lu)\n",(unsigned long)QTAdEvents.count,(unsigned long)QTAdDiscarded];
@@ -83,7 +91,7 @@ void QTInstallAdProfile(void) {
     if (!QTAdActive()) return;
     QTAdPrepare();
     // Persistent success flags distinguish scheduled retries from failed installs.
-    if (QTOn(@"adTestFeed") && !QTFeedProfileInstalled) {
+    if (!QTFeedProfileInstalled) {
         Class cls=NSClassFromString(@"YTHotConfig");
         SEL sel=NSSelectorFromString(@"enableWatchWhileFeedMutationOnIos");
         IMP before=cls?class_getMethodImplementation(cls,sel):NULL;
@@ -96,7 +104,7 @@ void QTInstallAdProfile(void) {
         QTFeedProfileInstalled=cls && class_getMethodImplementation(cls,sel)!=before;
         QTAdRecord(QTFeedProfileInstalled?@"feed mutation hook installed":@"feed mutation hook unavailable — native unchanged");
     }
-    if (QTOn(@"adTestPlayer") && !QTPlayerProfileInstalled) {
+    if (!QTPlayerProfileInstalled) {
         Class factoryClass=NSClassFromString(@"YTRealAdsPlayerServices");
         Class noOpClass=NSClassFromString(@"YTNoOpAdsPlaybackCoordinator");
         Ivar scopeIvar=factoryClass?class_getInstanceVariable(factoryClass,"_serviceRegistryScope"):NULL;

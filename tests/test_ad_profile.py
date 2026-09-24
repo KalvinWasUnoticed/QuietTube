@@ -28,8 +28,8 @@ class AdProfileTests(unittest.TestCase):
         self.assertTrue(all(m['types']=='B16@0:8' for m in methods))
     def test_retry_installation_is_idempotent(self):
         s=(R/'Sources/QTAdProfile.m').read_text()
-        self.assertIn('QTOn(@"adTestPlayer") && !QTPlayerProfileInstalled',s)
-        self.assertIn('QTOn(@"adTestFeed") && !QTFeedProfileInstalled',s)
+        self.assertIn('!QTPlayerProfileInstalled',s)
+        self.assertIn('!QTFeedProfileInstalled',s)
         self.assertEqual(s.count('QTHook('),2)
     def test_error_latch_and_native_error_forwarding(self):
         s=(R/'Sources/QTAdProfile.m').read_text()
@@ -47,3 +47,17 @@ class AdProfileTests(unittest.TestCase):
         for banned in ['localizedDescription','absoluteString','HTTPBody','NSLog','[response description]','[error description]']:
             self.assertNotIn(banned,s)
         self.assertIn('Ad test report',(R/'Sources/QTSettings.m').read_text())
+
+    def test_no_subordinate_flags_can_disable_profile(self):
+        s=(R/'Sources/QTAdProfile.m').read_text()
+        for key in ['adTestPlayer','adTestFeed','playerProbe']:
+            self.assertNotIn('QTOn(@"'+key+'")',s)
+        self.assertIn('if (!QTAdActive()) return;',s)
+        self.assertIn('if (!QTPlayerProfileInstalled)',s)
+        self.assertIn('if (!QTFeedProfileInstalled)',s)
+    def test_report_distinguishes_installation_from_invocation(self):
+        s=(R/'Sources/QTAdProfile.m').read_text()
+        self.assertNotIn('Effective now:',s)
+        self.assertIn('QTAdState(',s)
+        self.assertIn('PLAYER BLOCKING NOT DEMONSTRATED',s)
+        self.assertIn('FEED WORKAROUND NOT OBSERVED',s)

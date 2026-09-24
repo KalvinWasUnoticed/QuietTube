@@ -1,16 +1,18 @@
-# 0.13 simplified test
+# 0.13.1: one switch, one restart, one report
 
-Turn on ONLY the new **Playback → Ad test profile** switch, keeping normal defaults/working flags. Fully restart the guest. Play an ad-bearing candidate video, watch beyond the earlier failure window, minimize to Home and inspect the area below it. If stable, check seek/background/native PiP. Ad delivery varies; do not infer success from a single missing ad.
+Use Playback → Ad test profile ON. There is no Ad test options page and no branch setting to enable separately. If upgrading with this switch already ON, both workarounds now attempt to activate after the guest is fully restarted. Old branch OFF preferences are ignored.
 
-Send: **Advanced → Ad test report**, plus three observations:
-- Player ads appeared: yes/no/not enough opportunity.
-- Sponsored card pushed after minimizing: yes/no.
-- Playback: worked, stalled or error (approximate time).
+Play a video, minimize it, observe the pushed card. Watch beyond the previous failure window if playback is stable. Send Advanced → Ad test report plus:
+- Player ad seen: yes/no/not enough opportunity.
+- Card pushed after minimizing: yes/no.
+- Playback: worked/error/stall and approximate time.
 
-The report contains branch installation status and events including player factory called, native no-op coordinator supplied, original factory fallback reasons, and watch-while feed mutation disabled. No-op object count proves substitution only, not ad removal. Feed flag-read count proves the feature getter ran, not unique card removal.
+Report stages:
+1. Profile requested this launch.
+2. Installation state: OFF / SAFETY STOP / WAITING-UNAVAILABLE / PARTIAL / BOTH HOOKS INSTALLED.
+3. Player factory invocation and number of valid native no-op objects supplied.
+4. Feed feature getter reads returning disabled.
 
-On an observed playback NSError, the report shows SAFETY STOP; the profile is saved OFF and new calls use native behavior. Restart after an error. Current objects may remain altered until restart. No error seen by this hook means no automatic trip; turn off manually on a stall or roll back to 0.10 if crashing/settings inaccessible. Retired flags are ignored here; going back to older experimental builds could reactivate their saved keys.
+Stages 2 and 3 are not proof of removing an ad. Zero substitution/getter-read counts explicitly indicate unobserved workaround activity. Missing ads while hooks are absent must not be counted as blocking success. This was the issue in the latest 0.13 run.
 
-Optional isolation ONLY if requested after reading the report: Advanced → Ad test options permits turning off one branch, then restart. No two-run matrix is required initially. Automatic safety stop switches off the single profile, not your working cleanup/audio flags.
-
-No raw player data, URLs, credentials, userInfo dump or automatic uploads. Trace is in-memory and capped at 80 events, with fixed-label totals and numeric/domain-bucket error details (max three levels per error). Restart clears it. Template capture is separate and unnecessary for the initial report.
+On an observed error, the safety latch saves the profile OFF, without resetting feed/audio/appearance flags. Restart; current player state is not repaired. Stalls/crashes can bypass the observer: disable manually or revert to 0.10. A new run's short report is enough; no repeat of the supplied 0.13 counters is requested.

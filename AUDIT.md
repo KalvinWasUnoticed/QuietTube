@@ -1,29 +1,13 @@
-# 0.13 audit
+# 0.13.1 activation / cleanup audit
 
-## Intent and scope
+Latest device report: master adTest on; both subordinate flags off; no player/feed workaround hooks; empty trace. Stable five-minute playback is a baseline observation, not verified blocking. Why no player ad was served is not identified. Post-minimize card persistence cannot assess an inactive workaround. No new detector/renderer hypothesis is inferred from generic metadata.
 
-User requested fewer manual test cycles, stronger troubleshooting and actual targeted workarounds. One default-off adTest profile enables two default-on subordinate options. Normal testing needs one switch/restart and one short report. Branch overrides are only in Advanced → Ad test options. Existing working flags are not reset. Legacy failed experiment keys are not registered or read; a retired source stub and replacement old test filenames make overlay upgrades safe.
+Changes: remove subordinate options/gates and page; retain single adTest as explicit authority for both hooks. A saved ON value now activates both after restart, documented as an upgrade behavior change. Remove unneeded observer hook and control, its install call/declaration/build input and misleading probe section. Remove disabled legacy playerAds and home options; stale keys ignored. Empty legacy source stubs and replacement tests remain for overlay compatibility, not runtime behavior. Established cleanup is kept consolidated at its existing presentation boundary; no risky broad refactor of the confirmed feed traversal.
 
-## Corrections
+QTAdState.h makes requested/off/stopped/partial/installed states explicit and unit-testable. Report includes separate invocation/substitution counts and warnings on zero values; no claim of effectiveness from an enabled preference. Thread-safe bounded event report and numeric underlying errors retained. Native workaround semantics unchanged from0.13: designated no-op constructor from verified scope/delegate with fallback, native watch-while mutation feature disabling. Neither path was tested in the latest user run. Both may still fail or cause regressions when actually enabled.
 
-0.12's getter-installed message was false on subsequent delayed install attempts, because before/after IMP equality meant already-installed rather than failure. Persistent per-branch installation flags now distinguish success/retries. Three missing-config factory events mean no-op selection was NOT demonstrated. That getter and thread-local config scope are removed. The inactive insertion method hook is removed.
+Safety latch preserved: native error handler forwarded, adTest saved off for next restart, new calls native after trip, no recovery promise for existing objects and no capture guarantee on crash/stall. Does not fabricate completion callbacks, mutate response arrays, spoof clients, remove ordinary links/sponsor buttons or retry errors.
 
-## Player workaround
+50 Python tests passed in clean and overlaid 0.13 repositories. Prior test names replaced to remove obsolete assertions rather than leaving stale files. Frozen BASELINE-0.13-CLEANUP hashes cover unchanged feed rules/scanner/logo/packager; protected source ranges cover registration/migration/runtime hook helpers, feed traversal/batch boundary and native settings entry/navigation integration. C ASan/UBSan:79 classifier +5000 random;20 scanner +5000 random;32 state combinations plus exact inactive-profile regression. Shell/YAML/ZIP checks passed.
 
-Uses the exact verified no-op initializer with typed Objective-C init-family dispatch for ARC, original factory delegate and read-only object_getIvar of the verified scope ivar. Rejects unavailable/wrong constructor encoding or non-object ivar. Native no-op result checked before returning; no valid result/missing prerequisites/constructor exception calls original factory once. Original exceptions remain visible. No synthetic nil, no response arrays, no serialized config writes, alternate-client requests, fake callback invocation, retry/seek loop or signal suppression. It bypasses original factory side effects on success; native construction is not proof of safe semantics for every stream or server state.
-
-## Feed workaround
-
-BOOL feature getter enableWatchWhileFeedMutationOnIos returns NO while profile is effective, leaving native disabled-path handling intact. Static ad-adapter initializer evidence and getter signatures recorded. This is a feature-wide setting, so other readers may be affected. No UI hiding, generic metadata/title/link matching, broad model-load edits or arbitrary insert/replace result fabrication. Does not guarantee all companion/ad surfaces are covered.
-
-## Safety / reporting
-
-C atomic safety latch on observed NSError; profile saved OFF for next launch and new hook invocations forward to native after trip. Current no-op objects are not replaced; the failed player still requires restart. Native error handler is always forwarded. Crashes/stalls or other error paths may not trip. Failed saving reports need for manual disable. NSError chain max3, allowlisted domain categories + code only. Fixed-label event totals and rolling last80 relative-time events, bounded report, no objects/IDs/URLs/response dumps persisted or transmitted. New logging is separate from already capped template capture.
-
-## Preservation / local checks
-
-Based on 0.10. Existing pure C feed classifier/scanner, logo module, background/native PiP, authentication/network behavior, settings navigation and array safeguards retained. New integration adds observer/report and profile installer; direct IPA workflow versioned0.13 with visibility/success gates preserved. Old baseline comparisons normalize only explicit new blocks and UI/version/report changes, then hash remaining source/build content.
-
-51 Python tests passed clean and after overlay onto 0.12 (8 packaging,6 mocked release,37 source/ABI/scope checks). Retired-test filenames overwritten, avoiding the 0.12 stale-file failure. C ASan/UBSan:79 classifier fixtures+5000 iterations and20 scanner fixtures+5000 iterations. Shell syntax passed; YAML/archive checked. Metadata/selected disassembly inspected from re-verified pinned binary; downloads deleted afterward.
-
-No Apple SDK compile, device execution or real release upload for0.13 here. Tests do not prove ARC lifetime, native semantic safety, ad-free playback or absence of regressions. No zero-error/undetectability promise. The change in strategy is concrete but still requires a device result.
+No Apple SDK compile, native runtime test or actual release upload here. Test-count changes reflect removal of obsolete probe-specific tests, replacement baseline verification and new state tests, not claimed native coverage. Pending acceptance: actual installation and invocation of both ad paths, observed playback stability and post-minimize card suppression.

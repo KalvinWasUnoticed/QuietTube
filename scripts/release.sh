@@ -11,15 +11,15 @@ if [[ "${REPO_PRIVATE:-}" != "true" && "${ALLOW_PUBLIC_RELEASE:-false}" != "true
   echo 'Public IPA publishing requires explicit approval in Run workflow.' >&2
   exit 1
 fi
-ipa='artifacts/QuietTube-0.13-21.38.2.ipa'
+ipa='artifacts/QuietTube-0.13.1-21.38.2.ipa'
 [[ -s "$ipa" ]] || { echo 'IPA missing or empty' >&2; exit 1; }
-tag="quiettube-0.13-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+tag="quiettube-0.13.1-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
 server="${GITHUB_SERVER_URL:-https://github.com}"
 page="${server}/${GITHUB_REPOSITORY}/releases/tag/${tag}"
-download="${server}/${GITHUB_REPOSITORY}/releases/download/${tag}/QuietTube-0.13-21.38.2.ipa"
+download="${server}/${GITHUB_REPOSITORY}/releases/download/${tag}/QuietTube-0.13.1-21.38.2.ipa"
 notes="${RUNNER_TEMP:-.}/quiettube-release-notes.md"
 cat > "$notes" <<NOTES
-# QuietTube 0.13 — personal LiveContainer test build
+# QuietTube 0.13.1 — personal LiveContainer test build
 
 **[Download the IPA directly](${download})** — no outer ZIP to extract.
 
@@ -32,9 +32,9 @@ Source commit: ${GITHUB_SHA}
 Build: ${server}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
 NOTES
 gh release create "$tag" "$ipa" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-  --prerelease --title "QuietTube 0.13 — build ${GITHUB_RUN_ID}.${GITHUB_RUN_ATTEMPT}" --notes-file "$notes"
+  --prerelease --title "QuietTube 0.13.1 — build ${GITHUB_RUN_ID}.${GITHUB_RUN_ATTEMPT}" --notes-file "$notes"
 cat >> "$GITHUB_STEP_SUMMARY" <<SUMMARY
-# ✅ [DOWNLOAD IPA — QuietTube 0.13](${download})
+# ✅ [DOWNLOAD IPA — QuietTube 0.13.1](${download})
 
 **This link downloads the actual .ipa file. No artifact ZIP or extraction step.**
 

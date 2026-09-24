@@ -5,9 +5,9 @@
   "patched_command_count": 138,
   "packaging_unit_tests": "8 passed",
   "objc_compilation": "Not compiled here; GitHub Apple SDK build required",
-  "device_test": "0.13 untested; 0.12 supplied logs establish missing config, no no-op selection, inactive insertion hook",
-  "revision": "0.13-single-ad-profile",
-  "static_regression_checks": "37 passed; source/ABI/scope only",
+  "device_test": "0.13.1 untested; latest 0.13 had both branches off, no new hooks, zero events; 5-minute playback cannot validate blocking",
+  "revision": "0.13.1-single-switch-activation-cleanup",
+  "static_regression_checks": "36 passed; source/ABI/scope only",
   "workflow_yaml": "parsed",
   "shell_syntax": "build.sh and release.sh passed",
   "classifier_tests": "79 fixtures + 5000 random-byte iterations passed under ASan/UBSan",
@@ -17,10 +17,11 @@
   "logo_source": "Byte-for-byte unchanged from 0.9 and device-confirmed 0.7",
   "native_mix_endpoint": "Signature-checked at runtime; getter ownership/availability not verified from base binary",
   "mix_url_evidence": "https://github.com/MorpheApp/morphe-patches/pull/1835",
-  "patch_preservation": "0.10-based; historical baseline source comparisons pass after explicit profile/report integration normalization",
+  "patch_preservation": "Protected modules and function ranges match 0.13 hashes; new status logic, removed legacy controls/probe and single-switch gating audited",
   "watch_again_evidence": "Screenshot English heading and horizontal_shelf capture; exact payload ownership/encoding not verified",
-  "player_probe": "Existing pass-through probe retained; new designated initializer and factory scope ABI checked against binary metadata",
+  "player_probe": "Retired; not compiled, no hook/control/install call",
   "player_ad_blocking": "Opt-in native coordinator substitution with original-factory fallback; unverified effectiveness/stability",
-  "upgrade_tests": "51 Python tests passed clean and after overlay onto 0.12",
-  "binary_research": "Re-verified pinned IPA; factory ivar/native initializer and watch-while ad-mutation flag metadata and selected disassembly inspected; inputs deleted"
+  "upgrade_tests": "50 Python tests passed clean and after overlay onto 0.13",
+  "binary_research": "Re-verified pinned IPA; factory ivar/native initializer and watch-while ad-mutation flag metadata and selected disassembly inspected; inputs deleted",
+  "ad_state_tests": "32 exhaustive boolean-state combinations plus inactive-session regression passed under ASan/UBSan"
 }

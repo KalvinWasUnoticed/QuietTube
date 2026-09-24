@@ -3,24 +3,15 @@ import hashlib,json,re,unittest
 from pathlib import Path
 R=Path(__file__).resolve().parents[1]
 class PatchScopeTests(unittest.TestCase):
-    def test_prior_implementation_preserved_except_version_and_feature(self):
-        baseline=json.loads((R/'BASELINE-0.9.json').read_text())
-        for name,expected in baseline.items():
-            with self.subTest(file=name):
-                text=(R/name).read_text()
-                text=re.sub(r'// BEGIN 0\.13 AD PROFILE\n.*?// END 0\.13 AD PROFILE\n','',text,flags=re.S)
-                text=text.replace(' Sources/QTAdProfile.m','')
-                text=text.replace('([row[@"action"] isEqualToString:@"diagnostics"] || [row[@"action"] isEqualToString:@"adReport"])','[row[@"action"] isEqualToString:@"diagnostics"]')
-                text=text.replace('[row[@"action"] isEqualToString:@"adReport"] ? QTAdReport() : QTDiagnostics()','QTDiagnostics()')
-                text=re.sub(r'// BEGIN 0\.10 PLAYER PROBE\n.*?// END 0\.10 PLAYER PROBE\n','',text,flags=re.S)
-                text=text.replace(' Sources/QTPlayerProbe.m','')
-                text=text.replace('Ad profile and bounded troubleshooting','Mix playlist destination filtering')
-                text=re.sub(r'// BEGIN 0\.9\.1 WATCH AGAIN\n.*?// END 0\.9\.1 WATCH AGAIN\n','',text,flags=re.S)
-                text=text.replace(', QTFeedWatchAgain = 1024','')
-                text=text.replace(' || QTOn(@"watchAgain")','')
-                text=text.replace(',@"watchAgain"]',']')
-                text=text.replace('0.13','VERSION')
-                self.assertEqual(hashlib.sha256(text.encode()).hexdigest(),expected)
+    def test_preserved_baseline_functions_and_modules(self):
+        rec=json.loads((R/'BASELINE-0.13-CLEANUP.json').read_text())
+        for file,expected in rec['files'].items():
+            text=(R/file).read_text().replace('0.13.1','VERSION')
+            self.assertEqual(hashlib.sha256(text.encode()).hexdigest(),expected,file)
+        for item in rec['ranges']:
+            text=(R/item['file']).read_text()
+            part=text[text.index(item['start']):text.index(item['end']) if item['end'] else len(text)]
+            self.assertEqual(hashlib.sha256(part.encode()).hexdigest(),item['sha256'],item['file'])
     def test_independent_opt_in_and_dependency(self):
         core=(R/'Sources/QTCore.m').read_text()
         start=core.index('@"key":@"watchAgain"')
