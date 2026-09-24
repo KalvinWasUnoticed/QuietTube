@@ -79,7 +79,7 @@ class V06AuditChecks(unittest.TestCase):
         self.assertIn('((void (*)(id,SEL,id))old)(object,sel,error);',source)
     def test_settings_dependencies_and_restart_snapshot(self):
         ui=(R/'Sources/QTSettings.m').read_text()
-        self.assertIn('dependencyReady',ui)
+        self.assertIn('QTSettingChanges(key,YES)',ui)
         self.assertIn('[self.tableView reloadData]',ui)
         core=(R/'Sources/QTCore.m').read_text()
         body=core[core.index('BOOL QTOn('):core.index('void QTSet(')]

@@ -4,10 +4,10 @@
   "original_command_count": 137,
   "patched_command_count": 138,
   "packaging_unit_tests": "8 passed",
-  "objc_compilation": "Not compiled here; GitHub Apple SDK build required",
+  "objc_compilation": "User screenshot confirms RC1 native compile step passed; no app code changes in handoff patch.",
   "device_test": "0.13.5 user confirmed marked feed entry withheld and no visible ad, then further use working well. New RC settings UI/device behavior untested.",
   "revision": "0.14.0-rc1-settings-release",
-  "static_regression_checks": "78 Python checks passed; source/ABI/packaging/mock-release only",
+  "static_regression_checks": "85 Python checks including source-assembly guard; native UI not executed here",
   "workflow_yaml": "parsed",
   "shell_syntax": "build.sh and release.sh passed",
   "classifier_tests": "79 fixtures + 5000 random-byte iterations passed under ASan/UBSan",
@@ -21,7 +21,7 @@
   "watch_again_evidence": "Screenshot English heading and horizontal_shelf capture; exact payload ownership/encoding not verified",
   "player_probe": "Retired; not compiled, no hook/control/install call",
   "player_ad_blocking": "Player construction block unchanged from reported successful 0.13.1; no universal stability/ad-free claim",
-  "upgrade_tests": "78 Python checks clean and overlay onto 0.13.5",
+  "upgrade_tests": "85 checks clean and overlay onto 0.13.5",
   "binary_research": "Pinned IPA SHA256 reverified; insertion handler, array helpers and empty-input branch disassembled; raw IPA/executable removed",
   "ad_state_tests": "32 exhaustive boolean-state combinations plus inactive-session regression passed under ASan/UBSan",
   "companion_ad_evidence": "Retired hook after repeated zero device callbacks; retained historical metadata only",
@@ -33,5 +33,8 @@
   "settings_ui": "Native UIKit source implemented; no Apple SDK compilation or UI execution here",
   "public_release": "No upload. Source licensing/provenance and proprietary app redistribution rights require maintainer review; public IPA gate retained",
   "ui_tests": "Catalog coverage, preview/apply separation, non-modal/coalesced notice source, raw launch snapshot comparison, preset playback preservation, known-key writes",
-  "cloud_checks": "Added insertion policy C suite to IPA workflow and separate no-download source CI"
+  "cloud_checks": "Added insertion policy C suite to IPA workflow and separate no-download source CI",
+  "release_handoff_patch": "81 Python checks passed; shared IPA_PATH and exact upload/link path tested offline. Cloud publication unverified.",
+  "source_assembly_guard": "SHA256 manifest for all Sources and build/package/release/verification scripts; rejects mixed/missing files before native compile.",
+  "current_device_evidence": "User screenshots show old 0.13.5 UI despite RC1-labeled workflow success. They do not validate the redesigned UI. Mixed repository source upload is consistent with screenshots; stale guest selection also must be excluded."
 }

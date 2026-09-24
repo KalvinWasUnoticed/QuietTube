@@ -182,7 +182,7 @@ void QTObserveUnmatchedElement(NSData *data) {
 }
 NSString *QTDiagnostics(void) {
     NSMutableString *s = [NSMutableString stringWithFormat:
-        @"QuietTube 0.13.5 Ad profile and bounded troubleshooting\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
+        @"QuietTube 0.14.0-rc1 Ad profile and bounded troubleshooting\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
         [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"], UIDevice.currentDevice.systemVersion];
 // BEGIN 0.13 AD PROFILE
     [s appendString:QTAdReport()];
@@ -233,4 +233,12 @@ __attribute__((constructor)) static void QTStart(void) {
             });
         }
     }
+}
+
+// UI-only comparison: use the raw launch snapshot, not effective QTOn values.
+BOOL QTSettingsPendingRestart(void) {
+    for (NSString *key in QTActiveFlags) {
+        if ([QTActiveFlags[key] boolValue] != [NSUserDefaults.standardUserDefaults boolForKey:[QTPrefix stringByAppendingString:key]]) return YES;
+    }
+    return NO;
 }

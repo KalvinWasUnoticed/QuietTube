@@ -1,8 +1,10 @@
-#import "QTCore.h"
+#import "QTSettingsModel.h"
 
 @interface QTOptionsController : UITableViewController
 @property(nonatomic, copy) NSString *group;
 @property(nonatomic, strong) NSArray<NSDictionary *> *rows;
+@property(nonatomic, copy) NSDictionary<NSString *,NSNumber *> *preview;
+@property(nonatomic) NSUInteger noticeGeneration;
 @end
 @implementation QTOptionsController
 - (void)viewDidLoad {
@@ -16,121 +18,134 @@
     self.tableView.cellLayoutMarginsFollowReadableWidth = YES;
     self.tableView.rowHeight = UITableViewAutomaticDimension;
     self.tableView.estimatedRowHeight = 74;
-    if (self.group) {
-        self.rows = [QTOptions() filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSDictionary *o, NSDictionary *bindings) {
-            return [o[@"group"] isEqualToString:self.group];
-        }]];
-    } else self.rows = @[
-        @{@"title":@"Enable modifications", @"key":@"enabled"},
-        @{@"title":@"Prepare ad test", @"action":@"prepareAdTest", @"note":@"Enable test flags and local class/template logging; restart afterward."},
-        @{@"title":@"Distractions", @"page":@"Distractions"},
-        @{@"title":@"Playback", @"page":@"Playback"},
-        @{@"title":@"Advanced", @"page":@"Advanced"}
-    ];
-    if ([self.group isEqualToString:@"Advanced"]) self.rows = @[
-        @{@"title":@"Trace minimize and feed updates", @"key":@"mutationTrace", @"note":@"Read-only bounded timeline; restart required."},
-        @{@"title":@"Inspect unmatched templates", @"key":@"inspectElements",
-          @"note":@"Opt-in local capture of identifier-shaped names. Requires Extended feed formats and restart. Review before sharing."},
-        @{@"title":@"Clear template capture", @"action":@"clearCapture"},
-// BEGIN 0.13 AD PROFILE
-        @{@"title":@"Ad test report", @"action":@"adReport"},
-// END 0.13 AD PROFILE
-        @{@"title":@"View diagnostics", @"action":@"diagnostics"},
-        @{@"title":@"Disable all for next launch", @"action":@"reset"}
-    ];
+    if (self.preview) {
+        NSMutableArray *rows=[NSMutableArray array];
+        for (NSString *key in [[self.preview allKeys] sortedArrayUsingSelector:@selector(compare:)]) {
+            BOOL before=QTSavedSetting(key), after=[self.preview[key] boolValue];
+            [rows addObject:@{@"title":QTSettingTitle(key),@"note":[NSString stringWithFormat:@"%@ → %@%@",before?@"On":@"Off",after?@"On":@"Off",before==after?@" (unchanged)":@""],@"readOnly":@YES}];
+        }
+        self.rows=rows;
+        self.navigationItem.rightBarButtonItem=[[UIBarButtonItem alloc] initWithTitle:@"Apply" style:UIBarButtonItemStyleDone target:self action:@selector(applyPreset)];
+    } else if (!self.group) self.rows=@[
+        @{@"title":@"Enable QuietTube",@"key":@"enabled",@"note":@"Master switch. Your individual preferences are kept when this is off."},
+        @{@"title":@"Presets",@"page":@"Presets",@"icon":@"slider.horizontal.3",@"note":@"Preview a setup before applying it."},
+        @{@"title":@"Ads",@"page":@"Ads",@"icon":@"hand.raised"},
+        @{@"title":@"Feed",@"page":@"Feed",@"icon":@"rectangle.grid.1x2"},
+        @{@"title":@"Playback",@"page":@"Playback",@"icon":@"play.circle"},
+        @{@"title":@"Appearance",@"page":@"Appearance",@"icon":@"paintbrush"},
+        @{@"title":@"Advanced",@"page":@"Advanced",@"icon":@"gearshape"}];
+    else if ([self.group isEqualToString:@"Presets"]) self.rows=@[
+        @{@"title":@"Ads & essentials",@"preset":@"Ads & essentials",@"note":@"Enable ad protection and the classic logo; turn off detailed logging. Other preferences stay as they are."},
+        @{@"title":@"Focused feed",@"preset":@"Focused feed",@"note":@"Ads & essentials plus all available feed cleanup. Playback preferences stay as they are."}];
+    else {
+        NSMutableArray *rows=[QTSettingsRows(self.group) mutableCopy];
+        if ([self.group isEqualToString:@"Advanced"]) [rows addObjectsFromArray:@[
+            @{@"title":@"Troubleshooting",@"page":@"Troubleshooting",@"note":@"Optional local diagnostics for reporting a problem."},
+            @{@"title":@"About QuietTube",@"action":@"about"},
+            @{@"title":@"Disable all options",@"action":@"reset",@"note":@"Clears QuietTube toggle selections, not your YouTube account or history."}]];
+        if ([self.group isEqualToString:@"Troubleshooting"]) [rows addObjectsFromArray:@[
+            @{@"title":@"Prepare a support test",@"action":@"prepareAdTest",@"note":@"Enable ad protection, extended matching and local diagnostic capture. Your other preferences stay unchanged."},
+            @{@"title":@"View support report",@"action":@"adReport",@"note":@"Short player and feed report. Review before sharing."},
+            @{@"title":@"View full diagnostics",@"action":@"diagnostics"},
+            @{@"title":@"Clear template capture",@"action":@"clearCapture"}]];
+        self.rows=rows;
+    }
 }
+- (void)viewWillAppear:(BOOL)animated { [super viewWillAppear:animated]; [self.tableView reloadData]; }
 - (NSInteger)tableView:(UITableView *)tv numberOfRowsInSection:(NSInteger)section { return self.rows.count; }
+- (NSString *)tableView:(UITableView *)tv titleForHeaderInSection:(NSInteger)section {
+    return self.preview ? @"Review settings" : self.group ?: @"Make YouTube quieter";
+}
 - (NSString *)tableView:(UITableView *)tv titleForFooterInSection:(NSInteger)section {
-    return @"0.13.5 · Restart the guest app to apply changes. Use YouTube’s own PiP setting. Ad profile is experimental; see Advanced → Ad test report.";
+    if (self.preview) return @"Only the settings listed above will be saved. No change is made until you tap Apply. All other preferences are preserved. Fully restart the guest app afterward.";
+    NSString *state=QTSettingsPendingRestart()?@"Restart required — fully stop and reopen the LiveContainer guest to apply saved changes.":@"Changes take effect after a full guest-app restart.";
+    return [NSString stringWithFormat:@"%@\n%@\n0.14.0-rc1 · Unofficial, not affiliated with YouTube. Use YouTube’s own Picture in Picture setting.",state,QTSavedSetting(@"enabled")?@"":@"QuietTube is disabled for the next launch. Enable the master switch to use these options."];
 }
 - (UITableViewCell *)tableView:(UITableView *)tv cellForRowAtIndexPath:(NSIndexPath *)index {
-    NSDictionary *row = self.rows[index.row];
-    UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:nil];
-    cell.textLabel.text = row[@"title"];
-    cell.textLabel.numberOfLines = 0;
-    cell.textLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
-    cell.textLabel.adjustsFontForContentSizeCategory = YES;
-    cell.detailTextLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleFootnote];
-    cell.detailTextLabel.adjustsFontForContentSizeCategory = YES;
-    cell.detailTextLabel.text = row[@"note"];
-    cell.detailTextLabel.numberOfLines = 0;
+    NSDictionary *row=self.rows[index.row];
+    UITableViewCell *cell=[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:nil];
+    cell.textLabel.text=row[@"title"]; cell.textLabel.numberOfLines=0;
+    cell.textLabel.font=[UIFont preferredFontForTextStyle:UIFontTextStyleBody];
+    cell.textLabel.adjustsFontForContentSizeCategory=YES;
+    cell.detailTextLabel.font=[UIFont preferredFontForTextStyle:UIFontTextStyleFootnote];
+    cell.detailTextLabel.adjustsFontForContentSizeCategory=YES;
+    cell.detailTextLabel.numberOfLines=0; cell.detailTextLabel.text=row[@"note"];
+    if (row[@"icon"]) cell.imageView.image=[UIImage systemImageNamed:row[@"icon"]];
     if (row[@"key"]) {
-        UISwitch *toggle = [UISwitch new];
-        toggle.accessibilityLabel = row[@"title"];
-        toggle.accessibilityIdentifier = row[@"key"];
-        BOOL needsExtended = [@[@"topicsShelves",@"edgeCards",@"playables",@"eventPromos",@"inspectElements",@"displayAds",@"mixes",@"watchAgain"] containsObject:row[@"key"]];
-        BOOL dependencyReady = !needsExtended || [NSUserDefaults.standardUserDefaults boolForKey:@"QuietTube.v1.extendedFeed"];
-        BOOL needsFeedAds = [row[@"key"] isEqualToString:@"displayAds"];
-        if (needsFeedAds && ![NSUserDefaults.standardUserDefaults boolForKey:@"QuietTube.v1.feedAds"]) dependencyReady = NO;
-        toggle.enabled = ![row[@"disabled"] boolValue] && dependencyReady;
-        if (!dependencyReady) cell.detailTextLabel.text = needsFeedAds ? @"Enable Extended feed formats and Feed ads first. Restart to apply." : @"Enable Extended feed formats first. Restart to apply.";
-        toggle.on = ![row[@"disabled"] boolValue] && [NSUserDefaults.standardUserDefaults boolForKey:[@"QuietTube.v1." stringByAppendingString:row[@"key"]]];
+        NSString *key=row[@"key"];
+        UISwitch *toggle=[UISwitch new]; toggle.accessibilityIdentifier=key;
+        toggle.accessibilityLabel=row[@"title"]; toggle.accessibilityHint=row[@"note"];
+        toggle.on=QTSavedSetting(key);
+        // Keep controls usable: enabling an option saves its prerequisites too.
+        NSDictionary *required=QTSettingChanges(key,YES);
+        BOOL missing=NO;
+        for (NSString *dependency in required) if (![dependency isEqualToString:key] && !QTSavedSetting(dependency)) missing=YES;
+        if (missing) cell.detailTextLabel.text=[NSString stringWithFormat:@"%@ %@",row[@"note"] ?: @"",toggle.on?@"Paused: a required option is off. Toggle off and on to restore it.":@"Required matching options will also be enabled."];
         [toggle addTarget:self action:@selector(changed:) forControlEvents:UIControlEventValueChanged];
-        cell.accessoryView = toggle;
-        cell.selectionStyle = UITableViewCellSelectionStyleNone;
-    } else cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+        cell.accessoryView=toggle; cell.selectionStyle=UITableViewCellSelectionStyleNone;
+    } else if (![row[@"readOnly"] boolValue]) cell.accessoryType=UITableViewCellAccessoryDisclosureIndicator;
+    else cell.selectionStyle=UITableViewCellSelectionStyleNone;
     return cell;
 }
-- (void)closeControls {
-    [self.navigationController dismissViewControllerAnimated:YES completion:nil];
+- (void)closeControls { [self.navigationController dismissViewControllerAnimated:YES completion:nil]; }
+- (void)showNotice:(NSString *)message {
+    self.navigationItem.prompt=message;
+    NSUInteger generation=++self.noticeGeneration;
+    __weak QTOptionsController *weakSelf=self;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW,(int64_t)(3*NSEC_PER_SEC)),dispatch_get_main_queue(),^{
+        QTOptionsController *strongSelf=weakSelf;
+        if (strongSelf && strongSelf.noticeGeneration==generation) strongSelf.navigationItem.prompt=nil;
+    });
+    // Footer persists if changes still differ from the launch snapshot.
 }
 - (void)changed:(UISwitch *)sender {
-    QTSet(sender.accessibilityIdentifier, sender.on);
+    QTSaveSettings(QTSettingChanges(sender.accessibilityIdentifier,sender.on));
     [self.tableView reloadData];
-    self.navigationItem.prompt = @"Saved — restart the guest app to apply";
+    [self showNotice:QTSettingsPendingRestart()?@"Saved · Restart to apply":@"Saved · No restart pending"];
+}
+- (void)applyPreset {
+    QTSaveSettings(self.preview);
+    UINavigationController *navigation=self.navigationController;
+    [navigation popViewControllerAnimated:YES];
+    QTOptionsController *parent=(QTOptionsController *)navigation.topViewController;
+    if ([parent isKindOfClass:QTOptionsController.class]) { [parent.tableView reloadData]; [parent showNotice:QTSettingsPendingRestart()?@"Preset saved · Restart to apply":@"Preset saved · No restart pending"]; }
+}
+- (void)showText:(NSString *)content title:(NSString *)title {
+    UIViewController *page=[UIViewController new]; page.title=title;
+    UITextView *text=[UITextView new]; text.editable=NO; text.selectable=YES;
+    text.font=[UIFont preferredFontForTextStyle:UIFontTextStyleFootnote]; text.adjustsFontForContentSizeCategory=YES;
+    text.backgroundColor=UIColor.systemBackgroundColor; text.textColor=UIColor.labelColor;
+    text.textContainerInset=UIEdgeInsetsMake(16,16,24,16); text.text=content; page.view=text;
+    [self.navigationController pushViewController:page animated:YES];
 }
 - (void)tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)index {
-    [tv deselectRowAtIndexPath:index animated:YES];
-    NSDictionary *row = self.rows[index.row];
-    if (row[@"page"]) {
-        QTOptionsController *page = [[QTOptionsController alloc] initWithStyle:UITableViewStyleInsetGrouped];
-        page.group = row[@"page"];
+    [tv deselectRowAtIndexPath:index animated:YES]; NSDictionary *row=self.rows[index.row];
+    if (row[@"key"] || [row[@"readOnly"] boolValue]) return;
+    if (row[@"page"] || row[@"preset"]) {
+        QTOptionsController *page=[[QTOptionsController alloc] initWithStyle:UITableViewStyleInsetGrouped];
+        page.group=row[@"page"] ?: row[@"preset"];
+        if (row[@"preset"]) page.preview=QTPresetChanges(row[@"preset"]);
         [self.navigationController pushViewController:page animated:YES];
-    } else if (([row[@"action"] isEqualToString:@"diagnostics"] || [row[@"action"] isEqualToString:@"adReport"])) {
-        UIViewController *page = [UIViewController new];
-        page.title = @"Diagnostics";
-        UITextView *text = [UITextView new];
-        text.editable = NO;
-        text.selectable = YES;
-        text.font = [UIFont preferredFontForTextStyle:UIFontTextStyleFootnote];
-        text.adjustsFontForContentSizeCategory = YES;
-        text.backgroundColor = UIColor.systemBackgroundColor;
-        text.textColor = UIColor.labelColor;
-        text.textContainerInset = UIEdgeInsetsMake(16,16,24,16);
-        text.text = [row[@"action"] isEqualToString:@"adReport"] ? QTAdReport() : QTDiagnostics();
-        page.view = text;
-        [self.navigationController pushViewController:page animated:YES];
-    } else if ([row[@"action"] isEqualToString:@"prepareAdTest"]) {
-        QTPrepareAdTest();
-        [self.tableView reloadData];
-        self.navigationItem.prompt = @"Test saved - fully restart the guest";
-        UIAlertController *notice = [UIAlertController alertControllerWithTitle:@"Ad test prepared"
-            message:@"Required flags are saved. Fully stop and relaunch the LiveContainer guest before testing. Refreshing Home is not a restart. Your other settings are unchanged."
-            preferredStyle:UIAlertControllerStyleAlert];
-        [notice addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
-        [self presentViewController:notice animated:YES completion:nil];
+    } else if ([row[@"action"] isEqualToString:@"adReport"]) [self showText:QTAdReport() title:@"Support report"];
+    else if ([row[@"action"] isEqualToString:@"diagnostics"]) [self showText:QTDiagnostics() title:@"Diagnostics"];
+    else if ([row[@"action"] isEqualToString:@"about"]) [self showText:@"QuietTube 0.14.0-rc1\n\nAn unofficial customization for YouTube 21.38.2 in LiveContainer. Not affiliated with or endorsed by YouTube or Google.\n\nAd protection was tested in limited sessions on one device. It is not guaranteed across all videos or future app updates. This release candidate needs native build and device validation.\n\nQuietTube adds no automatic diagnostic upload. Reports can contain internal class/template identifiers; review before sharing. YouTube and LiveContainer have their own data practices.\n\nThe QuietTube source is MIT licensed; see LICENSE and Notices in the source distribution. That license does not grant rights to redistribute YouTube or its trademarks.\n\nTo pause modifications, turn off Enable QuietTube and fully restart the guest. Your preferences are retained. Restore your previous IPA if needed." title:@"About QuietTube"];
+    else if ([row[@"action"] isEqualToString:@"prepareAdTest"]) {
+        QTPrepareAdTest(); [self.tableView reloadData]; [self showNotice:@"Support test saved · Restart to apply"];
     } else if ([row[@"action"] isEqualToString:@"clearCapture"]) {
-        QTResetElementCapture();
-        self.navigationItem.prompt = @"Capture cleared — refresh Home to inspect new elements";
-    } else if (row[@"action"]) {
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Disable all modifications?"
-            message:@"This takes effect after a full guest-app restart. It will not change the running feed."
-            preferredStyle:UIAlertControllerStyleAlert];
+        QTResetElementCapture(); [self showNotice:@"Template capture cleared"];
+    } else if ([row[@"action"] isEqualToString:@"reset"]) {
+        UIAlertController *alert=[UIAlertController alertControllerWithTitle:@"Disable all options?" message:@"This clears QuietTube toggle selections for the next launch. Your YouTube account and history are not changed." preferredStyle:UIAlertControllerStyleAlert];
         [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
-        [alert addAction:[UIAlertAction actionWithTitle:@"Apply" style:UIAlertActionStyleDefault handler:^(UIAlertAction *a) {
-            QTSet(@"enabled", NO);
-            for (NSDictionary *o in QTOptions()) {
-                QTSet(o[@"key"], NO);
-            }
-            [self.tableView reloadData];
+        [alert addAction:[UIAlertAction actionWithTitle:@"Disable all" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *a) {
+            NSMutableDictionary *changes=[NSMutableDictionary dictionaryWithObject:@NO forKey:@"enabled"];
+            for (NSDictionary *o in QTOptions()) changes[o[@"key"]]=@NO;
+            QTSaveSettings(changes); [self.tableView reloadData]; [self showNotice:@"Options disabled · Restart to apply"];
         }]];
         [self presentViewController:alert animated:YES completion:nil];
     }
 }
 @end
-UIViewController *QTSettingsController(void) {
-    return [[QTOptionsController alloc] initWithStyle:UITableViewStyleInsetGrouped];
-}
+UIViewController *QTSettingsController(void) { return [[QTOptionsController alloc] initWithStyle:UITableViewStyleInsetGrouped]; }
 
 static const void *QTRowMarker = &QTRowMarker;
 static NSArray *QTAppendEntry(id controller, NSArray *items, NSUInteger category) {

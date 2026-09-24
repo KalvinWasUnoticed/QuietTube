@@ -47,7 +47,7 @@ class AdProfileTests(unittest.TestCase):
         self.assertIn('depth<3',s)
         for banned in ['localizedDescription','absoluteString','HTTPBody','NSLog','[response description]','[error description]']:
             self.assertNotIn(banned,s)
-        self.assertIn('Ad test report',(R/'Sources/QTSettings.m').read_text())
+        self.assertIn('View support report',(R/'Sources/QTSettings.m').read_text())
 
     def test_no_subordinate_flags_can_disable_profile(self):
         s=(R/'Sources/QTAdProfile.m').read_text()

@@ -35,6 +35,8 @@ jobs:
             echo 'Use a private repository, or re-run with the public-release approval checkbox if authorized. No IPA has been published.' >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
+      - name: Verify complete RC1 sources (reject mixed uploads)
+        run: python scripts/verify_release.py
       - name: Regression tests — packaging, source safeguards, release links
         run: python -m unittest discover -s tests -v
       - name: Compile and test pure C classifiers with sanitizers

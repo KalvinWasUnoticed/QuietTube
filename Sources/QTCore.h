@@ -37,3 +37,5 @@ BOOL QTInstallFeedInsertion(void);
 BOOL QTFeedInsertionHandlerInstalled(void);
 NSString *QTFeedInsertionReport(void);
 void QTTraceFeedInsertion(id receiver, id operation);
+
+BOOL QTSettingsPendingRestart(void);

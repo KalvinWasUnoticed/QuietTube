@@ -6,7 +6,7 @@ class PatchScopeTests(unittest.TestCase):
     def test_preserved_baseline_functions_and_modules(self):
         rec=json.loads((R/'BASELINE-0.13-CLEANUP.json').read_text())
         for file,expected in rec['files'].items():
-            text=(R/file).read_text().replace('0.13.5','VERSION')
+            text=(R/file).read_text().replace('0.14.0-rc1','VERSION')
             self.assertEqual(hashlib.sha256(text.encode()).hexdigest(),expected,file)
         for item in rec['ranges']:
             text=(R/item['file']).read_text()
@@ -20,7 +20,7 @@ class PatchScopeTests(unittest.TestCase):
         self.assertIn('(kind & QTFeedWatchAgain) && QTOn(@"watchAgain")',source)
         self.assertIn('QTOn(@"mixes") || QTOn(@"watchAgain")',source)
         self.assertLess(source.index('if (!QTOn(@"extendedFeed")) return NO;'),source.index('if (QTOn(@"watchAgain"))'))
-        self.assertIn('@"mixes",@"watchAgain"]',(R/'Sources/QTSettings.m').read_text())
+        self.assertIn('@"mixes",@"watchAgain"]',(R/'Sources/QTSettingsModel.m').read_text())
     def test_native_title_is_shelf_only(self):
         s=(R/'Sources/QTFeatures.m').read_text()
         helper=s[s.index('static NSString *QTShelfTitle'):s.index('static BOOL QTDropNode')]

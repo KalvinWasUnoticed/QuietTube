@@ -1,0 +1,26 @@
+{
+  "release": "0.14.0-rc1-complete",
+  "purpose": "Reject partial/mixed uploads; not a cryptographic authenticity signature. Change deliberately for a new approved release.",
+  "sha256": {
+    "Sources/QTAdProfile.m": "95fe8890308e9126f94ccd18c723e03736fde3fa0fe072131a53ba3db2179f85",
+    "Sources/QTAdState.h": "00662e8a4777d26462516b710c72a677bf9ebfdae9ab66df8b442b434832fd57",
+    "Sources/QTCore.h": "8a3f4e14c2a8d7080fdef2af7005712a108dc14729d85d58a0db5ff8c3b67ad7",
+    "Sources/QTCore.m": "5a4702246a8163d312970275c5fff56d0b8f97ee6969f0a2854f623977ada569",
+    "Sources/QTFeatures.m": "25312b93db7ad5de50927c17c74c5f15654a474a8b661c13044a8b6a22efe589",
+    "Sources/QTFeedInsertion.m": "3ebff67ea5acf4137a164bdf0352beb8a0285e7d3127f32ea9dc280f95062ddf",
+    "Sources/QTFeedRules.h": "152f5052c7649ebb01d3462454b88bf3fd7920ee05f55345283d570076273a6f",
+    "Sources/QTInsertionPolicy.h": "abf297c7aacb9113fff01239e20c5f657ea61c683a00fbe0e1ede7eef9caed6c",
+    "Sources/QTLogo.m": "0eb9f6e10bdcb77caa4e018c9fde13468725c844fd9a5beafdb5866cc82b41df",
+    "Sources/QTMutationTrace.m": "f895093d3dbcd12a155c24b765dd81e36b026d4f13bd3912792efc94eea00e14",
+    "Sources/QTPlayerProbe.m": "33a6a31ee283cc51cf243e3b746564eebaa7ef33189c6013d01fe7b37c3e3c73",
+    "Sources/QTPlayerTest2.m": "db68ff9694ba8a6a33db6e35e7a3927babe25ca11f251bd16d384da26edb195c",
+    "Sources/QTSettings.m": "65f3e8bfe9ae7adafef6751aa7b48fa0566794bdafadb8a26d5e637de1051605",
+    "Sources/QTSettingsModel.h": "ad0ade35ee1ef35ce697c9d971c57817c0aab881e7bf00d0849c6770fe44fc4e",
+    "Sources/QTSettingsModel.m": "b5839817e2af03ad6df02d605849248026f6eb3b22dfdbc627018b2c6cae9dd8",
+    "Sources/QTTemplateScan.h": "17f2e85a74b9d0dcef43a6d1005ed198ff82ff8d81e862bb34a7aedb7b880d4e",
+    "scripts/build.sh": "ebeab22b98b62d3fc5db21b38238fd961ada498c5f0539b5c808a2352ebc3acf",
+    "scripts/package.py": "d010bb74ab744e61a9456516a7537ef82235b96deaa4c8a95394548574d535df",
+    "scripts/release.sh": "24ec20c1fc0fc43005144e86815f496d79946304cf5078c38d48ffce96666e84",
+    "scripts/verify_release.py": "672b3eab3751818ac907ed864429a599967ac5b53bf0648896d0cbb52ae0cafe"
+  }
+}
