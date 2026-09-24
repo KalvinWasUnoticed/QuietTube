@@ -49,6 +49,26 @@ int main(void) {
     assert(match("Mix - Phantogram - Black Out Days") == 0);
     assert(match("playlist_lockup feed_nudge_view remix video_card") == 0);
     assert(match("not_radio_playlist_mix radio_playlist_mix_extra") == 0);
+    assert(match("https://www.youtube.com/watch?v=abcdefghijk&list=RDabcdefghijk") == QTFeedMixURL);
+    assert(match("/playlist?list=RDMMabcdefghijk&playnext=1") == QTFeedMixURL);
+    assert(match("?list=RDCLAK5uy_ABC-def#next") == QTFeedMixURL);
+    assert(match("?list=PLabcdefghijk") == 0);
+    assert(match("?list=WL") == 0);
+    assert(match("?list=LL") == 0);
+    assert(match("RDabcdefghijk Mix - title list=RDabcdefghijk") == 0);
+    assert(match("?notlist=RDabcdefghijk") == 0);
+    assert(match("?list=RD") == 0);
+    assert(match("?list=rdabcdefghijk") == 0);
+    assert(match("?list=RDabc%2Fbad") == 0);
+    assert(match("?list=RDabc/bad") == 0);
+    assert(QTIsRadioPlaylistID((const unsigned char *)"RDabcdefghijk",13));
+    assert(!QTIsRadioPlaylistID((const unsigned char *)"PLabcdefghijk",13));
+    assert(!QTIsRadioPlaylistID(NULL,3));
+    unsigned char largeID[100]; memset(largeID,'a',sizeof(largeID)); largeID[0]='R'; largeID[1]='D';
+    assert(!QTIsRadioPlaylistID(largeID,sizeof(largeID)));
+    const unsigned char rdBinary[]={0,255,'?', 'l','i','s','t','=','R','D','x',0};
+    assert(QTClassifyElementBytes(rdBinary,sizeof(rdBinary))==QTFeedMixURL);
+    assert(match("?list=RDabc shorts_shelf.eml") == (QTFeedMixURL|QTFeedShorts));
     /* Deterministic malformed-byte smoke test under ASan/UBSan. */
     unsigned state=1234567;
     unsigned char noise[257];
@@ -56,8 +76,8 @@ int main(void) {
         size_t n=round%sizeof(noise);
         for (size_t k=0;k<n;k++) { state=state*1664525u+1013904223u; noise[k]=(unsigned char)(state>>24); }
         unsigned value=QTClassifyElementBytes(noise,n);
-        assert((value & ~511u)==0);
+        assert((value & ~1023u)==0);
     }
-    puts("45 classifier fixtures + 5000 bounded random-byte iterations passed");
+    puts("63 classifier fixtures + 5000 bounded random-byte iterations passed");
     return 0;
 }

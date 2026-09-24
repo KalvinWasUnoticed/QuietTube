@@ -1,42 +1,50 @@
-# QuietTube 0.8 — inline Shorts candidate and Mix control
+# QuietTube 0.9 — Mix playlist destination filtering
 
-**Source + build workflow, not a compiled IPA.** Same pinned YouTube 21.38.2 base. Player-ad blocking remains paused.
+**Source + GitHub build workflow, not a compiled IPA.** Same pinned YouTube 21.38.2 base. Player-ad blocking remains paused until the feed change is verified.
 
-## Based on your 0.7 device report
+## Why the Mix rule changed
 
-**The logo is confirmed fixed. Its implementation is byte-for-byte unchanged.**
+Your 0.8 report confirms the Mix switch and its dependencies were active, but no Mix match counter appeared. The old template/renderer candidates missed the visible card. The capture contains generic Home injection markers, a post lockup, horizontal_shelf and shelf_header; none uniquely identifies that Mix. Do not block those shared markers.
 
-The previous edge heuristic still had no matches. New capture group 11 contains both `video_lockup_overlay.eml-fe` and `yt_fill_youtube_shorts_24pt`. Version 0.8 adds a bounded co-occurrence rule under the existing **Hide edge-to-edge video cards** switch. Neither marker alone triggers the new rule. This is a payload-supported candidate, not a proven mapping from capture group to your screenshot or a guarantee that all full-height cards disappear. Nested metadata can still cause false positives.
+An upstream cross-client fix documents Mix/radio playlist links using `?list=RD…` and `&list=RD…` rather than unstable template markers. [1](https://github.com/MorpheApp/morphe-patches/pull/1835)
 
-Generic `home_vertical_feed_prominence_group_key` and `inline_injection_teaser` are deliberately NOT removal criteria: they also accompany other content, including post lockups. Normal video titles, generic playlists, and portrait aspect ratio alone are not removal criteria either.
+0.9 adds two independently implemented checks under the existing **Hide Mix recommendations** control:
 
-**Hide Mix recommendations** is a new independent switch, off by default and requiring **Extended feed formats**. It recognizes selected explicit automix/radio renderer fields/classes and exact Mix identifier tokens from the retained ytkace reference. The supplied capture does not identify the pictured Mix's payload; this coverage is a candidate, not device-confirmed. It does not search for the word “Mix” in titles. Broad `feed_nudge` rules were deliberately omitted.
+- A native item's `navigationEndpoint → watchEndpoint → playlistId` is an RD-family identifier. Each object getter uses the existing runtime signature checks. No arbitrary menus or whole models are traversed for this rule.
+- The bounded Element payload contains a `?list=RD…` or `&list=RD…` query parameter. Accepted IDs use the playlist alphabet, are 3–96 bytes, and require a suffix after RD. Invalid/encoded continuations are rejected instead of accepting a partial ID.
 
-Capture now normalizes the observed numeric suffix of `inline_injection_teaser_<digits>_<digits>` to `inline_injection_teaser`, making otherwise equal groups comparable and removing those timestamp-like values from reports. Mix/radio/playlist family words are also accepted for diagnostic capture. No sample-limit increase: 128 samples, 48 groups, eight names each, 96 characters each, 256 KiB payload maximum. If the cap is reached, reset capture before a focused sample. Resetting capture does not reset session counters.
+It does not match “Mix” in titles, every playlist, naked RD strings in arbitrary payloads, generic Home keys, or shelf headers. PL playlists, Watch Later (WL), and liked videos (LL) do not match the new rule. The URL check can still match a nested Mix destination inside an enclosing element, so it is not proof that the entire element is a Mix recommendation. It can affect surfaces using the shared presentation boundary, not just Home. Disable Mix filtering if unwanted items disappear.
 
-Your 0.7 report reached the sample cap: 60 of 128 samples contained accepted identifiers; 68 did not. Groups are not uniquely identified visible cards. No added display-ad-format hit appears in that report; two explicit-ad matches do not establish the Apple card's status.
+**This is improved, evidence-backed candidate coverage—not a claim that your screenshot's card has already been removed.** The Android reference does not prove the iOS payload contains that URL, and native getter signatures are checked at runtime, not verified in the supplied binary for this revision.
+
+## Preserve the working behavior
+
+You reported that the inline ad and Short seem gone. The 0.8 logs show one inline overlay + Shorts-icon hit and two explicit-ad matches; those counts do not identify a particular ad. The inline rules, ad rules, logo implementation, capture scanner, settings navigation, background audio and native PiP behavior are unchanged. No player response, request, retry, error-suppression or authentication changes were added. Player ads are still expected.
 
 ## Build and download the actual IPA
 
-1. Extract `QuietTube-v0.8.zip` and replace the files in your existing repository with the **contents** of its `QuietTube-v0.8` folder, including hidden `.github/workflows/build.yml`.
+1. Extract `QuietTube-v0.9.zip` and replace the files in your existing repository with the **contents** of its `QuietTube-v0.9` folder, including hidden `.github/workflows/build.yml`.
 2. Prefer a private repository. Open **Actions → Build QuietTube IPA → Run workflow**. Public repositories require explicit approval before downloading/publishing the modified app; only approve if authorized.
-3. After success, open the run's **Summary → DOWNLOAD IPA — QuietTube 0.8**. It points directly to `QuietTube-0.8-21.38.2.ipa` in GitHub Releases, with no outer artifact ZIP. The release page is the fallback; ignore GitHub's autogenerated source ZIP/TAR links.
+3. After success, open the run's **Summary → DOWNLOAD IPA — QuietTube 0.9**. It points directly to `QuietTube-0.9-21.38.2.ipa` in GitHub Releases, with no outer artifact ZIP. The release page is the fallback; ignore GitHub's autogenerated source ZIP/TAR links.
 4. Import that IPA into LiveContainer. Preserve the same data container and fully stop/relaunch the guest. Do not inject the tweak a second time.
 
 Private download links require signing into GitHub with repository access. No personal GitHub token, Apple credentials, or Google credentials are requested. Built-in workflow permissions publish the release. The success link appears only after upload succeeds. Release assets remain until deleted; public release assets expose the modified IPA.
 
-## Settings and focused check
+## Test this revision
 
-1. Confirm version 0.8. Keep **Use plain YouTube logo**, **Extended feed formats** and **Hide edge-to-edge video cards** on.
-2. Enable the new **Hide Mix recommendations** switch. Preserve your working settings and fully restart the LiveContainer guest; no new preference reset was added.
-3. Check whether the full-height inline Shorts and Mix recommendations disappear, while normal videos and the top topic bar remain. The new counters are `match inline overlay plus Shorts icon`, `match explicit Mix renderer field`, `match explicit Mix renderer class`, and `match Mix element tokens`. Counters are not proof that a particular screenshot card was removed.
-4. If normal content disappears, disable the relevant edge or Mix switch and restart. Keep a previous IPA for rollback with the same data container.
-5. Check Home refresh, settings Done/back, background audio and native PiP. No changes to those implementations, Google sign-in, player requests, or error handling were made.
+Keep **Hide Mix recommendations** and **Extended feed formats** on. They are already enabled in your supplied log; no new switch is required. Confirm version 0.9 and fully stop/relaunch the LiveContainer guest after installation. Preserve the same data container and a prior IPA for rollback.
 
-Existing inspection remains optional and observation-only. You do not need to repeat the already supplied 0.7 counters. If a missed card needs further diagnosis, reset capture shortly before viewing it and use new groups from this version. Reports contain lexical candidates, not decoded root renderer IDs; review before sharing. No raw-payload dump, automatic upload, or persistent capture was added.
+Look for the Mix card while checking that normal videos remain. New counters:
 
-## Validation and limits
+- `match Mix navigation playlist ID`
+- `match Mix RD playlist query`
 
-30 Python tests passed: 8 packaging, 6 mocked release, 16 static source/ABI checks. C tests passed under AddressSanitizer/UndefinedBehaviorSanitizer: 45 classifier fixtures + 5,000 random-byte iterations; 20 scanner fixtures + 5,000 random-byte iterations. Shell syntax, workflow YAML and source archive checked. Logo source verified unchanged from device-confirmed 0.7.
+No match means these candidate paths still did not identify the card. A match means a filtering decision was made somewhere, not proof that this particular card disappeared. The empty-batch safeguard may retain a batch rather than send an unsafe empty one. You do not need to resend the same 0.8 capture. A 0.9 result with these counters is new evidence if further work is needed.
 
-**0.8 was not compiled with an Apple SDK or tested on a device here.** No actual GitHub release was uploaded here. Static/C tests cannot establish native renderer coverage, disappearance of these cards, authentication or playback stability. The existing copy-before-mutation and preserve-empty-batch safeguards remain, so a batch consisting only of matched items may be retained rather than crashing.
+Also verify the working logo, inline Shorts removal, settings Done/back, background audio and native PiP remain intact. Player-ad blocking should be a separate next experiment so playback failures are not mixed with this feed change.
+
+## Validation
+
+31 Python tests passed (8 packaging, 6 mocked release, 17 static/ABI). C under ASan/UBSan: 63 classifier fixtures + 5,000 random-byte iterations; 20 capture fixtures + 5,000 random-byte iterations. Tests include RD query matching, normal-playlist negatives, invalid query continuations, generic-title negatives, native getter scope and independent flags. Workflow YAML, shell syntax and archive integrity checked.
+
+**No Apple SDK compilation, real GitHub release upload or 0.9 device test occurred here.** These tests cannot establish native renderer coverage, Google sign-in, uninterrupted playback or removal of the pictured Mix.

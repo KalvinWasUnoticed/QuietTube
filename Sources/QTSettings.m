@@ -36,7 +36,7 @@
 }
 - (NSInteger)tableView:(UITableView *)tv numberOfRowsInSection:(NSInteger)section { return self.rows.count; }
 - (NSString *)tableView:(UITableView *)tv titleForFooterInSection:(NSInteger)section {
-    return @"0.8 · Restart the guest app to apply changes. Use YouTube’s own PiP setting. Player-ad blocking remains paused.";
+    return @"0.9 · Restart the guest app to apply changes. Use YouTube’s own PiP setting. Player-ad blocking remains paused.";
 }
 - (UITableViewCell *)tableView:(UITableView *)tv cellForRowAtIndexPath:(NSIndexPath *)index {
     NSDictionary *row = self.rows[index.row];

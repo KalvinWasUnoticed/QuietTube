@@ -1,21 +1,21 @@
-# 0.8 audit
+# 0.9 audit — Mix destination candidate
 
-## Evidence
+## Runtime evidence from user
 
-User confirmed 0.7 normal default-logo sizing. Logo file is byte-for-byte identical in 0.8. User still sees full-height inline short and a Mix card. Flags were enabled; no edge match appeared. Group 11 includes video_lockup_overlay.eml-fe and yt_fill_youtube_shorts_24pt. Other groups include Home/injection markers alone or with post lockups: those generic markers are unsafe removal criteria.
+0.8: mixes and extendedFeed on, zero Mix matches, Mix screenshot persists. One inline overlay + Shorts-icon match; user reports inline ad and Short seem gone. Logo remains confirmed fixed from 0.7. Generic captured Home/injection keys and horizontal_shelf/shelf_header do not justify removal.
 
-## Changes
+## Change scope
 
-- New classifier bit for overlay + Shorts-icon co-occurrence, gated only by the existing edgeCards flag inside extendedFeed. Both components required, bounded token matching, negative fixtures for each component alone and longer lookalike tokens.
-- Separate off-by-default mixes flag. Four explicit automix/radio renderer fields and corresponding exact classes, plus three exact Mix byte tokens. Runtime access uses existing signature-checked getters. Public ytkace reference observations, not proof of target binary ownership or this Mix card's renderer. No new runtime hooks or guessed method implementations. No generic title, playlist, Home-key or feed_nudge removal.
-- Normalize numeric injection teaser suffixes before deduplication and capture grouping. Include Mix/radio/playlist family words in lexical capture. Limits, opt-in gate and observation-only behavior retained. Non-numeric suffixes remain unnormalized; arbitrary identifier-shaped content may still be captured.
-- Existing presentation-boundary copy/exception/empty-batch guards, immutable flags, migration key, logo, background, native PiP and error observer retained. Independent Mix switch also installs the existing boundary when needed.
-- Direct IPA release workflow versioned 0.8, retains public approval gate and success-after-upload requirement.
+New RD playlist destination matching only under mixes and extendedFeed. Native read path restricted to the item's navigationEndpoint.watchEndpoint.playlistId, using QTGet object ABI checks. No setter, new hook, menu search, title search or arbitrary object description. Native getter availability is not yet established on this binary/device; unavailable getters fail open.
 
-## Validation
+New byte rule requires query-boundary ?list= or &list=, uppercase RD, at least one following playlist character, at most 96 bytes, and permitted query/end boundaries. Invalid encoded continuations are not matched as prefixes. It intentionally does not decode escaped URLs or compressed payloads, scan naked RD tokens, or parse arbitrary protobuf IDs. These restrictions can miss other representations. Matching a nested URL may hide an enclosing item; matching RD can include radio-style auto playlists beyond music Mix recommendations. Shared presentation boundary is not Home-only.
 
-30 Python tests (8 packaging, 6 release mocks, 16 static/ABI), 45 C classifier fixtures + 5,000 random iterations, 20 scanner fixtures + 5,000 random iterations passed. C compiled with -Wall -Wextra -Werror and ASan/UBSan. Shell syntax and YAML parsed; source ZIP integrity checked at packaging.
+Reference: https://github.com/MorpheApp/morphe-patches/pull/1835 documents an Android move to RD query matching. Independent implementation, no upstream implementation copied. This is cross-client evidence, not proof of the actual iOS Mix's bytes.
 
-## Remaining limitations
+## Regression safeguards
 
-No Apple SDK/native compilation, real release upload or 0.8 device test here. Co-occurrence is in one payload, not proof of the visible root card, and nested content may match. Mix identification is reference-based and may miss new formats. Capture reached 128 samples on 0.7; normalization reduces group fragmentation, not sample consumption. Full-height ads are distinct from Shorts and not automatically covered by this rule. Player-ad blocking remains paused. No evidence yet that the prior Apple ad was removed.
+Logo and lexical capture scanner byte-for-byte unchanged from 0.8. Existing ad/Shorts/edge/topic token rules unchanged; new classifier bit has its own counter and Mix gate. Existing explicit Mix rules retained. Background, native PiP, error observer, sign-in behavior, copy-before-set, exception fallback, top-level empty-batch guard, launch snapshot and migration key unchanged. No player-ad experimentation included.
+
+31 Python tests passed: 8 packaging, 6 mocked release, 17 static/ABI. 63 classifier fixtures and 20 scanner fixtures, each plus 5,000 random iterations, passed under -Wall -Wextra -Werror and ASan/UBSan. Build/release shell syntax passed. YAML and archive checked during packaging. Direct IPA release workflow versioned 0.9, approval and upload-success gates preserved.
+
+No native Objective-C build, device test or real release upload here. Removal remains unverified until device testing. Do not claim the explicit-ad counter identifies the disappeared inline ad, or that the new Mix matcher solves every format. Player-ad blocking remains pending a separate investigation.

@@ -5,14 +5,16 @@
   "patched_command_count": 138,
   "packaging_unit_tests": "8 passed",
   "objc_compilation": "Not compiled here; GitHub Apple SDK build required",
-  "device_test": "0.8 untested; user confirmed 0.7 logo fixed, edge card and Mix still present",
-  "revision": "0.8-inline-short-candidate-mix-control",
-  "static_regression_checks": "16 passed; source/ABI only",
+  "device_test": "0.9 untested; user reports 0.8 inline ad and Short seem gone, Mix persists with zero matches",
+  "revision": "0.9-mix-playlist-destination",
+  "static_regression_checks": "17 passed; source/ABI only",
   "workflow_yaml": "parsed",
   "shell_syntax": "build.sh and release.sh passed",
-  "classifier_tests": "45 fixtures + 5000 random-byte iterations passed under ASan/UBSan",
+  "classifier_tests": "63 fixtures + 5000 random-byte iterations passed under ASan/UBSan",
   "template_capture_tests": "20 fixtures + 5000 random-byte iterations passed under ASan/UBSan",
   "release_integration_tests": "6 offline/mock CLI tests passed; no actual release created here",
   "logo_abi": "2 installed-hook signatures match metadata from pinned supplied executable",
-  "logo_source": "Byte-for-byte unchanged from user-confirmed 0.7"
+  "logo_source": "Byte-for-byte unchanged from 0.8 and device-confirmed 0.7",
+  "native_mix_endpoint": "Signature-checked at runtime; getter ownership/availability not verified from base binary",
+  "mix_url_evidence": "https://github.com/MorpheApp/morphe-patches/pull/1835"
 }

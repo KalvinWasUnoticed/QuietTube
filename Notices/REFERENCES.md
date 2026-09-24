@@ -28,3 +28,7 @@ Retained research snapshot of https://github.com/dayanch96/YTLite (`ytlite.x`, a
 Retained `content.mm` research from https://github.com/itzzace/ytkace (reviewed commit 97456b0d63e37b9847b3fb7e3829a10ab9310d86): hasAutomixPreviewVideoRenderer, hasAutomixPlaylistVideoRenderer, hasRadioRenderer, hasPivotRadioRenderer and Mix identifier strings radioautomixplaylistid, radioplaylistmixplaylistid, radio_playlist_mix. Only selected names inform the independent signature-checked implementation. Broader feed_nudge and title matching not adopted. Existing MIT notice retained.
 
 Inline overlay / Shorts-icon combination comes directly from the user's 0.7 capture group 11, not an upstream geometry detector. No claim that the captured group has been uniquely mapped to the screenshot.
+
+## 0.9 RD playlist destination evidence
+
+[1](https://github.com/MorpheApp/morphe-patches/pull/1835) describes changing Android Mix detection to ?list=RD and &list=RD instead of an unstable Mix8 marker. Used as a behavioral/reference observation only; no upstream implementation code copied. QuietTube's bounded C query scanner and native signature-checked navigation-endpoint check are independently implemented. Not proof of the user's iOS screenshot payload.

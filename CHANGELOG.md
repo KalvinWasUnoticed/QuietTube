@@ -1,3 +1,10 @@
+# 0.9 — Mix playlist destination coverage
+
+- Add bounded RD-family playlist query matching and signature-checked native navigation playlist-ID matching under the existing Mix control.
+- Preserve working inline, logo, playback and capture code; do not match generic Home/shelf markers or title text.
+- Add 18 C fixtures and a source-scope regression test; preserve direct IPA download workflow.
+- 0.8 user result: inline ad/Short seem gone, one inline match; Mix remains with zero Mix matches. 0.9 device result pending.
+
 # 0.8 — follow-up to 0.7 capture
 
 - Preserve user-confirmed logo fix unchanged.

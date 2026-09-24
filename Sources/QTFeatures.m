@@ -34,6 +34,16 @@ static BOOL QTDropNode(id node) {
         { QTCount(@"match explicit Shorts field"); return YES; }
     if (!QTOn(@"extendedFeed")) return NO;
     if (QTOn(@"mixes")) {
+        // Only the item's navigation watch endpoint, not arbitrary nested menus,
+        // descriptions, every playlist, or titles. All getters signature-checked.
+        id endpoint = QTGet(QTGet(node,@"navigationEndpoint"),@"watchEndpoint");
+        id playlistID = QTGet(endpoint,@"playlistId");
+        if ([playlistID isKindOfClass:NSString.class] && [playlistID length]<=96) {
+            NSData *identifier = [playlistID dataUsingEncoding:NSUTF8StringEncoding];
+            if (QTIsRadioPlaylistID(identifier.bytes,identifier.length)) {
+                QTCount(@"match Mix navigation playlist ID"); return YES;
+            }
+        }
         for (NSString *selector in @[@"hasAutomixPreviewVideoRenderer", @"hasAutomixPlaylistVideoRenderer",
                                     @"hasRadioRenderer", @"hasPivotRadioRenderer"])
             if (QTBool(node,selector)) { QTCount(@"match explicit Mix renderer field"); return YES; }
@@ -75,6 +85,9 @@ static BOOL QTDropNode(id node) {
     }
     if ((kind & QTFeedInlineShort) && QTOn(@"edgeCards")) {
         QTCount(@"match inline overlay plus Shorts icon"); return YES;
+    }
+    if ((kind & QTFeedMixURL) && QTOn(@"mixes")) {
+        QTCount(@"match Mix RD playlist query"); return YES;
     }
     if ((kind & QTFeedMix) && QTOn(@"mixes")) {
         QTCount(@"match Mix element tokens"); return YES;

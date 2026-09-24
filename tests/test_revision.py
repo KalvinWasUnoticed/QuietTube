@@ -128,3 +128,14 @@ class V08Checks(unittest.TestCase):
         self.assertNotIn('"home_vertical_feed_prominence_group_key"',source)
         self.assertNotIn('"inline_injection_teaser"',source)
         self.assertNotIn('"feed_nudge"',source)
+
+class V09MixDestinationChecks(unittest.TestCase):
+    def test_destination_scope_and_gates(self):
+        source=(R/'Sources/QTFeatures.m').read_text()
+        self.assertIn('(kind & QTFeedMixURL) && QTOn(@"mixes")',source)
+        section=source[source.index('if (QTOn(@"mixes"))'):source.index('if (QTOn(@"topicsShelves"))')]
+        self.assertIn('QTGet(QTGet(node,@"navigationEndpoint"),@"watchEndpoint")',section)
+        self.assertIn('QTGet(endpoint,@"playlistId")',section)
+        self.assertNotIn('@"title"',section)
+        self.assertNotIn('@"menu"',section)
+        self.assertLess(source.index('if (!QTOn(@"extendedFeed")) return NO;'),source.index('if (QTOn(@"mixes"))'))
