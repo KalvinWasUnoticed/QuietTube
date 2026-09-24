@@ -1,3 +1,11 @@
+# 0.13.4 update
+
+Device trace: didCollapse followed 403 ms later by applyMutationOperation → handleInsertItemSectionContent → one YTIElementRenderer insert notification. All flags ON; five player substitutions; zero companion callbacks; sponsored card persists. Native event correlation is observed, but exact payload/ad identity is not yet established.
+
+Corrected trace vq/vqq compact registrations to vQ/vQQ to match the existing normalizer, without changing signed native wrapper ABI. Added completion-anchor fallback and bounded element detail at the observed insertion notification. No new suppression. Accepted player suffix and cleanup remain hash-protected. See README/VALIDATION.json for current checks and limits. Older sections below are historical.
+
+---
+
 # 0.13.3 update
 
 Added one-button prerequisite saving and nine binary-verified pass-through minimize/mutation observers. See BASE-MINIMIZE-ABI.json and README.md. Player suffix hash and accepted cleanup checks remain unchanged. No new ad suppression. 0.13.2 device feedback: five no-op supplies, zero companion callbacks, sponsored card persists. The prior sections below are historical, not a fresh device result.

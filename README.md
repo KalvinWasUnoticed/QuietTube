@@ -1,38 +1,48 @@
-# QuietTube 0.13.3 — one-button preparation and minimize tracing
+# QuietTube 0.13.4 — inspect the observed post-collapse insertion
 
-**Source + GitHub build workflow, not a compiled IPA.** Pinned YouTube 21.38.2 base.
+**Source + GitHub build workflow, not an installable IPA.** Same pinned YouTube 21.38.2 base.
 
-## What changes
+## What your 0.13.3 report established
 
-**Quiet controls → Prepare ad test** saves all seven current prerequisites together: modifications, Ad test profile, feed ads, extended feed formats, additional display-ad formats, element inspection and minimize/mutation tracing. It preserves every other preference. It does not activate hooks mid-session, erase the current report or reset installation counters. Fully stop/relaunch the LiveContainer guest afterward.
+All seven test prerequisites were active. Five native no-op player coordinators were supplied. The companion observer again received zero callbacks. Your screenshot still shows a sponsored card with the floating miniplayer.
 
-The short **Advanced → Ad test report** now shows current-launch versus next-launch flags and a bounded timeline covering:
-- Native will-collapse / did-collapse callbacks and layout changes (numeric layout values remain unmapped).
-- Five collection mutation dispatch/insert/replace handlers.
-- The array-section model's insert notification, including bounded entry-class samples.
+The new trace observed this sequence:
 
-Nine method signatures/ownership records were checked against your pinned binary. These new hooks forward original arguments, return values, NSError pointers and native exceptions without changing feed operations. Reporting contains class names/counts/times, not titles, video IDs, URLs or payload dumps. Existing element inspection also captures bounded internal template identifiers locally; it is not an automatic upload.
+```
++0.000s didCollapse — YTWatchLayerViewController
++0.403s applyMutationOperation:error: — YTAppCollectionViewController
++0.403s handleInsertItemSectionContent:error: — YTAppCollectionViewController
++0.403s didInsertEntries:atIndexes: — one YTIElementRenderer
+```
 
-The trace retains up to 24 preceding events and 96 total events, stopping detailed capture 12 seconds after an observed collapse start. A new observed collapse starts another window. Drops/outside-window counts are explicit. It is not a complete recording: some methods may not run for this UI path, and heavily populated windows may truncate early events. Nearby calls establish timing, not ad identity or causation.
+This is a concrete candidate path to inspect, not proof that every item inserted by this method is an ad. `YTIElementRenderer` is shared by normal content too. Blocking all calls or clearing the whole array is not justified.
 
-## What does NOT change
+## Corrections and focused inspection
 
-The player construction/fallback block remains byte-for-byte identical to 0.13.1/0.13.2. Your 0.13.1 report established five native no-op substitutions with no player ads and stable playback in that session; no universal guarantee follows.
+- **Fix our signature-checker mismatch:** the core checker normalizes native `q` and `Q` to `Q`. The two 0.13.3 trace registrations incorrectly requested lowercase `q`. They now request `vQ`/`vQQ`, retaining the binary-verified signed 64-bit native wrapper parameters. A regression check compares all nine registrations with normalized binary encodings.
+- Use collapse completion as the timing-window fallback when collapse start is not observed. The report labels the actual anchor. No more misleading “relative to start” label when no start ran.
+- At the **observed insert notification**, inspect only exact `YTIElementRenderer` entries in the collapse window: ad-logging-field presence, payload size, existing classifier mask and up to eight internal template-name candidates. These are included directly in the short report, independently of the older global element-capture quota.
+- Detail sampling is capped at six entries/window, three entries/call and 256 KiB/entry. No model serialization, graph traversal, raw bytes, title fields, video-ID fields or URLs are printed. Internal template candidates are lexical clues, not decoded renderer roots or an automatic deletion verdict.
+- Keep the Prepare button, flag snapshot reporting, 24-event prehistory / 96-event timeline and 12-second window. Remove stale previous-window history on a fresh anchor.
 
-Your 0.13.2 report again showed five substitutions but **zero companion callbacks** while the sponsored card persisted. More flags do not fix an uncalled companion path. That existing experimental callback is unchanged; this release adds observation, **not a claimed sponsored-card fix**. No guessed renderer filtering is added. Accepted cleanup, logo, native PiP/background, settings navigation and sign-in-related code remain unchanged.
+**This revision still passes through insertion operations; it is not a claimed card-removal fix.** Its purpose is to distinguish a recognized ad bypassing the existing presentation filter from an as-yet-unrecognized template on the now-observed path. The report states unavailable getters/missing payloads instead of treating them as “not an ad.”
+
+## Preserved
+
+The player construction/fallback block is byte-for-byte unchanged from 0.13.1–0.13.3. The positive player-ad/stability report was for 0.13.1; later reports confirm substitutions but do not establish universal safety. Existing companion behavior, accepted feed cleanup, logo, native PiP/background, sign-in-related code and settings navigation are unchanged. No retired broad filter or player response/request manipulation is restored.
 
 ## Build and one test
 
-1. Replace repository files with this folder's contents, including hidden `.github`, Sources, tests and evidence records. Commit and start a **new workflow run**, not a rerun of old code.
-2. On success: **Summary → DOWNLOAD IPA — QuietTube 0.13.3** → `QuietTube-0.13.3-21.38.2.ipa`. Source ZIP is not installable. Private GitHub downloads require authorized login; public publication requires explicit approval.
-3. Import into the same LiveContainer data container; no second injection. Keep the previous IPA for rollback.
-4. Open **You → Settings → General → Quiet controls → Prepare ad test**. Fully stop and relaunch the guest.
-5. Play a video, swipe down once, then wait about 12 seconds for the sponsored card/window. Avoid further swipes/scrolling before copying **Advanced → Ad test report**. Send that report and whether the card appeared; mention any player regression. No two-run matrix or full diagnostics needed.
+1. Replace repository contents, including hidden `.github`, Sources, tests and evidence files. Commit and start a **new workflow run**.
+2. Download `QuietTube-0.13.4-21.38.2.ipa` from **Summary → DOWNLOAD IPA — QuietTube 0.13.4**. Private downloads require authorized GitHub login; public publication requires explicit approval.
+3. Import into the same LiveContainer data container without a second injection. Keep the previous IPA for rollback.
+4. Tap **You → Settings → General → Quiet controls → Prepare ad test** and fully stop/relaunch the guest. This saves only the seven test prerequisites; unrelated settings are preserved. Local class/template inspection is enabled. It is not an automatic upload.
+5. Play a video, swipe down once, wait about 12 seconds, then copy **Advanced → Ad test report**. Avoid further swipes/scrolling before copying. Send only that report and card/player outcome; no full diagnostics or two-run matrix.
 
 ## Safety and validation
 
-Existing playback-error safety latch remains: it saves the profile OFF and restores native behavior for future calls only. Existing players are not repaired; restart after errors, or revert for crashes/stalls. Prepare explicitly saves the profile ON again for a new test. Tracing is separately opt-in and never suppresses errors.
+The existing observed-playback-error latch remains; it saves the profile OFF for future calls, not repairs existing players. Restart after errors. Prepare explicitly saves the profile ON for a fresh test. Revert if crashes/stalls occur. New inspection does not suppress or retry native mutations/exceptions.
 
-59 Python source/packaging/release checks passed clean and in an upgrade overlay; protected player/cleanup hashes pass. C classifier/scanner/status tests pass with ASan/UBSan. Shell and workflow YAML checks pass. See VALIDATION.json.
+62 Python source/ABI/packaging/release checks pass clean and overlaid onto 0.13.3; frozen player/cleanup hashes pass. The new signature regression check rejects the erroneous 0.13.3 registrations. C classifier/scanner/status tests pass under ASan/UBSan. Shell/workflow YAML/package checks pass.
 
-**Apple SDK compilation, actual cloud release and 0.13.3 device behavior remain unverified here.** No undetectability or guaranteed ad removal claim.
+**No Apple SDK compilation, real cloud release or 0.13.4 device test here.** No guaranteed blocking, stability or undetectability claim.

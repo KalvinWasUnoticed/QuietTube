@@ -5,9 +5,9 @@
   "patched_command_count": 138,
   "packaging_unit_tests": "8 passed",
   "objc_compilation": "Not compiled here; GitHub Apple SDK build required",
-  "device_test": "0.13.3 untested; 0.13.2 user saw five native no-op supplies, zero companion callbacks and persistent card",
-  "revision": "0.13.3-minimize-observation",
-  "static_regression_checks": "45 source/ABI/scope checks passed (59 Python checks overall)",
+  "device_test": "0.13.4 untested. 0.13.3: all flags ON, 5 no-op supplies, 0 companion callbacks; didCollapse followed by item-content insertion of one element at +0.403s, card persists",
+  "revision": "0.13.4-observed-insert-detail",
+  "static_regression_checks": "48 source/ABI/scope checks; 62 Python checks overall",
   "workflow_yaml": "parsed",
   "shell_syntax": "build.sh and release.sh passed",
   "classifier_tests": "79 fixtures + 5000 random-byte iterations passed under ASan/UBSan",
@@ -21,9 +21,10 @@
   "watch_again_evidence": "Screenshot English heading and horizontal_shelf capture; exact payload ownership/encoding not verified",
   "player_probe": "Retired; not compiled, no hook/control/install call",
   "player_ad_blocking": "Player construction block unchanged from reported successful 0.13.1; no universal stability/ad-free claim",
-  "upgrade_tests": "59 Python checks clean and overlay onto 0.13.2",
-  "binary_research": "Pinned IPA SHA256 rechecked; nine trace method metadata records extracted; research IPA/executable removed",
+  "upgrade_tests": "62 Python checks clean and overlay onto 0.13.3",
+  "binary_research": "Uses retained pinned-binary metadata; no new download/disassembly needed this revision",
   "ad_state_tests": "32 exhaustive boolean-state combinations plus inactive-session regression passed under ASan/UBSan",
   "companion_ad_evidence": "Native clear branch verified previously; zero device callbacks in 0.13.2. Not established as pictured card path",
-  "mutation_trace": "Pass-through source/ABI tests only; 24 pre-events, 96 total, 12-second window. No native runtime validation"
+  "mutation_trace": "Fixed normalized integer signature registration; completion timing fallback; bounded diagnostic-only element fields/template candidates on observed insert notification",
+  "signature_bug_regression": "New all-nine normalized ABI test rejects 0.13.3 registrations and passes 0.13.4"
 }
