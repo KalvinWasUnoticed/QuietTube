@@ -52,6 +52,14 @@ static BOOL QTDropNode(id node) {
             QTCount(@"match explicit Mix renderer class"); return YES;
         }
     }
+// BEGIN 0.9.1 WATCH AGAIN
+    if (QTOn(@"watchAgain")) {
+        NSString *title = [[QTShelfTitle(node) stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet] lowercaseString];
+        if ([title isEqualToString:@"watch it again"] || [title isEqualToString:@"watch again"]) {
+            QTCount(@"match Watch again shelf title"); return YES;
+        }
+    }
+// END 0.9.1 WATCH AGAIN
     if (QTOn(@"topicsShelves")) {
         NSString *title = [[QTShelfTitle(node) stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet] lowercaseString];
         if ([title isEqualToString:@"explore more topics"]) {
@@ -92,6 +100,11 @@ static BOOL QTDropNode(id node) {
     if ((kind & QTFeedMix) && QTOn(@"mixes")) {
         QTCount(@"match Mix element tokens"); return YES;
     }
+// BEGIN 0.9.1 WATCH AGAIN
+    if ((kind & QTFeedWatchAgain) && QTOn(@"watchAgain")) {
+        QTCount(@"match Watch again horizontal shelf candidate"); return YES;
+    }
+// END 0.9.1 WATCH AGAIN
     QTObserveUnmatchedElement(data); // observation only; never changes the filtering decision
     QTCount(@"element retained — no active rule matched");
     return NO;
@@ -158,7 +171,7 @@ void QTInstallFeatures(void) {
     // When the master switch is off, not even diagnostic feature hooks are installed.
     if (!QTOn(@"enabled")) return;
     QTInstallPlainLogo();
-    if (QTOn(@"feedAds") || QTOn(@"shorts") || (QTOn(@"extendedFeed") && (QTOn(@"playables") || QTOn(@"eventPromos") || QTOn(@"topicsShelves") || QTOn(@"edgeCards") || QTOn(@"inspectElements") || QTOn(@"mixes")))) {
+    if (QTOn(@"feedAds") || QTOn(@"shorts") || (QTOn(@"extendedFeed") && (QTOn(@"playables") || QTOn(@"eventPromos") || QTOn(@"topicsShelves") || QTOn(@"edgeCards") || QTOn(@"inspectElements") || QTOn(@"mixes") || QTOn(@"watchAgain")))) {
         QTHook(@"YTInnerTubeCollectionViewController",@"addSectionsFromArray:",@"v@",^id(IMP old,SEL sel) {
             return ^(id object,NSArray *sections) {
                 NSArray *filtered = sections;

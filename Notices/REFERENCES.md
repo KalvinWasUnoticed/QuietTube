@@ -32,3 +32,7 @@ Inline overlay / Shorts-icon combination comes directly from the user's 0.7 capt
 ## 0.9 RD playlist destination evidence
 
 [1](https://github.com/MorpheApp/morphe-patches/pull/1835) describes changing Android Mix detection to ?list=RD and &list=RD instead of an unstable Mix8 marker. Used as a behavioral/reference observation only; no upstream implementation code copied. QuietTube's bounded C query scanner and native signature-checked navigation-endpoint check are independently implemented. Not proof of the user's iOS screenshot payload.
+
+## 0.9.1 Watch it again candidate
+
+English label comes from the user's supplied IMG_2400 screenshot; horizontal_shelf.eml-fe appears in the 0.9 unmatched capture. The capture is not uniquely mapped to the screenshot and does not prove the title's encoding. Native shelf-title checks and the bounded exact string-field candidate scanner are independently implemented; no external code added for this feature.

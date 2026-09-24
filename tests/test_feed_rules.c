@@ -69,6 +69,22 @@ int main(void) {
     const unsigned char rdBinary[]={0,255,'?', 'l','i','s','t','=','R','D','x',0};
     assert(QTClassifyElementBytes(rdBinary,sizeof(rdBinary))==QTFeedMixURL);
     assert(match("?list=RDabc shorts_shelf.eml") == (QTFeedMixURL|QTFeedShorts));
+    assert(match("horizontal_shelf.eml-fe \x0a\x0eWatch it again") == QTFeedWatchAgain);
+    assert(match("horizontal_shelf.eml-fe \x12\x0bWatch again") == QTFeedWatchAgain);
+    assert(match("horizontal_shelf.eml-fe \x82\x01\x0eWatch it again") == QTFeedWatchAgain);
+    assert(match("horizontal_shelf.eml-fe") == 0);
+    assert(match("shelf_header.eml-fe \x0a\x0eWatch it again") == 0);
+    assert(match("video_card \x0a\x0eWatch it again") == 0);
+    assert(match("horizontal_shelf.eml-fe Watch it again") == 0);
+    assert(match("horizontal_shelf.eml-fe \x0a\x13Watch it again soon") == 0);
+    assert(match("not_horizontal_shelf \x0a\x0eWatch it again") == 0);
+    assert(match("horizontal_shelf_extra \x0a\x0eWatch it again") == 0);
+    assert(match("horizontal_shelf \x0a\x0eWatch it") == 0);
+    assert(match("horizontal_shelf \x0a\x7fWatch it again") == 0);
+    assert(match("horizontal_shelf \x09\x0eWatch it again") == 0);
+    assert(match("chip_cloud \x0a\x0eWatch it again") == 0);
+    assert(match("home_vertical_feed_prominence_group_key inline_injection_teaser") == 0);
+    assert(match("horizontal_shelf \x0a\x0eWatch it again ?list=RDabc") == (QTFeedWatchAgain|QTFeedMixURL));
     /* Deterministic malformed-byte smoke test under ASan/UBSan. */
     unsigned state=1234567;
     unsigned char noise[257];
@@ -76,8 +92,8 @@ int main(void) {
         size_t n=round%sizeof(noise);
         for (size_t k=0;k<n;k++) { state=state*1664525u+1013904223u; noise[k]=(unsigned char)(state>>24); }
         unsigned value=QTClassifyElementBytes(noise,n);
-        assert((value & ~1023u)==0);
+        assert((value & ~2047u)==0);
     }
-    puts("63 classifier fixtures + 5000 bounded random-byte iterations passed");
+    puts("79 classifier fixtures + 5000 bounded random-byte iterations passed");
     return 0;
 }

@@ -1,50 +1,46 @@
-# QuietTube 0.9 — Mix playlist destination filtering
+# QuietTube 0.9.1 — optional “Watch it again” shelf control
 
-**Source + GitHub build workflow, not a compiled IPA.** Same pinned YouTube 21.38.2 base. Player-ad blocking remains paused until the feed change is verified.
+**Source + build workflow, not a compiled IPA.** Same pinned YouTube 21.38.2 base for your LiveContainer setup. This is a small feed patch, not a player-ad-blocking experiment.
 
-## Why the Mix rule changed
+## New switch
 
-Your 0.8 report confirms the Mix switch and its dependencies were active, but no Mix match counter appeared. The old template/renderer candidates missed the visible card. The capture contains generic Home injection markers, a post lockup, horizontal_shelf and shelf_header; none uniquely identifies that Mix. Do not block those shared markers.
+**You → Settings → General → Quiet controls → Distractions → Hide “Watch it again” shelves**
 
-An upstream cross-client fix documents Mix/radio playlist links using `?list=RD…` and `&list=RD…` rather than unstable template markers. [1](https://github.com/MorpheApp/morphe-patches/pull/1835)
+Off by default, independent of Shorts/Mix/topic/ad switches. Requires **Extended feed formats**. Existing saved flags are preserved; enable this new switch and fully restart the guest process.
 
-0.9 adds two independently implemented checks under the existing **Hide Mix recommendations** control:
+Two matching paths:
 
-- A native item's `navigationEndpoint → watchEndpoint → playlistId` is an RD-family identifier. Each object getter uses the existing runtime signature checks. No arbitrary menus or whole models are traversed for this rule.
-- The bounded Element payload contains a `?list=RD…` or `&list=RD…` query parameter. Accepted IDs use the playlist alphabet, are 3–96 bytes, and require a suffix after RD. Invalid/encoded continuations are rejected instead of accepting a partial ID.
+1. Exact English native shelf title “Watch it again” or “Watch again”, with outer whitespace trimmed and case normalized. This reads titles only on YTI shelf renderer classes, not arbitrary videos.
+2. For Element-based layouts: the `horizontal_shelf` marker together with an exact length-delimited string-field candidate containing “Watch it again” or “Watch again”. Merely containing those words is insufficient; `horizontal_shelf` alone, `shelf_header` alone and the generic Home/injection keys do not trigger this rule.
 
-It does not match “Mix” in titles, every playlist, naked RD strings in arbitrary payloads, generic Home keys, or shelf headers. PL playlists, Watch Later (WL), and liked videos (LL) do not match the new rule. The URL check can still match a nested Mix destination inside an enclosing element, so it is not proof that the entire element is a Mix recommendation. It can affect surfaces using the shared presentation boundary, not just Home. Disable Mix filtering if unwanted items disappear.
+The screenshot establishes the English label, and the capture includes `horizontal_shelf.eml-fe`, but it does not prove the title's payload encoding or root ownership. **The new rule is not device-verified.** Its Element fallback can match nested text in a larger horizontal shelf; turn this switch off and restart if it removes an unrelated shelf. It may miss other languages, split/indirect text or different encodings. It does not clear watch history, suppress all previously watched videos, or remove every horizontal carousel. Filtering is at the shared presentation boundary, not strictly Home-only.
 
-**This is improved, evidence-backed candidate coverage—not a claim that your screenshot's card has already been removed.** The Android reference does not prove the iOS payload contains that URL, and native getter signatures are checked at runtime, not verified in the supplied binary for this revision.
+## Working behavior preserved
 
-## Preserve the working behavior
+Your 0.9 log shows the Mix RD query rule now matches, along with inline Shorts, Shorts shelf, explicit-ad and topics rules. You report that most feed problems are fixed. Counts are not unique cards and do not prove complete coverage.
 
-You reported that the inline ad and Short seem gone. The 0.8 logs show one inline overlay + Shorts-icon hit and two explicit-ad matches; those counts do not identify a particular ad. The inline rules, ad rules, logo implementation, capture scanner, settings navigation, background audio and native PiP behavior are unchanged. No player response, request, retry, error-suppression or authentication changes were added. Player ads are still expected.
+0.9.1 preserves the default-logo fix, Mix RD destination rule, inline overlay + Shorts-icon rule, existing ad/Shorts/topic/Playables/promo controls, background audio, native PiP, autoplay controls, settings sheet/Done navigation, diagnostic capture and direct IPA downloads. No changes to Google sign-in or network/player requests. Player-ad blocking and Home hiding remain paused; no retry/seek/error-masking workaround is added.
+
+See **AUDIT.md** for the review against earlier conversation requirements and the distinctions between device reports, source preservation and untested behavior.
 
 ## Build and download the actual IPA
 
-1. Extract `QuietTube-v0.9.zip` and replace the files in your existing repository with the **contents** of its `QuietTube-v0.9` folder, including hidden `.github/workflows/build.yml`.
+1. Extract `QuietTube-v0.9.1.zip` and replace the files in your existing repository with the **contents** of its `QuietTube-v0.9.1` folder, including hidden `.github/workflows/build.yml`.
 2. Prefer a private repository. Open **Actions → Build QuietTube IPA → Run workflow**. Public repositories require explicit approval before downloading/publishing the modified app; only approve if authorized.
-3. After success, open the run's **Summary → DOWNLOAD IPA — QuietTube 0.9**. It points directly to `QuietTube-0.9-21.38.2.ipa` in GitHub Releases, with no outer artifact ZIP. The release page is the fallback; ignore GitHub's autogenerated source ZIP/TAR links.
+3. After success, open the run's **Summary → DOWNLOAD IPA — QuietTube 0.9.1**. It points directly to `QuietTube-0.9.1-21.38.2.ipa` in GitHub Releases, with no outer artifact ZIP. The release page is the fallback; ignore GitHub's autogenerated source ZIP/TAR links.
 4. Import that IPA into LiveContainer. Preserve the same data container and fully stop/relaunch the guest. Do not inject the tweak a second time.
 
 Private download links require signing into GitHub with repository access. No personal GitHub token, Apple credentials, or Google credentials are requested. Built-in workflow permissions publish the release. The success link appears only after upload succeeds. Release assets remain until deleted; public release assets expose the modified IPA.
 
-## Test this revision
+## Focused test
 
-Keep **Hide Mix recommendations** and **Extended feed formats** on. They are already enabled in your supplied log; no new switch is required. Confirm version 0.9 and fully stop/relaunch the LiveContainer guest after installation. Preserve the same data container and a prior IPA for rollback.
-
-Look for the Mix card while checking that normal videos remain. New counters:
-
-- `match Mix navigation playlist ID`
-- `match Mix RD playlist query`
-
-No match means these candidate paths still did not identify the card. A match means a filtering decision was made somewhere, not proof that this particular card disappeared. The empty-batch safeguard may retain a batch rather than send an unsafe empty one. You do not need to resend the same 0.8 capture. A 0.9 result with these counters is new evidence if further work is needed.
-
-Also verify the working logo, inline Shorts removal, settings Done/back, background audio and native PiP remain intact. Player-ad blocking should be a separate next experiment so playback failures are not mixed with this feed change.
+1. Confirm the footer/diagnostics says **0.9.1**. Leave your working flags unchanged, enable the new shelf switch, then fully stop/relaunch the LiveContainer guest. No new preference migration/reset was introduced.
+2. Check that “Watch it again” disappears while normal recommendations and the top topic-selection bar remain. New counters are `match Watch again shelf title` and `match Watch again horizontal shelf candidate`. A counter is not proof of disappearance of a particular visible card; the empty-batch safeguard may retain matched content rather than crash.
+3. Confirm Mix/inline Shorts cleanup and normal logo sizing still work, then check settings Done/back, background audio and native PiP. Keep the previous IPA and the same data container for rollback.
+4. If unrelated shelves disappear, disable only the new switch and restart. If the target remains, the rule's native/payload path still needs device investigation; do not compensate by removing all horizontal shelves. The already supplied 0.9 log does not need to be resent.
 
 ## Validation
 
-31 Python tests passed (8 packaging, 6 mocked release, 17 static/ABI). C under ASan/UBSan: 63 classifier fixtures + 5,000 random-byte iterations; 20 capture fixtures + 5,000 random-byte iterations. Tests include RD query matching, normal-playlist negatives, invalid query continuations, generic-title negatives, native getter scope and independent flags. Workflow YAML, shell syntax and archive integrity checked.
+34 Python tests passed: 8 packaging, 6 mock-release, 20 source/ABI/patch-scope checks. New baseline hash checks cover 11 source/build/workflow files after removing only explicitly marked feature additions and normalizing the version. C under AddressSanitizer/UndefinedBehaviorSanitizer: 79 classifier fixtures + 5,000 random-byte iterations, 20 capture fixtures + 5,000 random-byte iterations. Shell syntax, YAML and archive integrity checked.
 
-**No Apple SDK compilation, real GitHub release upload or 0.9 device test occurred here.** These tests cannot establish native renderer coverage, Google sign-in, uninterrupted playback or removal of the pictured Mix.
+**No Apple SDK build, real GitHub release upload or 0.9.1 device test was performed here.** Static preservation and C tests reduce regression risk but cannot guarantee compilation, native rendering, login or playback stability. GitHub performs the native build; the resulting release asset is `QuietTube-0.9.1-21.38.2.ipa`.

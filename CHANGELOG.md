@@ -1,3 +1,11 @@
+# 0.9.1 — optional Watch it again shelf hiding
+
+- Add independent off-by-default Distractions switch, requiring Extended feed formats and restart.
+- Match exact English native shelf titles; add horizontal-element + exact encoded title candidate without hiding generic horizontal shelves or editing watch history.
+- Preserve 0.9 implementation outside the new feature/version bump; add baseline hash comparison across 11 files and focused negative fixtures.
+- Keep player-ad blocking paused; direct release asset versioned 0.9.1.
+- User 0.9 report: most feed problems fixed, Mix RD query match present; Watch it again shelf remains. New shelf rule awaits device confirmation.
+
 # 0.9 — Mix playlist destination coverage
 
 - Add bounded RD-family playlist query matching and signature-checked native navigation playlist-ID matching under the existing Mix control.

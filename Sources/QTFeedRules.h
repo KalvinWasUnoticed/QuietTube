@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <string.h>
 
-enum { QTFeedShorts = 1, QTFeedAd = 2, QTFeedPlayable = 4, QTFeedPromo = 8, QTFeedTopics = 16, QTFeedEdgeVideo = 32, QTFeedDisplayAd = 64, QTFeedMix = 128, QTFeedInlineShort = 256, QTFeedMixURL = 512 };
+enum { QTFeedShorts = 1, QTFeedAd = 2, QTFeedPlayable = 4, QTFeedPromo = 8, QTFeedTopics = 16, QTFeedEdgeVideo = 32, QTFeedDisplayAd = 64, QTFeedMix = 128, QTFeedInlineShort = 256, QTFeedMixURL = 512, QTFeedWatchAgain = 1024 };
 /* Bounded, case-sensitive template-token heuristics, NOT a protobuf decoder.
  * Never match generic words such as "shorts", "game", "featured" or "ad". */
 static int QTTokenChar(unsigned char c) {
@@ -49,6 +49,34 @@ static int QTHasRadioPlaylistQuery(const unsigned char *bytes, size_t length) {
     }
     return 0;
 }
+// BEGIN 0.9.1 WATCH AGAIN
+/* A lexical protobuf-style string-field candidate, NOT a root-schema parser.
+ * Require a legal bounded field tag and an exact short string length, never a
+ * title substring. Nested text can still match inside a horizontal shelf. */
+static int QTHasExactWatchAgainText(const unsigned char *bytes, size_t length) {
+    static const char *titles[]={"Watch it again", "Watch again"};
+    if (!bytes || length>262144) return 0;
+    for(size_t i=0;i<length;i++) {
+        size_t pos=i;
+        unsigned long tag=0;
+        unsigned shift=0;
+        int complete=0;
+        for(unsigned k=0;k<5 && pos<length;k++) {
+            unsigned char b=bytes[pos++];
+            if(k==4 && (b&0xf0)) break;
+            tag|=(unsigned long)(b&127)<<shift;
+            if(!(b&128)) { complete=1; break; }
+            shift+=7;
+        }
+        if(!complete || (tag&7)!=2 || (tag>>3)==0 || pos>=length) continue;
+        size_t n=bytes[pos++]; /* both supported strings have single-byte lengths */
+        if(n>length-pos) continue;
+        for(size_t t=0;t<sizeof(titles)/sizeof(titles[0]);t++)
+            if(n==strlen(titles[t]) && !memcmp(bytes+pos,titles[t],n)) return 1;
+    }
+    return 0;
+}
+// END 0.9.1 WATCH AGAIN
 static unsigned QTClassifyElementBytes(const unsigned char *bytes, size_t length) {
     if (!bytes || !length || length > 262144) return 0;
     static const struct { const char *token; unsigned kind; } rules[] = {
@@ -90,6 +118,10 @@ static unsigned QTClassifyElementBytes(const unsigned char *bytes, size_t length
         QTTokenPresent(bytes,length,"yt_fill_youtube_shorts_24pt"))
         result |= QTFeedInlineShort;
     if (QTHasRadioPlaylistQuery(bytes,length)) result |= QTFeedMixURL;
+// BEGIN 0.9.1 WATCH AGAIN
+    if (QTTokenPresent(bytes,length,"horizontal_shelf") && QTHasExactWatchAgainText(bytes,length))
+        result |= QTFeedWatchAgain;
+// END 0.9.1 WATCH AGAIN
     return result;
 }
 #endif

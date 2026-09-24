@@ -18,6 +18,10 @@ NSArray<NSDictionary *> *QTOptions(void) {
     static dispatch_once_t once;
     dispatch_once(&once, ^{
         options = @[
+// BEGIN 0.9.1 WATCH AGAIN
+          @{ @"key":@"watchAgain", @"title":@"Hide “Watch it again” shelves", @"group":@"Distractions", @"default":@NO,
+             @"note":@"English shelf-title matching, including an experimental horizontal-element fallback. Requires Extended feed formats. Does not delete watch history." },
+// END 0.9.1 WATCH AGAIN
           @{ @"key":@"mixes", @"title":@"Hide Mix recommendations", @"group":@"Distractions", @"default":@NO,
              @"note":@"Mix/radio renderer and RD playlist destination matching. Requires Extended feed formats. Nested Mix links may also match; does not use video titles." },
           @{ @"key":@"displayAds", @"title":@"Additional display-ad formats", @"group":@"Distractions", @"default":@NO,
@@ -176,7 +180,7 @@ void QTObserveUnmatchedElement(NSData *data) {
 }
 NSString *QTDiagnostics(void) {
     NSMutableString *s = [NSMutableString stringWithFormat:
-        @"QuietTube 0.9 Mix playlist destination filtering\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
+        @"QuietTube 0.9.1 Mix playlist destination filtering\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
         [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"], UIDevice.currentDevice.systemVersion];
     [s appendString:@"ACTIVE THIS LAUNCH\n"];
     for (NSString *key in [[QTActiveFlags allKeys] sortedArrayUsingSelector:@selector(compare:)])
