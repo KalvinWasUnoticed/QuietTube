@@ -1,3 +1,5 @@
+> Historical player-ad research. This remains a proposal; 0.6 adds no player-ad blocking. See README.md for current features.
+
 # Player-ad investigation — separate from the 0.3 UI update
 
 ## What is actually established

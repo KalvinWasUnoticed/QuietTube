@@ -36,20 +36,27 @@
 }
 - (NSInteger)tableView:(UITableView *)tv numberOfRowsInSection:(NSInteger)section { return self.rows.count; }
 - (NSString *)tableView:(UITableView *)tv titleForFooterInSection:(NSInteger)section {
-    return @"0.5 · Restart the guest app to apply changes. Use YouTube’s own PiP setting. Player-ad blocking remains paused.";
+    return @"0.6 · Restart the guest app to apply changes. Use YouTube’s own PiP setting. Player-ad blocking remains paused.";
 }
 - (UITableViewCell *)tableView:(UITableView *)tv cellForRowAtIndexPath:(NSIndexPath *)index {
     NSDictionary *row = self.rows[index.row];
     UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:nil];
     cell.textLabel.text = row[@"title"];
     cell.textLabel.numberOfLines = 0;
+    cell.textLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
+    cell.textLabel.adjustsFontForContentSizeCategory = YES;
+    cell.detailTextLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleFootnote];
+    cell.detailTextLabel.adjustsFontForContentSizeCategory = YES;
     cell.detailTextLabel.text = row[@"note"];
     cell.detailTextLabel.numberOfLines = 0;
     if (row[@"key"]) {
         UISwitch *toggle = [UISwitch new];
         toggle.accessibilityLabel = row[@"title"];
         toggle.accessibilityIdentifier = row[@"key"];
-        toggle.enabled = ![row[@"disabled"] boolValue];
+        BOOL needsExtended = [@[@"topicsShelves",@"edgeCards",@"playables",@"eventPromos",@"inspectElements"] containsObject:row[@"key"]];
+        BOOL dependencyReady = !needsExtended || [NSUserDefaults.standardUserDefaults boolForKey:@"QuietTube.v1.extendedFeed"];
+        toggle.enabled = ![row[@"disabled"] boolValue] && dependencyReady;
+        if (!dependencyReady) cell.detailTextLabel.text = @"Enable Extended feed formats first. Changes apply after restart.";
         toggle.on = ![row[@"disabled"] boolValue] && [NSUserDefaults.standardUserDefaults boolForKey:[@"QuietTube.v1." stringByAppendingString:row[@"key"]]];
         [toggle addTarget:self action:@selector(changed:) forControlEvents:UIControlEventValueChanged];
         cell.accessoryView = toggle;
@@ -62,6 +69,7 @@
 }
 - (void)changed:(UISwitch *)sender {
     QTSet(sender.accessibilityIdentifier, sender.on);
+    [self.tableView reloadData];
     self.navigationItem.prompt = @"Saved — restart the guest app to apply";
 }
 - (void)tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)index {

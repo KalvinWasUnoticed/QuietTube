@@ -18,6 +18,27 @@ int main(void) {
     assert(QTClassifyElementBytes(binary,sizeof(binary)) == QTFeedShorts);
     assert(QTClassifyElementBytes(NULL,0) == 0);
     assert(QTClassifyElementBytes((const unsigned char *)"shorts_shelf",262145) == 0);
-    puts("14 classifier assertions passed (not live feed coverage tests)");
+    assert(match("chips_shelf.eml") == QTFeedTopics);
+    assert(match("chip_cloud.eml") == 0);
+    assert(match("video_card.eml") == 0);
+    assert(match("video_lockup_with_attachment.eml /hqdefault.jpg") == 0);
+    assert(match("video_lockup_with_attachment.eml /oardefault.jpg") == QTFeedEdgeVideo);
+    assert(match("video_card.eml /oar1.jpg") == QTFeedEdgeVideo);
+    assert(match("/oar1.jpg") == 0);
+    assert(match("inline_shorts.eml") == QTFeedEdgeVideo);
+    assert(match("Explore more topics") == 0); /* title alone in arbitrary bytes is not a rule */
+    assert(match("not_chips_shelf") == 0);
+    assert(match("video_card.eml /frame0.jpg") == 0); /* common thumbnail excluded */
+    assert(match("chips_shelf.eml shorts_shelf.eml") == (QTFeedTopics|QTFeedShorts));
+    /* Deterministic malformed-byte smoke test under ASan/UBSan. */
+    unsigned state=1234567;
+    unsigned char noise[257];
+    for (unsigned round=0;round<5000;round++) {
+        size_t n=round%sizeof(noise);
+        for (size_t k=0;k<n;k++) { state=state*1664525u+1013904223u; noise[k]=(unsigned char)(state>>24); }
+        unsigned value=QTClassifyElementBytes(noise,n);
+        assert((value & ~63u)==0);
+    }
+    puts("26 classifier fixtures + 5000 bounded random-byte iterations passed");
     return 0;
 }

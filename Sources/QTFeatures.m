@@ -6,6 +6,23 @@ static NSUInteger QTDepthLimit(void) { return QTOn(@"extendedFeed") ? 14 : 6; }
 
 // 0.2: no protobuf repeated-field getter overrides, no layoutSubviews hooks,
 // no view hiding, no playback response mutation. Filter at a presentation boundary.
+static NSString *QTShelfTitle(id node) {
+    // Only shelf headers, never arbitrary video-title fields.
+    NSString *name = NSStringFromClass([node class]);
+    if (![name hasPrefix:@"YTI"] || ![name hasSuffix:@"ShelfRenderer"]) return nil;
+    id title = QTGet(node,@"title");
+    id simple = QTGet(title,@"simpleText");
+    if ([simple isKindOfClass:NSString.class]) return simple;
+    id runs = QTGet(title,@"runsArray");
+    if (![runs isKindOfClass:NSArray.class] || [runs count] > 12) return nil;
+    NSMutableString *joined = [NSMutableString string];
+    for (id run in runs) {
+        id text = QTGet(run,@"text");
+        if (![text isKindOfClass:NSString.class] || [text length] > 100) return nil;
+        [joined appendString:text];
+    }
+    return joined;
+}
 static BOOL QTDropNode(id node) {
     if (QTOn(@"feedAds")) {
         for (NSString *selector in @[@"hasPromotedVideoRenderer", @"hasCompactPromotedVideoRenderer",
@@ -16,6 +33,12 @@ static BOOL QTDropNode(id node) {
     if (QTOn(@"shorts") && (QTBool(node,@"hasReelShelfRenderer") || QTBool(node,@"hasReelItemRenderer")))
         { QTCount(@"match explicit Shorts field"); return YES; }
     if (!QTOn(@"extendedFeed")) return NO;
+    if (QTOn(@"topicsShelves")) {
+        NSString *title = [[QTShelfTitle(node) stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet] lowercaseString];
+        if ([title isEqualToString:@"explore more topics"]) {
+            QTCount(@"match Explore topics shelf title"); return YES;
+        }
+    }
     NSString *className = NSStringFromClass([node class]);
     if (QTOn(@"playables") && [@[@"YTIPlayablesShelfRenderer", @"YTIPlayableItemRenderer",
         @"YTICompactBoxGameRenderer", @"YTIPlayableGameRenderer"] containsObject:className]) {
@@ -36,6 +59,8 @@ static BOOL QTDropNode(id node) {
     if ((kind & QTFeedAd) && QTOn(@"feedAds")) { QTCount(@"match ad element tokens"); return YES; }
     if ((kind & QTFeedPlayable) && QTOn(@"playables")) { QTCount(@"match Playables element tokens"); return YES; }
     if ((kind & QTFeedPromo) && QTOn(@"eventPromos")) { QTCount(@"match promo element tokens"); return YES; }
+    if ((kind & QTFeedTopics) && QTOn(@"topicsShelves")) { QTCount(@"match topics shelf element tokens"); return YES; }
+    if ((kind & QTFeedEdgeVideo) && QTOn(@"edgeCards")) { QTCount(@"match inline portrait card heuristic"); return YES; }
     QTObserveUnmatchedElement(data); // observation only; never changes the filtering decision
     QTCount(@"element retained — no active rule matched");
     return NO;
@@ -101,7 +126,8 @@ static void QTNoArgAction(NSString *cls, NSString *method, NSString *flag) {
 void QTInstallFeatures(void) {
     // When the master switch is off, not even diagnostic feature hooks are installed.
     if (!QTOn(@"enabled")) return;
-    if (QTOn(@"feedAds") || QTOn(@"shorts") || (QTOn(@"extendedFeed") && (QTOn(@"playables") || QTOn(@"eventPromos")))) {
+    QTInstallPlainLogo();
+    if (QTOn(@"feedAds") || QTOn(@"shorts") || (QTOn(@"extendedFeed") && (QTOn(@"playables") || QTOn(@"eventPromos") || QTOn(@"topicsShelves") || QTOn(@"edgeCards") || QTOn(@"inspectElements")))) {
         QTHook(@"YTInnerTubeCollectionViewController",@"addSectionsFromArray:",@"v@",^id(IMP old,SEL sel) {
             return ^(id object,NSArray *sections) {
                 NSArray *filtered = sections;

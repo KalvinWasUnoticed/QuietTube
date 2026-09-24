@@ -18,6 +18,12 @@ NSArray<NSDictionary *> *QTOptions(void) {
     static dispatch_once_t once;
     dispatch_once(&once, ^{
         options = @[
+          @{ @"key":@"topicsShelves", @"title":@"Hide “Explore more topics” shelves", @"group":@"Distractions", @"default":@NO,
+             @"note":@"Experimental chips-shelf / exact shelf-title matching. Requires Extended feed formats; other chips shelves may also match." },
+          @{ @"key":@"edgeCards", @"title":@"Hide edge-to-edge video cards", @"group":@"Distractions", @"default":@NO,
+             @"note":@"Experimental inline/portrait video-card heuristic; not exact geometry detection. May also hide compact portrait cards. Requires Extended feed formats." },
+          @{ @"key":@"plainLogo", @"title":@"Use plain YouTube logo", @"group":@"Distractions", @"default":@YES,
+             @"note":@"Replaces event header images at logo-specific hooks. Restart required; verify logo hook status in diagnostics." },
           @{ @"key":@"inspectElements", @"title":@"Inspect unmatched templates", @"group":@"Advanced", @"default":@NO,
              @"note":@"Opt-in local capture of .eml-like names, not raw payloads. Requires Extended feed formats and restart. Review before sharing." },
           @{ @"key":@"extendedFeed", @"title":@"Extended feed formats", @"group":@"Distractions", @"default":@NO,
@@ -31,7 +37,8 @@ NSArray<NSDictionary *> *QTOptions(void) {
           @{ @"key":@"shorts", @"title":@"Filter explicit Shorts shelves", @"group":@"Distractions", @"default":@NO,
              @"note":@"Does not hide the Shorts tab or every Shorts surface." },
           @{ @"key":@"background", @"title":@"Background audio", @"group":@"Playback", @"default":@NO },
-          @{ @"key":@"autoplay", @"title":@"Stop automatic next video", @"group":@"Playback", @"default":@NO },
+          @{ @"key":@"autoplay", @"title":@"Stop automatic next video", @"group":@"Playback", @"default":@NO,
+             @"note":@"Stops selected next-video actions, not in-feed video previews." },
           @{ @"key":@"playerAds", @"title":@"Player-ad blocking — paused", @"group":@"Playback", @"default":@NO,
              @"disabled":@YES, @"note":@"Old response-array getter hooks removed pending a safer implementation." },
           @{ @"key":@"home", @"title":@"Home hiding — paused", @"group":@"Distractions", @"default":@NO,
@@ -165,7 +172,7 @@ void QTObserveUnmatchedElement(NSData *data) {
 }
 NSString *QTDiagnostics(void) {
     NSMutableString *s = [NSMutableString stringWithFormat:
-        @"QuietTube 0.5 template diagnostics\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
+        @"QuietTube 0.6 feed controls and direct IPA\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
         [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"], UIDevice.currentDevice.systemVersion];
     [s appendString:@"ACTIVE THIS LAUNCH\n"];
     for (NSString *key in [[QTActiveFlags allKeys] sortedArrayUsingSelector:@selector(compare:)])

@@ -4,12 +4,14 @@
   "original_command_count": 137,
   "patched_command_count": 138,
   "packaging_unit_tests": "8 passed",
-  "objc_compilation": "0.5 not compiled here; needs GitHub macOS",
-  "device_test": "0.5 untested; 0.4 user reports Shorts-shelf removal but surviving topics and full-height cards",
-  "revision": "0.5-template-diagnostics",
-  "static_regression_checks": "6 source tests passed; feature code matches 0.4 after removing observation call; classifier unchanged",
+  "objc_compilation": "0.6 not compiled here; Apple SDK compilation required on GitHub",
+  "device_test": "0.6 native behavior not tested; prior user tests cover earlier builds only",
+  "revision": "0.6-feed-controls-direct-ipa",
+  "static_regression_checks": "12 source/ABI invariants passed; not native runtime tests",
   "workflow_yaml": "parsed",
-  "shell_syntax": "passed",
-  "classifier_tests": "14 standalone C assertions passed",
-  "template_capture_tests": "10 standalone C assertions passed"
+  "shell_syntax": "build.sh and release.sh passed",
+  "classifier_tests": "26 fixture assertions + 5000 deterministic random-byte iterations passed under ASan/UBSan",
+  "template_capture_tests": "10 scanner assertions passed under ASan/UBSan",
+  "release_integration_tests": "6 offline/mock CLI tests passed; no actual release created here",
+  "logo_abi": "Ownership/signatures parsed from SHA-256-verified base executable; 3 installed-hook signatures match recorded metadata"
 }

@@ -11,3 +11,10 @@ Attribution is included conservatively for interface patterns and adapted integr
 The YTPlaybackFix project was reviewed for comparison. Its automatic retry, client rewriting and network interception code are not included. No YouMod GPL code is included.
 
 0.4 also consulted YTKACE `Tweak/Features/Interface/ContentVisibilityHooks.mm` for Shorts/Playables renderer and element-template families, and YouTube-X `Tweak.x` for selected ad/promo element families. QuietTube's bounded C token matcher and opt-in integration are custom code. The references do not establish compatibility with any particular server-provided layout. Broad whole-model description matching and arbitrary whole-response serialization are not included.
+
+0.6 research observations (no Morphe implementation code copied into this project):
+- `chips_shelf` is identified as an Explore Topics shelf component in Morphe's Android `LayoutComponentsFilter.java`.
+- `inline_shorts`, video-lockup/card names, and portrait-thumbnail filename families are documented in its `ShortsFilter.java`.
+- Source links: https://github.com/MorpheApp/morphe-patches/blob/main/extensions/youtube/src/main/java/app/morphe/extension/youtube/patches/components/LayoutComponentsFilter.java and https://github.com/MorpheApp/morphe-patches/blob/main/extensions/youtube/src/main/java/app/morphe/extension/youtube/patches/components/ShortsFilter.java . These are cross-platform identifier observations, not verification for iOS. The native matcher remains the custom bounded C implementation in this project; no Android patch/library is bundled.
+
+Logo class ownership and method encodings were subsequently parsed from the hash-verified supplied YouTube executable (BASE-LOGO-ABI.json). Static metadata does not establish runtime invocation or successful UI behavior; the implementation still uses runtime checks and records skipped hooks. The fallback wordmark drawing is local UIKit text rendering.

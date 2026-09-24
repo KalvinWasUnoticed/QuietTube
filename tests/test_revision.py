@@ -45,4 +45,54 @@ class CaptureChecks(unittest.TestCase):
         self.assertIn('QTElementGroups.count>=48',core)
         features=(R/'Sources/QTFeatures.m').read_text()
         self.assertIn('QTObserveUnmatchedElement(data);',features)
-        self.assertNotIn('QTOn(@"inspectElements")',features)
+        drop=features[features.index('static BOOL QTDropNode'):features.index('static id QTFilteredNode')]
+        self.assertNotIn('QTOn(@"inspectElements")',drop)
+
+class V06AuditChecks(unittest.TestCase):
+    def test_new_filters_independent_and_off_by_default(self):
+        core=(R/'Sources/QTCore.m').read_text()
+        for key in ['topicsShelves','edgeCards']:
+            start=core.index('@"key":@"'+key+'"')
+            self.assertIn('@"default":@NO',core[start:core.index('},',start)])
+        features=(R/'Sources/QTFeatures.m').read_text()
+        self.assertIn('(kind & QTFeedTopics) && QTOn(@"topicsShelves")',features)
+        self.assertIn('(kind & QTFeedEdgeVideo) && QTOn(@"edgeCards")',features)
+    def test_logo_hooks_are_scoped(self):
+        source=(R/'Sources/QTLogo.m').read_text()
+        self.assertIn('if (!QTOn(@"plainLogo")) return;',source)
+        self.assertIn('@"YTHeaderLogoControllerImpl"',source)
+        self.assertNotIn('QTHook(@"UIImageView"',source)
+        self.assertNotIn('QTHook(@"UIView"',source)
+        self.assertNotIn('@"layoutSubviews"',source)
+        self.assertIn('Sources/QTLogo.m',(R/'scripts/build.sh').read_text())
+    def test_no_general_video_title_match(self):
+        features=(R/'Sources/QTFeatures.m').read_text()
+        self.assertIn('hasSuffix:@"ShelfRenderer"',features)
+        self.assertIn('isEqualToString:@"explore more topics"',features)
+        self.assertNotIn('containsString:@"Explore more topics"',features)
+    def test_native_pip_authentication_and_error_behavior_unchanged(self):
+        source=(R/'Sources/QTFeatures.m').read_text()
+        self.assertNotIn('QTOn(@"pip")',source)
+        self.assertNotIn('NSURLSession',source)
+        self.assertNotIn('spamSignals',source)
+        self.assertNotIn('TapToRetry',source)
+        self.assertIn('((void (*)(id,SEL,id))old)(object,sel,error);',source)
+    def test_settings_dependencies_and_restart_snapshot(self):
+        ui=(R/'Sources/QTSettings.m').read_text()
+        self.assertIn('dependencyReady',ui)
+        self.assertIn('[self.tableView reloadData]',ui)
+        core=(R/'Sources/QTCore.m').read_text()
+        body=core[core.index('BOOL QTOn('):core.index('void QTSet(')]
+        self.assertIn('QTActiveFlags',body)
+        self.assertNotIn('NSUserDefaults',body)
+    def test_logo_hook_signatures_match_inspected_metadata(self):
+        import json,re
+        record=json.loads((R/'BASE-LOGO-ABI.json').read_text())
+        self.assertEqual(record['method_owner'],'YTHeaderLogoControllerImpl')
+        signatures={m['name']:re.sub(r'\d+','',m['types']).replace('@:','',1) for m in record['methods']}
+        source=(R/'Sources/QTLogo.m').read_text()
+        hooks=re.findall(r'QTHook\(@"YTHeaderLogoControllerImpl",@"([^"]+)",@"([^"]+)"',source)
+        self.assertEqual(len(hooks),3)
+        for name,sig in hooks: self.assertEqual(signatures[name],sig)
+        self.assertEqual(signatures['updateToDefaultLogo'],'v')
+        self.assertEqual(signatures['defaultLogoImage'],'@')

@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <string.h>
 
-enum { QTFeedShorts = 1, QTFeedAd = 2, QTFeedPlayable = 4, QTFeedPromo = 8 };
+enum { QTFeedShorts = 1, QTFeedAd = 2, QTFeedPlayable = 4, QTFeedPromo = 8, QTFeedTopics = 16, QTFeedEdgeVideo = 32 };
 /* Bounded, case-sensitive template-token heuristics, NOT a protobuf decoder.
  * Never match generic words such as "shorts", "game", "featured" or "ad". */
 static int QTTokenChar(unsigned char c) {
@@ -35,6 +35,17 @@ static unsigned QTClassifyElementBytes(const unsigned char *bytes, size_t length
     unsigned result = 0;
     for (size_t i=0; i<sizeof(rules)/sizeof(rules[0]); i++)
         if (QTTokenPresent(bytes,length,rules[i].token)) result |= rules[i].kind;
+    /* Cross-client component names: candidates, not iOS screenshot validation.
+     * Do not hide the generic chip_cloud (top topic bar) or every video_card. */
+    if (QTTokenPresent(bytes,length,"chips_shelf")) result |= QTFeedTopics;
+    int videoLockup = QTTokenPresent(bytes,length,"video_lockup_with_attachment") ||
+                      QTTokenPresent(bytes,length,"video_card");
+    int portraitThumb = QTTokenPresent(bytes,length,"oardefault.jpg") ||
+                        QTTokenPresent(bytes,length,"oar1.jpg") ||
+                        QTTokenPresent(bytes,length,"oar2.jpg") ||
+                        QTTokenPresent(bytes,length,"oar3.jpg");
+    if (QTTokenPresent(bytes,length,"inline_shorts") || (videoLockup && portraitThumb))
+        result |= QTFeedEdgeVideo;
     return result;
 }
 #endif

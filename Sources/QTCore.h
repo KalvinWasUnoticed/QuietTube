@@ -20,3 +20,5 @@ UIViewController *QTSettingsController(void);
 
 void QTObserveUnmatchedElement(NSData *data);
 void QTResetElementCapture(void);
+
+void QTInstallPlainLogo(void);
