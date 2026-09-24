@@ -17,8 +17,6 @@ NSArray<NSDictionary *> *QTOptions(void) {
           @{ @"key":@"shorts", @"title":@"Filter explicit Shorts shelves", @"group":@"Distractions", @"default":@NO,
              @"note":@"Does not hide the Shorts tab or every Shorts surface." },
           @{ @"key":@"background", @"title":@"Background audio", @"group":@"Playback", @"default":@NO },
-          @{ @"key":@"pip", @"title":@"Picture in Picture", @"group":@"Playback", @"default":@NO,
-             @"note":@"Native eligibility only; unverified." },
           @{ @"key":@"autoplay", @"title":@"Stop automatic next video", @"group":@"Playback", @"default":@NO },
           @{ @"key":@"playerAds", @"title":@"Player-ad blocking — paused", @"group":@"Playback", @"default":@NO,
              @"disabled":@YES, @"note":@"Old response-array getter hooks removed pending a safer implementation." },
@@ -123,7 +121,7 @@ void QTBoolHook(NSString *name, NSString *selector, NSString *key, BOOL value) {
 }
 NSString *QTDiagnostics(void) {
     NSMutableString *s = [NSMutableString stringWithFormat:
-        @"QuietTube 0.2 recovery experiment\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
+        @"QuietTube 0.3 settings update\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
         [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"], UIDevice.currentDevice.systemVersion];
     [s appendString:@"ACTIVE THIS LAUNCH\n"];
     for (NSString *key in [[QTActiveFlags allKeys] sortedArrayUsingSelector:@selector(compare:)])

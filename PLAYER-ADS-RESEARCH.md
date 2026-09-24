@@ -1,0 +1,62 @@
+# Player-ad investigation — separate from the 0.3 UI update
+
+## What is actually established
+
+User tests on YouTube 21.38.2 / iOS 26.5 / LiveContainer 3.8.0:
+
+- Clean YouTube plays beyond five minutes with ads.
+- 0.1 could crash with an empty-array exception. That is a local data-structure failure, not evidence of server-side ad-block detection.
+- 0.2's presentation-boundary feed filtering, Shorts shelves and background audio passed the reported tests.
+- Native PiP worked with QuietTube PiP off. No independent benefit from our PiP hooks was demonstrated.
+- No uninterrupted, ad-free player session has yet been demonstrated with QuietTube.
+
+The 10–20-second interruptions reported in other mods may have multiple causes. We have not captured an error domain/code and a controlled single-change comparison for that failure in a new QuietTube player experiment.
+
+## Source approaches reviewed
+
+These are source observations, not claims of current effectiveness for this account/version.
+
+### 1. Global player-response array overrides
+
+YouTube-X implements empty `playerAdsArray` and `adSlotsArray` getters:
+https://github.com/PoomSmart/YouTube-X/blob/main/Tweak.x
+
+Decision: do not reinstate this approach. A getter can participate in constructing a mutable protobuf model as well as rendering it. Our earlier model-getter design was not adequately isolated. Existing use elsewhere does not validate it here.
+
+### 2. Ad-playback coordinator suppression
+
+The same source overrides `YTLocalPlaybackController.createAdsPlaybackCoordinator` to return nil.
+
+This is a narrower candidate to investigate than global model mutation, but it is not proven safe: dependent code may require a coordinator, and server-side behavior may still interrupt playback. Before mutation, verify the selector and ABI in 21.38.2 and observe whether it is invoked at ad-bearing playback starts. If experimentally enabled later, isolate it behind a default-off switch with no concurrent request or response modifications. Returning nil must not be presented as an already verified fix.
+
+### 3. Post-parse response transformation
+
+A potential original implementation would transform a copy of a completed response at a verified handoff to the playback consumer, instead of replacing global field getters. This avoids the particular getter/construction flaw, but can still violate coordinator/streaming assumptions. The feed handoff that worked does not establish the equivalent player boundary. We first need to identify that boundary and verify method ownership/signatures; this is not implemented.
+
+### 4. Signal / request-context alterations
+
+YouTube-X also changes signal-generating methods and an ad-context-related configuration method. A combined tweak makes it hard to know which change is necessary or responsible for a regression. We should not remove unrelated signals or change account-scoped request generation as a first experiment.
+
+### 5. Alternate client identification
+
+YTPlaybackFix's reviewed source uses a TV/game-console client identity and intercepts requests:
+https://github.com/Mark02-2012/YTPlaybackFix/blob/main/YouFixPlaybackIssues.xm
+
+This is not merely UI filtering. The reviewed interceptor reaches browse/next as well as playback-related paths. Broad path matching and rewriting can affect unrelated behavior and could conflict with native protobuf/request semantics. It is unsuitable for blind inclusion in a minimal signed-in app. We have no test establishing that it works for this account, maintains expected formats, or avoids the 10–20-second failure. Not included in 0.3.
+
+### 6. Retry-and-seek recovery
+
+YTPlaybackFix's Refresh.xm retries playback after selected errors and seeks back:
+https://github.com/Mark02-2012/YTPlaybackFix/blob/main/Refresh.xm
+
+Decision: do not use this as a purported ad-block fix. It can mask a recurring failure rather than prevent it, and uninterrupted playback is the requirement.
+
+## Proposed next player experiment
+
+1. Preserve the known-working 0.2-derived feed/background code and native Google login.
+2. Add narrowly scoped, read-only observations of the candidate playback boundary/coordinator: method presence, invocation counts and numeric errors only. Do not log response descriptions, request bodies, signed media URLs, cookies or tokens.
+3. Choose ONE verified boundary for a default-off player-ad experiment. Keep coordinator suppression and post-parse transformation mutually exclusive in testing.
+4. Compare the same videos with the experiment off/on; include prerolls, a longer video with midrolls, seeking, background transitions and native PiP.
+5. If interruptions reappear, retain the real error and stop rather than automatically retrying or suppressing it. Restore the known-working configuration.
+
+No player-blocking mutation or additional playback observation hook is included in 0.3. This document is a research result and next-step design, not a running background investigation or a promise of an undetectable bypass.

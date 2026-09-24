@@ -1,7 +1,7 @@
+# 0.3 settings update
+
+Removes redundant PiP controls and hooks. Presents Quiet controls from the native General entry in an isolated UIKit navigation sheet, with Done and standard back navigation. Preserves 0.2 preferences when the existing data container is retained. No new player-ad mutation.
+
 # 0.2 recovery
 
-Responds to the user's successful 0.1 build, successful sign-in, loading placeholders/flicker with modifications enabled, recovery with modifications disabled, and an empty-array index-zero exception when modifications were re-enabled.
-
-Removes unsafe model-getter and layout-hiding experiments. Introduces startup-only opt-in flags and narrower copied-model presentation filtering. Pauses player-ad blocking and most cleanup controls. No claim of anti-detection circumvention or proven crash resolution.
-
-Important: this revision starts with everything off, intentionally overriding the earlier requested defaults for regression isolation. It is not a substitute for the complete requested app.
+Removed model-getter and layout-hiding hooks after an empty-array crash. Introduced opt-in launch-time flags and narrow presentation-boundary feed filtering. User subsequently reported successful feed filtering, Shorts shelves, background audio and native PiP tests. Native PiP showed no demonstrated benefit from our optional eligibility hooks.

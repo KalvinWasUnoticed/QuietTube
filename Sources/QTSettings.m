@@ -8,6 +8,12 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.title = self.group ?: @"Quiet controls";
+    self.navigationItem.largeTitleDisplayMode = UINavigationItemLargeTitleDisplayModeNever;
+    self.navigationItem.backButtonDisplayMode = UINavigationItemBackButtonDisplayModeMinimal;
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]
+        initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(closeControls)];
+    self.tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+    self.tableView.cellLayoutMarginsFollowReadableWidth = YES;
     self.tableView.rowHeight = UITableViewAutomaticDimension;
     self.tableView.estimatedRowHeight = 74;
     if (self.group) {
@@ -27,7 +33,7 @@
 }
 - (NSInteger)tableView:(UITableView *)tv numberOfRowsInSection:(NSInteger)section { return self.rows.count; }
 - (NSString *)tableView:(UITableView *)tv titleForFooterInSection:(NSInteger)section {
-    return @"0.2 recovery build · All changes apply after a full guest-app restart. Test one feature at a time. Player-ad blocking and several cleanup features are temporarily removed, not fixed.";
+    return @"0.3 · Restart the guest app to apply changes. Use YouTube’s own PiP setting. Player-ad blocking remains paused.";
 }
 - (UITableViewCell *)tableView:(UITableView *)tv cellForRowAtIndexPath:(NSIndexPath *)index {
     NSDictionary *row = self.rows[index.row];
@@ -47,6 +53,9 @@
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
     } else cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     return cell;
+}
+- (void)closeControls {
+    [self.navigationController dismissViewControllerAnimated:YES completion:nil];
 }
 - (void)changed:(UISwitch *)sender {
     QTSet(sender.accessibilityIdentifier, sender.on);
@@ -105,13 +114,24 @@ static NSArray *QTAppendEntry(id controller, NSArray *items, NSUInteger category
     BOOL (^select)(id,NSUInteger) = ^BOOL(id cell, NSUInteger index) {
         id target = weakController;
         UIViewController *page = QTSettingsController();
-        SEL push = NSSelectorFromString(@"pushViewController:");
-        if (QTMatches(target,push,@"v@")) {
-            ((void (*)(id,SEL,id))objc_msgSend)(target,push,page); return YES;
-        }
+        // Isolate our UIKit navigation from YouTube's private bar/layout rules.
+        // The native General entry remains unchanged; Done returns to it.
         if ([target isKindOfClass:UIViewController.class]) {
-            UINavigationController *nav = ((UIViewController *)target).navigationController;
-            if (nav) { [nav pushViewController:page animated:YES]; return YES; }
+            UIViewController *presenter = (UIViewController *)target;
+            if (!presenter.viewIfLoaded.window || presenter.presentedViewController) return NO;
+            UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:page];
+            nav.navigationBar.prefersLargeTitles = NO;
+            UINavigationBarAppearance *appearance = [UINavigationBarAppearance new];
+            [appearance configureWithDefaultBackground];
+            nav.navigationBar.standardAppearance = appearance;
+            nav.navigationBar.scrollEdgeAppearance = appearance;
+            nav.navigationBar.compactAppearance = appearance;
+            nav.modalPresentationStyle = UIModalPresentationPageSheet;
+            UISheetPresentationController *sheet = nav.sheetPresentationController;
+            sheet.detents = @[[UISheetPresentationControllerDetent largeDetent]];
+            sheet.prefersGrabberVisible = YES;
+            [presenter presentViewController:nav animated:YES completion:nil];
+            return YES;
         }
         QTCount(@"settings navigation unavailable");
         return NO;

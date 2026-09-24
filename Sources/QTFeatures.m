@@ -95,11 +95,6 @@ void QTInstallFeatures(void) {
         QTBoolHook(@"YTIPlayabilityStatus",@"isPlayableInBackground",@"background",YES);
         QTBoolHook(@"MLVideo",@"playableInBackground",@"background",YES);
     }
-    if (QTOn(@"pip")) {
-        QTBoolHook(@"YTIIosMediaHotConfig",@"enablePictureInPicture",@"pip",YES);
-        QTBoolHook(@"YTIIosMediaHotConfig",@"enablePipForNonPremiumUsers",@"pip",YES);
-        QTBoolHook(@"YTIPlayabilityStatus",@"isPlayableInPictureInPicture",@"pip",YES);
-    }
     QTNoArgAction(@"YTWatchFlowController",@"playAutoplay",@"autoplay");
     QTNoArgAction(@"YTQueueController",@"triggerPendingAutoplay",@"autoplay");
     // Error observation only; the native handler always executes, with no retries.

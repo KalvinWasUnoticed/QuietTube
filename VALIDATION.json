@@ -4,10 +4,10 @@
   "original_command_count": 137,
   "patched_command_count": 138,
   "packaging_unit_tests": "8 passed",
-  "objc_compilation": "0.1 compiled successfully according to user; changed 0.2 source not compiled here",
-  "device_test": "0.1 user reports sign-in success, loading/flicker with flags on, normal operation with flags off, and empty-array exception; 0.2 untested",
-  "revision": "0.2-recovery",
-  "static_regression_checks": "passed; not native runtime tests",
+  "objc_compilation": "0.3 not compiled here; requires GitHub macOS build",
+  "device_test": "0.2 feed ads, Shorts shelves, background audio and native PiP passed user reports; 0.3 UI untested",
+  "revision": "0.3-settings",
+  "static_regression_checks": "4 source checks passed; feature source unchanged from 0.2 except PiP hook removal",
   "workflow_yaml": "parsed",
   "shell_syntax": "passed"
 }
