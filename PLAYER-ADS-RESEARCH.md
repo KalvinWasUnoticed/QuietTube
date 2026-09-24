@@ -1,3 +1,9 @@
+# 0.13.2 current status
+
+User 0.13.1 report: five native no-op objects supplied, no player ads and stable playback in that test. Player factory workaround is frozen and hash-checked in this revision. Post-minimize card remains; prior feed getter never ran. Only the feed side changes to a binary-verified native companion empty-update path. Current report distinguishes callback activity from observer-state clearing; runtime association with the card unverified. See README and BINARY-RESEARCH.
+
+## Historical notes below
+
 # Current finding for 0.13.1
 
 Latest supplied 0.13 logs show zero workaround activity because both subordinate settings were saved OFF. Missing ads during one stable run cannot be attributed to player blocking; cause not identifiable from logs. 0.13.1 removes those controls, cleans retired hooks and reports installation/invocation separately. The constructor/feed-feature hypotheses are unchanged, awaiting an actually active test. Read README for the upgrade activation change and safety limits.

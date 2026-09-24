@@ -1,18 +1,15 @@
-# 0.13.1: one switch, one restart, one report
+# 0.13.2 — focus on the remaining companion card
 
-Use Playback → Ad test profile ON. There is no Ad test options page and no branch setting to enable separately. If upgrading with this switch already ON, both workarounds now attempt to activate after the guest is fully restarted. Old branch OFF preferences are ignored.
+Keep the existing Ad test profile ON. Restart the entire guest after upgrading. Play a video, minimize it, and inspect the area below the selected item. Keep 0.13.1 as the player-stable rollback build.
 
-Play a video, minimize it, observe the pushed card. Watch beyond the previous failure window if playback is stable. Send Advanced → Ad test report plus:
-- Player ad seen: yes/no/not enough opportunity.
-- Card pushed after minimizing: yes/no.
-- Playback: worked/error/stall and approximate time.
+Send the short Advanced → Ad test report plus “card remains / card gone”, and flag any new player error. No additional switch or two-run matrix.
 
-Report stages:
-1. Profile requested this launch.
-2. Installation state: OFF / SAFETY STOP / WAITING-UNAVAILABLE / PARTIAL / BOTH HOOKS INSTALLED.
-3. Player factory invocation and number of valid native no-op objects supplied.
-4. Feed feature getter reads returning disabled.
+Expected evidence:
+- Native no-op objects continue being supplied by unchanged player code.
+- Companion observer hook installed.
+- Companion callback received, with separate count for actual payload observed.
+- Native clear applied and current-ad empty/remaining state afterward.
 
-Stages 2 and 3 are not proof of removing an ad. Zero substitution/getter-read counts explicitly indicate unobserved workaround activity. Missing ads while hooks are absent must not be counted as blocking success. This was the issue in the latest 0.13 run.
+An installed hook with no callback is not an active fix. Empty observer state with a visible card means the actual card is not yet explained by this path. A clear applied to an already-empty callback does not count as a blocked ad. Counts are not unique cards or videos.
 
-On an observed error, the safety latch saves the profile OFF, without resetting feed/audio/appearance flags. Restart; current player state is not repaired. Stalls/crashes can bypass the observer: disable manually or revert to 0.10. A new run's short report is enough; no repeat of the supplied 0.13 counters is requested.
+Safety: stop on errors or missing wanted content. The safety latch reacts only to observed playback NSError, not every possible UI exception/crash/stall. It saves profile OFF; restart is needed. Already-cleared companion state is not automatically restored. No error hiding, retry loop or request spoofing. Report is bounded/session-only; no IDs, URLs or raw payloads.

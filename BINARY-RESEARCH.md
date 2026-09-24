@@ -1,3 +1,15 @@
+# 0.13.2 companion callback inspection
+
+Pinned input SHA-256 d0f6f5c9d27f7fea8f040ae59c425b3a8222f67d891937374b21ef8937deba11 verified again. Selected Objective-C method metadata and ARM64 instructions inspected; downloaded IPA/executable removed afterward. BASE-COMPANION-ABI.json records the callback and getter encodings.
+
+YTCompanionAdObserverBehavior owns companionAdDidChange:interactionLoggingAdsClientData: (v32@0:8@16@24), implementation 0x10172cde8. At 0x10172ce2c it reads companionAd from update. It compares currentAd, then clearEntries at 0x10172ce6c. Nil incoming companion branches at 0x10172ce70 to 0x10172d0a4; pushStagedChanges is called at 0x10172d0a8. Non-nil branches append companion/suggested entries. Passing nil update and nil logging data thus exercises the native empty-companion update path; no synthetic completion or general feed mutation is invoked by the tweak.
+
+YTEngagementCompanionAdObserverBehavior's similarly named method instead returns on nil companion and disables its shelf on non-nil companion. It is NOT patched. Names/signatures alone were insufficient to assume equivalent behavior.
+
+Static inspection does not map these methods to the user's screenshot or prove runtime safety. The player path retains the prior native initializer/scope/delegate workaround exactly. The previous watch-while feature hook is removed after zero recorded reads in the relevant session.
+
+## Prior player evidence (historical feed-feature approach below is superseded)
+
 # 0.13 static evidence and corrected hypotheses
 
 Pinned IPA SHA-256: d0f6f5c9d27f7fea8f040ae59c425b3a8222f67d891937374b21ef8937deba11. Re-downloaded, verified, inspected Objective-C class/method/ivar metadata and selected ARM64 instructions. Inputs removed after extraction; no executable distributed. BASE-AD-PROFILE-ABI.json contains selected records.

@@ -1,0 +1,27 @@
+{
+  "base_sha256": "d0f6f5c9d27f7fea8f040ae59c425b3a8222f67d891937374b21ef8937deba11",
+  "class": "YTCompanionAdObserverBehavior",
+  "methods": [
+    {
+      "name": "initWithViewModel:",
+      "types": "@24@0:8@16",
+      "implementation": "0x10172cd80"
+    },
+    {
+      "name": "companionAdDidChange:interactionLoggingAdsClientData:",
+      "types": "v32@0:8@16@24",
+      "implementation": "0x10172cde8"
+    },
+    {
+      "name": "currentAd",
+      "types": "@16@0:8",
+      "implementation": "0x10172d0f0"
+    },
+    {
+      "name": ".cxx_destruct",
+      "types": "v16@0:8",
+      "implementation": "0x10172d12c"
+    }
+  ],
+  "evidence": "companion callback reads [update companionAd], clearEntries at 0x10172ce6c; nil companion branches at 0x10172ce70 to pushStagedChanges at 0x10172d0a8. Non-nil content appended elsewhere in same method. Runtime association with screenshot unknown."
+}

@@ -1,0 +1,5 @@
+{
+  "baseline": "0.13.1",
+  "start": "    if (!QTPlayerProfileInstalled) {",
+  "sha256": "f1cdacfd403f885d7b0e27b7987771e712580a84c1af7b3117161e530cb13563"
+}

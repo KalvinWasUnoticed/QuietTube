@@ -1,3 +1,11 @@
+# 0.13.2 — native companion clearing; player path frozen
+
+- Preserve actual active player workaround byte-for-byte after reported ad-free/stable session.
+- Replace uninvoked watch-while feature override with verified companion callback empty-update path; device card association pending.
+- Count callbacks, payloads, clears and current-ad state separately.
+- Fix garbled C-string status punctuation by using ASCII.
+- No new toggles; same profile and safety latch; overlay-upgrade tests retained.
+
 # 0.13.1 — repair activation and clean residual experiments
 
 - Single adTest flag now gates both workarounds; remove stale subordinate settings/page.
