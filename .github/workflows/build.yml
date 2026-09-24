@@ -14,6 +14,10 @@ jobs:
           python-version: '3.12'
       - name: Run packaging tests
         run: python -m unittest discover -s tests -v
+      - name: Test element-token classifier
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror tests/test_feed_rules.c -o "$RUNNER_TEMP/test-feed-rules"
+          "$RUNNER_TEMP/test-feed-rules"
       - name: Compile the tweak
         run: bash scripts/build.sh
       - name: Download the exact inspected base IPA
@@ -30,12 +34,12 @@ jobs:
       - name: Package for LiveContainer
         run: |
           python scripts/package.py "$RUNNER_TEMP/YouTube-base.ipa" \
-            artifacts/QuietTube.dylib artifacts/QuietTube-0.3-21.38.2.ipa
+            artifacts/QuietTube.dylib artifacts/QuietTube-0.4-21.38.2.ipa
       - name: Upload installable guest package
         uses: actions/upload-artifact@v4
         with:
-          name: QuietTube-0.3-21.38.2-IPA
-          path: artifacts/QuietTube-0.3-21.38.2.ipa
+          name: QuietTube-0.4-21.38.2-IPA
+          path: artifacts/QuietTube-0.4-21.38.2.ipa
           retention-days: 7
           compression-level: 0
           if-no-files-found: error
