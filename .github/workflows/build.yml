@@ -15,6 +15,8 @@ jobs:
     name: Build and publish direct IPA
     runs-on: macos-15
     timeout-minutes: 25
+    env:
+      IPA_PATH: artifacts/QuietTube-0.14.0-rc1-21.38.2.ipa
     permissions:
       contents: write
     steps:
@@ -60,7 +62,9 @@ jobs:
       - name: Package the IPA for LiveContainer
         run: |
           python scripts/package.py "$RUNNER_TEMP/YouTube-base.ipa" \
-            artifacts/QuietTube.dylib artifacts/QuietTube-0.14.0-rc1-21.38.2.ipa
+            artifacts/QuietTube.dylib "$IPA_PATH"
+          test -s "$IPA_PATH" || { echo "::error::Packaging did not produce $IPA_PATH"; exit 1; }
+          ls -lh "$IPA_PATH"
       - name: DOWNLOAD IPA — publish direct link in Summary and Releases
         env:
           GH_TOKEN: ${{ github.token }}
