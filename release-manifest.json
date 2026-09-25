@@ -42,7 +42,7 @@
     "tests/test_insertion_policy.c": "bbb0890f007fc49447606269a6cb1ce676b1dc354c09bd68c0a63b12e6ec5369",
     "tests/test_package.py": "0469064b34b757dc75cf6f9fe3d595b9756343f595053adfdcaad20ab9074fa9",
     "tests/test_player.py": "dc674a88760f944fde32a456dd6e175288270828ecc77638aaf64c1679953319",
-    "tests/test_preferences.m": "d2e726e4c9e4bfc35baf9a056225f2331c788eed49de86dd2f1c7d3a72409de8",
+    "tests/test_preferences.m": "8a7210689f362b5aeb1acab33b6c6a28d4589b97a6b6b00b7b658d8b29677795",
     "tests/test_preferences.py": "cecae753670c89ffb246c8a238d1c06e3afe38dfd52f0591810b0a7a680cbcf4",
     "tests/test_runtime_guards.py": "264966d6057a813208af759ea320dac7702167bc789614133a9143a3ef3af10c",
     "tests/test_settings.py": "8d47b151b6515121709b3dd1be1cd674a8cfa3b542a82a7a8b218a6ba8eae345",

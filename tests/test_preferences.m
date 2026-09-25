@@ -21,7 +21,11 @@ int main(void) {
         // All ON/OFF combinations survive repeated initialization / new store objects.
         for (unsigned bits=0;bits<32;bits++) {
             NSArray *keys=@[@"enabled",@"adTest",@"feedAds",@"background",@"plainLogo"];
-            for (NSUInteger i=0;i<keys.count;i++) [d setBool:(bits&(1u<<i))!=0 forKey:[@"QuietTube.v1." stringByAppendingString:keys[i]];
+            for (NSUInteger i=0;i<keys.count;i++) {
+                NSString *key=[@"QuietTube.v1." stringByAppendingString:keys[i]];
+                BOOL value=(bits & (1u << i))!=0;
+                [d setBool:value forKey:key];
+            }
             for (unsigned launch=0;launch<20;launch++) {
                 NSUserDefaults *reopened=[[NSUserDefaults alloc] initWithSuiteName:name];
                 QTInitializePreferences(reopened,Options());
