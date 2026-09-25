@@ -38,7 +38,7 @@ def download(url, output, opener=None):
     output=Path(output)
     output.parent.mkdir(parents=True,exist_ok=True)
     opener=opener or urllib.request.build_opener(urllib.request.ProxyHandler({}),SafeRedirect())
-    request=urllib.request.Request(url,headers={'User-Agent':'QuietTube-base-validator/1.0.2'})
+    request=urllib.request.Request(url,headers={'User-Agent':'QuietTube-base-validator/1.1.0'})
     start=time.monotonic(); total=0; digest=hashlib.sha256(); temp=None
     try:
         with opener.open(request,timeout=30) as response:

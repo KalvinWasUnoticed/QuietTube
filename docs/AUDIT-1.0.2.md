@@ -1,4 +1,6 @@
-# QuietTube 1.0.2 — audit and validation evidence
+# QuietTube 1.0.2 — historical audit
+
+**Historical record. Current logging changes and counter bounds are described in the [1.1.0 audit](AUDIT-1.1.0.md).**
 
 ## Status: source package checked; Apple/device validation still pending
 

@@ -1,6 +1,6 @@
-# Runtime function inventory
+# Runtime function and interface inventory
 
-Companion to [the audit](AUDIT-1.0.2.md). This enumerates function entry points and Objective-C signatures, not measured execution/branch coverage. Inline blocks are reviewed with their owning function.
+Companion to [the 1.1.0 audit](AUDIT-1.1.0.md). Source entry points/signatures, not measured execution or branch coverage. Inline blocks are reviewed with their owner.
 
 ## `QTAdProfile.m`
 
@@ -22,8 +22,6 @@ Companion to [the audit](AUDIT-1.0.2.md). This enumerates function entry points 
 
 ## `QTCore.m`
 
-- `QTStart` (constructor)
-
 - `QTOptions`
 - `QTRegisterDefaults`
 - `QTOn`
@@ -41,6 +39,45 @@ Companion to [the audit](AUDIT-1.0.2.md). This enumerates function entry points 
 - `QTObserveUnmatchedElement`
 - `QTDiagnostics`
 - `QTSettingsPendingRestart`
+- `QTStart (constructor)`
+
+## `QTDiagnosticLog.m`
+
+- `QTDPrepare`
+- `QTDIdentifier`
+- `QTDSanitize`
+- `QTDPath`
+- `QTDRead`
+- `QTDEncode`
+- `QTDProtect`
+- `QTDPrune`
+- `QTDEnsureDirectory`
+- `QTDWrite`
+- `QTDRow`
+- `QTDConfigure`
+- `QTDEnabled`
+- `QTDStart`
+- `QTDStop`
+- `QTDSample`
+- `QTDEvent`
+- `QTDError`
+- `QTDExport`
+- `QTDClear`
+
+## `QTDiagnosticPolicy.h`
+
+- `QTDPAdmission`
+- `QTDPFits`
+- `QTDPRecent`
+
+## `QTDiagnosticsBridge.m`
+
+- `QTDClass`
+- `QTDInspectElement`
+- `QTDWalk`
+- `QTDDiagnosticBoundary`
+- `QTDDiagnosticMutation`
+- `QTDDiagnosticPlayer`
 
 ## `QTFeatures.m`
 
@@ -116,6 +153,7 @@ Companion to [the audit](AUDIT-1.0.2.md). This enumerates function entry points 
 
 ## `QTSettings.m`
 
+- `QTDExport`
 - `QTSettingsController`
 - `QTAppendEntry`
 - `QTInstallSettings`

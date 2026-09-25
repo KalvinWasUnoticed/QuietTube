@@ -1,15 +1,16 @@
 """Patch-specific scope checks; these do not establish native runtime behavior."""
 import hashlib,json,re,unittest
+from preservation import reviewed_source
 from pathlib import Path
 R=Path(__file__).resolve().parents[1]
 class PatchScopeTests(unittest.TestCase):
     def test_preserved_baseline_functions_and_modules(self):
         rec=json.loads((R/'tests/fixtures/preservation.json').read_text())['cleanup']
         for file,expected in rec['files'].items():
-            text=(R/file).read_text().replace('1.0.2','VERSION')
+            text=(R/file).read_text().replace('1.1.0','VERSION')
             self.assertEqual(hashlib.sha256(text.encode()).hexdigest(),expected,file)
         for item in rec['ranges']:
-            text=(R/item['file']).read_text()
+            text=reviewed_source(item['file'])
             part=text[text.index(item['start']):text.index(item['end']) if item['end'] else len(text)]
             self.assertEqual(hashlib.sha256(part.encode()).hexdigest(),item['sha256'],item['file'])
     def test_independent_opt_in_and_dependency(self):

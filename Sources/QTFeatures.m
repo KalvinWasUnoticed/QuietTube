@@ -1,4 +1,6 @@
 #import "QTCore.h"
+#import "QTDiagnosticLog.h"
+#import "QTDiagnosticsBridge.h"
 #include "QTFeedRules.h"
 
 static _Thread_local NSUInteger QTNodeBudget;
@@ -175,9 +177,10 @@ void QTInstallFeatures(void) {
     QTInstallAdProfile();
     QTInstallMutationTrace();
 // END 0.13 AD PROFILE
-    if (QTOn(@"feedAds") || QTOn(@"shorts") || (QTOn(@"extendedFeed") && (QTOn(@"playables") || QTOn(@"eventPromos") || QTOn(@"topicsShelves") || QTOn(@"edgeCards") || QTOn(@"inspectElements") || QTOn(@"mixes") || QTOn(@"watchAgain")))) {
+    if (QTDEnabled() || QTOn(@"feedAds") || QTOn(@"shorts") || (QTOn(@"extendedFeed") && (QTOn(@"playables") || QTOn(@"eventPromos") || QTOn(@"topicsShelves") || QTOn(@"edgeCards") || QTOn(@"inspectElements") || QTOn(@"mixes") || QTOn(@"watchAgain")))) {
         QTHook(@"YTInnerTubeCollectionViewController",@"addSectionsFromArray:",@"v@",^id(IMP old,SEL sel) {
             return ^(id object,NSArray *sections) {
+                QTDDiagnosticBoundary(object,sections,0);
                 NSArray *filtered = sections;
                 QTCount(@"presentation boundary invoked");
                 if ([sections isKindOfClass:NSArray.class]) {
@@ -211,6 +214,7 @@ void QTInstallFeatures(void) {
     // Error observation only; the native handler always executes, with no retries.
     QTHook(@"YTMainAppVideoPlayerOverlayViewController",@"handleError:",@"v@",^id(IMP old,SEL sel) {
         return ^(id object,NSError *error) {
+            QTDError(error);
             if ([error isKindOfClass:NSError.class]) {
 // BEGIN 0.13 AD PROFILE
                 QTAdPlaybackError(error);

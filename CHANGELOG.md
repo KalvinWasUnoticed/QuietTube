@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.0 — manual diagnostic sessions
+
+- Adds opt-in, temporary local recording for known playback/error, watch-transition, feed-mutation, explicit-ad and renderer/template discovery paths. It is not an all-events or network logger.
+- Adds bounded asynchronous disk history, schema redaction, seven-day cleanup, error-reserved admission, manual export/clear and file protection. Existing reports remain available.
+- Caps the older general counter dictionary. Saved preferences, blocking decisions, native player construction and native result/error forwarding remain unchanged outside explicit observation/control additions.
+- Adds native logger/observer harnesses and executable admission/size/expiry policy stress tests; see the audit for what actually ran and what still needs Apple/device validation.
+
 ## 1.0.2 — audited build and regression gates
 
 - Retains the corrected preference-test syntax and all 1.0.1 preference/session-safety behavior.

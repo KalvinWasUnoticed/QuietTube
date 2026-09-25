@@ -1,4 +1,6 @@
 #import "QTCore.h"
+#import "QTDiagnosticLog.h"
+#import "QTDiagnosticsBridge.h"
 #import "QTPreferences.h"
 #include <string.h>
 #include "QTTemplateScan.h"
@@ -80,10 +82,18 @@ void QTSet(NSString *key, BOOL value) {
     [[NSUserDefaults standardUserDefaults] setBool:value forKey:[QTPrefix stringByAppendingString:key]];
 }
 void QTCount(NSString *event) {
-    @synchronized(QTCounters) { QTCounters[event] = @([QTCounters[event] unsignedLongLongValue] + 1); }
+    @synchronized(QTCounters) {
+        // Keep arbitrary native error codes from growing an unbounded dictionary.
+        if (!QTCounters[event] && QTCounters.count>=128) event=@"additional counter events";
+        QTCounters[event] = @([QTCounters[event] unsignedLongLongValue] + 1);
+    }
 }
 static void QTStatus(NSString *key, NSString *value) {
     @synchronized(QTStatuses) { QTStatuses[key] = value; }
+    if (QTDEnabled()) {
+        NSArray *parts=[key componentsSeparatedByString:@" / "];
+        QTDEvent(QTDEHook,@{@"class":parts.firstObject ?: @"",@"selector":parts.count==2?parts[1]:@"",@"installed":@([value hasPrefix:@"installed"])});
+    }
 }
 // Normalize only ABI-equivalent types. Never guess object versus scalar returns.
 static char QTType(const char *t) {
@@ -173,7 +183,7 @@ void QTObserveUnmatchedElement(NSData *data) {
 }
 NSString *QTDiagnostics(void) {
     NSMutableString *s = [NSMutableString stringWithFormat:
-        @"QuietTube 1.0.2 Ad profile and bounded troubleshooting\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
+        @"QuietTube 1.1.0 Ad profile and bounded troubleshooting\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
         [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"], UIDevice.currentDevice.systemVersion];
 // BEGIN 0.13 AD PROFILE
     [s appendString:QTAdReport()];
@@ -213,6 +223,14 @@ __attribute__((constructor)) static void QTStart(void) {
     @autoreleasepool {
         if (![NSBundle.mainBundle.bundleIdentifier containsString:@"youtube"]) return;
         QTRegisterDefaults();
+        NSString *cache=NSSearchPathForDirectoriesInDomains(NSCachesDirectory,NSUserDomainMask,YES).firstObject;
+        if (cache) QTDConfigure([cache stringByAppendingPathComponent:@"QuietTubeDiagnostics"]);
+        NSArray *names=@[UIApplicationDidBecomeActiveNotification,UIApplicationDidEnterBackgroundNotification,UIApplicationDidReceiveMemoryWarningNotification,UIApplicationWillTerminateNotification];
+        for (NSUInteger phase=0;phase<names.count;phase++) {
+            [NSNotificationCenter.defaultCenter addObserverForName:names[phase] object:nil queue:nil usingBlock:^(__unused NSNotification *note) {
+                QTDEvent(QTDEApp,@{@"phase":@(phase)});
+            }];
+        }
         // Bounded late-class retries, never scan/realize every Swift class.
         for (NSNumber *delay in @[@0,@1,@3,@8]) {
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay.doubleValue*NSEC_PER_SEC)),

@@ -137,7 +137,7 @@ def package(ipa, dylib, output):
         # Preserve the tested packaging behavior: app extensions are not included.
         if (app/'PlugIns').exists(): shutil.rmtree(app/'PlugIns')
         (app/'QuietTube-build.json').write_text(json.dumps({
-            'quiettube':'1.0.2','base_sha256':digest,'youtube':'21.38.2',
+            'quiettube':'1.1.0','base_sha256':digest,'youtube':'21.38.2',
             'status':'locally packaged; this tool does not validate runtime behavior',
             'signing':'Requires signing/preparation by the chosen installer; only LiveContainer tested',
             'extensions_removed':True,

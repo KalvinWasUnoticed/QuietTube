@@ -1,4 +1,6 @@
 #import "QTCore.h"
+#import "QTDiagnosticLog.h"
+#import "QTDiagnosticsBridge.h"
 #include <string.h>
 #include "QTTemplateScan.h"
 #include "QTFeedRules.h"
@@ -74,6 +76,8 @@ static NSString *QTTraceShape(id value, BOOL inspectEntry) {
     return s;
 }
 static void QTTraceRecord(NSUInteger slot, id receiver, id argument, NSString *detail) {
+    QTDDiagnosticMutation(slot,receiver,argument);
+    if (!QTOn(@"mutationTrace")) return; // Manual logging does not activate legacy capture.
     @try {
         QTTracePrepare();
         @synchronized(QTTraceEvents) {
@@ -99,7 +103,7 @@ static void QTTraceRecord(NSUInteger slot, id receiver, id argument, NSString *d
     } @catch (__unused NSException *exception) { /* Diagnostic failure never replaces native behavior. */ }
 }
 void QTTraceFeedInsertion(id receiver, id operation) {
-    if (QTOn(@"enabled") && QTOn(@"mutationTrace"))
+    if (QTOn(@"enabled") && (QTOn(@"mutationTrace") || QTDEnabled()))
         QTTraceRecord(5,receiver,operation,@"enter (shared scope hook)");
 }
 static void QTTraceHook(NSUInteger slot, NSString *clsName, NSString *selName, NSString *abi, id (^factory)(IMP,SEL)) {
@@ -118,7 +122,7 @@ static void QTTraceHook(NSUInteger slot, NSString *clsName, NSString *selName, N
     QTTraceInstalled[slot]=before && class_getMethodImplementation(cls,sel)!=before;
 }
 void QTInstallMutationTrace(void) {
-    if (!QTOn(@"enabled") || !QTOn(@"mutationTrace")) return;
+    if (!QTOn(@"enabled") || (!QTOn(@"mutationTrace") && !QTDEnabled())) return;
     QTTracePrepare();
     QTTraceHook(0,@"YTWatchLayerViewController",@"willCollapseWatchFlowWithAnimationStyle:",@"vQ",^id(IMP old,SEL sel) {
         return ^(id obj, long long style) {

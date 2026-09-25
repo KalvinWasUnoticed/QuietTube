@@ -22,6 +22,10 @@ def main():
             subprocess.run(['xcrun','clang','-fobjc-arc','-fblocks','-Wall','-Wextra','-Werror',
                             '-framework','Foundation',*sources,'-o',str(binary)],cwd=ROOT,check=True)
             return str(binary)
+        logger=build('logger',['Sources/QTDiagnosticLog.m','tests/test_diagnostic_log.m'])
+        subprocess.run([logger,str(temp/'diagnostic-store')],check=True,timeout=60)
+        bridge=build('observer',['Sources/QTDiagnosticLog.m','Sources/QTDiagnosticsBridge.m','tests/test_diagnostic_bridge.m'])
+        subprocess.run([bridge,str(temp/'observer-store')],check=True,timeout=60)
         basic=build('preferences',['Sources/QTPreferences.m','tests/test_preferences.m'])
         subprocess.run([basic],check=True)
         model=build('settings',['Sources/QTSettingsModel.m','tests/test_settings_native.m'])

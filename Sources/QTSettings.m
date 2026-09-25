@@ -1,4 +1,6 @@
 #import "QTCore.h"
+#import "QTDiagnosticLog.h"
+#import "QTDiagnosticsBridge.h"
 #import "QTSettingsModel.h"
 
 @interface QTOptionsController : UITableViewController
@@ -6,6 +8,7 @@
 @property(nonatomic, strong) NSArray<NSDictionary *> *rows;
 @property(nonatomic, copy) NSDictionary<NSString *,NSNumber *> *preview;
 @property(nonatomic) NSUInteger noticeGeneration;
+@property(nonatomic) BOOL diagnosticBusy;
 @end
 @implementation QTOptionsController
 - (void)viewDidLoad {
@@ -45,6 +48,10 @@
             @{@"title":@"About QuietTube",@"action":@"about"},
             @{@"title":@"Disable all options",@"action":@"reset",@"note":@"Clears QuietTube toggle selections, not your YouTube account or history."}]];
         if ([self.group isEqualToString:@"Troubleshooting"]) [rows addObjectsFromArray:@[
+            @{@"title":@"Start diagnostic session",@"action":@"startDiagnostics",@"note":@"Manual, sampled playback/feed clues. Saves up to 3 × 256 KiB locally; expires after 7 days on cleanup. Stops on relaunch. Master must be active."},
+            @{@"title":@"Stop diagnostic session",@"action":@"stopDiagnostics",@"note":@"Stop new recording immediately. Saved files remain until cleared, expired or evicted."},
+            @{@"title":@"Export diagnostic history",@"action":@"exportDiagnostics",@"note":@"Review identifier clues before sharing. No automatic upload. App cache files may be purged by iOS."},
+            @{@"title":@"Clear diagnostic history",@"action":@"clearDiagnostics",@"note":@"Stops recording and deletes QuietTube diagnostic files. Does not clear the older in-memory reports."},
             @{@"title":@"Prepare a support test",@"action":@"prepareAdTest",@"note":@"Enable ad protection, extended matching and local diagnostic capture. Your other preferences stay unchanged."},
             @{@"title":@"View support report",@"action":@"adReport",@"note":@"Short player and feed report. Review before sharing."},
             @{@"title":@"View full diagnostics",@"action":@"diagnostics"},
@@ -60,8 +67,9 @@
 - (NSString *)tableView:(UITableView *)tv titleForFooterInSection:(NSInteger)section {
     if (self.preview) return @"Only the settings listed above will be saved. No change is made until you tap Apply. All other preferences are preserved. Fully close and reopen the app afterward.";
     NSString *state=QTSettingsPendingRestart()?@"Restart required — fully close and reopen the app to apply saved changes.":@"Changes take effect after fully closing and reopening the app.";
+    if (QTDEnabled()) state=[state stringByAppendingString:@"\nDiagnostic session recording locally (sampled). Stop in Troubleshooting."];
     if (QTAdProfilePaused()) state=[state stringByAppendingString:@"\nAd protection paused this session after a playback error. Your saved choice is unchanged. Reopen the app to retry."];
-    return [NSString stringWithFormat:@"%@\n%@\n1.0.2 · Unofficial, not affiliated with YouTube. Use YouTube’s own Picture in Picture setting.",state,QTSavedSetting(@"enabled")?@"":@"QuietTube is disabled for the next launch. Enable the master switch to use these options."];
+    return [NSString stringWithFormat:@"%@\n%@\n1.1.0 · Unofficial, not affiliated with YouTube. Use YouTube’s own Picture in Picture setting.",state,QTSavedSetting(@"enabled")?@"":@"QuietTube is disabled for the next launch. Enable the master switch to use these options."];
 }
 - (UITableViewCell *)tableView:(UITableView *)tv cellForRowAtIndexPath:(NSIndexPath *)index {
     NSDictionary *row=self.rows[index.row];
@@ -128,9 +136,43 @@
         page.group=row[@"page"] ?: row[@"preset"];
         if (row[@"preset"]) page.preview=QTPresetChanges(row[@"preset"]);
         [self.navigationController pushViewController:page animated:YES];
+    } else if ([row[@"action"] isEqualToString:@"startDiagnostics"]) {
+        if (!QTOn(@"enabled")) { [self showNotice:@"Enable QuietTube and restart first"]; return; }
+        if (QTDStart()) {
+            // Same installers and immutable launch flags; manual logging installs
+            // only additional observation paths, never changes saved settings.
+            if ([[NSBundle.mainBundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"] isEqualToString:@"21.38.2"]) QTInstallFeatures();
+            [self showNotice:@"Diagnostic session started · Local only"];
+        } else [self showNotice:@"Diagnostics unavailable or busy"];
+        [self.tableView reloadData];
+    } else if ([row[@"action"] isEqualToString:@"stopDiagnostics"]) {
+        QTDStop(); [self.tableView reloadData]; [self showNotice:@"Recording stopped · Files retained"];
+    } else if ([row[@"action"] isEqualToString:@"clearDiagnostics"]) {
+        if (self.diagnosticBusy) return;
+        self.diagnosticBusy=YES;
+        __weak QTOptionsController *weakSelf=self;
+        QTDClear(^{ dispatch_async(dispatch_get_main_queue(),^{
+            QTOptionsController *page=weakSelf; page.diagnosticBusy=NO;
+            [page.tableView reloadData]; [page showNotice:@"Diagnostic deletion requested · Check export for failures"];
+        }); });
+    } else if ([row[@"action"] isEqualToString:@"exportDiagnostics"]) {
+        if (self.diagnosticBusy) return;
+        self.diagnosticBusy=YES; [self showNotice:@"Preparing local history…"];
+        NSString *context;
+        @try { context=QTDiagnostics(); }
+        @catch (__unused NSException *exception) { context=@"Current support snapshot unavailable.\n"; }
+        __weak QTOptionsController *weakSelf=self;
+        QTDExport(^(NSString *report) { dispatch_async(dispatch_get_main_queue(),^{
+            QTOptionsController *page=weakSelf; page.diagnosticBusy=NO;
+            if (!page || !page.viewIfLoaded.window || page.presentedViewController) return;
+            UIActivityViewController *share=[[UIActivityViewController alloc] initWithActivityItems:@[[context stringByAppendingFormat:@"\n%@",report]] applicationActivities:nil];
+            share.popoverPresentationController.sourceView=page.view;
+            share.popoverPresentationController.sourceRect=CGRectMake(CGRectGetMidX(page.view.bounds),CGRectGetMidY(page.view.bounds),1,1);
+            [page presentViewController:share animated:YES completion:nil];
+        }); });
     } else if ([row[@"action"] isEqualToString:@"adReport"]) [self showText:QTAdReport() title:@"Support report"];
     else if ([row[@"action"] isEqualToString:@"diagnostics"]) [self showText:QTDiagnostics() title:@"Diagnostics"];
-    else if ([row[@"action"] isEqualToString:@"about"]) [self showText:@"QuietTube 1.0.2\n\nAn unofficial customization for YouTube 21.38.2 on iOS. Not affiliated with or endorsed by YouTube or Google.\n\nAd protection was tested in limited sessions on one device. It is not guaranteed across all videos or future app updates. The runtime and settings were tested on iPhone 14, iOS 26.5 and LiveContainer 3.8.0. Other environments may behave differently.\n\nQuietTube adds no automatic diagnostic upload. Reports can contain internal class/template identifiers; review before sharing. YouTube and your installation tools have their own data practices.\n\nThe QuietTube source is MIT licensed; see LICENSE and Notices in the source distribution. That license does not grant rights to redistribute YouTube or its trademarks.\n\nTo pause modifications, turn off Enable QuietTube and fully close and reopen the app. Your preferences are retained. Restore your previous IPA if needed." title:@"About QuietTube"];
+    else if ([row[@"action"] isEqualToString:@"about"]) [self showText:@"QuietTube 1.1.0\n\nAn unofficial customization for YouTube 21.38.2 on iOS. Not affiliated with or endorsed by YouTube or Google.\n\nAd protection was tested in limited sessions on one device. It is not guaranteed across all videos or future app updates. Earlier player/settings builds were tested on iPhone 14, iOS 26.5 and LiveContainer 3.8.0. The new diagnostic controls still require device validation. Other environments may behave differently.\n\nQuietTube adds no automatic diagnostic upload. Reports can contain internal class/template identifiers; review before sharing. YouTube and your installation tools have their own data practices.\n\nThe QuietTube source is MIT licensed; see LICENSE and Notices in the source distribution. That license does not grant rights to redistribute YouTube or its trademarks.\n\nTo pause modifications, turn off Enable QuietTube and fully close and reopen the app. Your preferences are retained. Restore your previous IPA if needed." title:@"About QuietTube"];
     else if ([row[@"action"] isEqualToString:@"prepareAdTest"]) {
         QTPrepareAdTest(); [self.tableView reloadData]; [self showNotice:@"Support test saved · Restart to apply"];
     } else if ([row[@"action"] isEqualToString:@"clearCapture"]) {

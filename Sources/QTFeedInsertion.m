@@ -1,4 +1,6 @@
 #import "QTCore.h"
+#import "QTDiagnosticLog.h"
+#import "QTDiagnosticsBridge.h"
 #include <string.h>
 #include "QTInsertionPolicy.h"
 
@@ -86,6 +88,7 @@ BOOL QTInstallFeedInsertion(void) {
         IMP before=class_getMethodImplementation(cls,sel);
         QTHook(@"YTArraySectionViewModel",@"insertEntries:atIndex:",@"v@Q",^id(IMP old,SEL selector) {
             return ^(id object,id entries,NSUInteger index) {
+                QTDDiagnosticBoundary(object,entries,1);
                 id forwarded=entries;
                 NSUInteger removed=0,kept=0;
                 if (QTFeedScopeDepth && QTInsertionMayFilter(QTAdProfileActive(),QTOn(@"feedAds"),QTFeedScopeDepth)) {
@@ -96,6 +99,7 @@ BOOL QTInstallFeedInsertion(void) {
                 // Native empty-array branch returns without storage/index changes.
                 // Native exceptions propagate; never retry this operation.
                 ((void(*)(id,SEL,id,NSUInteger))old)(object,selector,forwarded,index);
+                QTDEvent(QTDEFeedBoundary,@{@"phase":@2,@"removed":@(removed),@"kept":@(kept),@"scope":@(QTFeedScopeDepth)});
                 if (removed) {
                     QTFeedAdd(QTFeedCompletedBatches,1);
                     QTFeedAdd(QTFeedWithheld,removed);

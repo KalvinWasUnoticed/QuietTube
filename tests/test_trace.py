@@ -30,7 +30,7 @@ class MinimizeTraceTests(unittest.TestCase):
   self.assertIn('QTInstallMutationTrace();',(R/'Sources/QTFeatures.m').read_text())
   self.assertIn('QTMutationReport()',(R/'Sources/QTAdProfile.m').read_text())
   self.assertIn('QTPrepareAdTest();',(R/'Sources/QTSettings.m').read_text())
-  self.assertIn('if (!QTOn(@"enabled") || !QTOn(@"mutationTrace")) return;',S)
+  self.assertIn('if (!QTOn(@"enabled") || (!QTOn(@"mutationTrace") && !QTDEnabled())) return;',S)
 
  def test_insert_detail_is_bounded_and_not_a_filter(self):
   for token in ['QTTraceElementSamples>=6','length>262144','char names[8][97]','QTExtractTemplateNames','QTClassifyElementBytes','slot==8 && QTTraceCollapse>0']:

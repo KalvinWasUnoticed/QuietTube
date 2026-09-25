@@ -20,10 +20,10 @@ No GitHub repository, release, artifact or history was modified during preparati
 
 ## Validate before promoting
 
-- Run the source-integrity check, Python suite, four C sanitizer suites and shell checks.
+- Run the source-integrity check, Python suite, six C sanitizer suites and shell checks.
 - Run the new workflow in an authorized fork with the actual pinned base and acknowledgement. A skipped job is not a successful build.
 - Confirm native compilation, packaging, upload and publication in that fork. Check the direct link, release source commit and IPA SHA256. If upload/publication fails, inspect any draft release; start a new run after correcting files.
-- Install that exact IPA using the installation method being evaluated, preserving data/rollback. LiveContainer is the only reported tested method; test alternatives before claiming support. Confirm the 1.0.2 footer, sign-in, player/feed behavior, native PiP/background, settings/presets, restart status, light/dark and large text. For 1.0.2, also test persistence across repeated launches and verify fresh-install defaults without overriding existing manual off values. Confirm the new Foundation test passes on the macOS runner.
+- Install that exact IPA using the installation method being evaluated, preserving data/rollback. LiveContainer is the only reported tested method; test alternatives before claiming support. Confirm the 1.1.0 footer, sign-in, player/feed behavior, native PiP/background, settings/presets, restart status, light/dark and large text. For 1.1.0, also test persistence across repeated launches and verify fresh-install defaults without overriding existing manual off values. Confirm the new Foundation test passes on the macOS runner.
 - Only then announce a tested release. The automated per-run releases remain prereleases; source packaging alone is not a stable-device verdict.
 - Never advertise “DMCA-proof,” “undetectable,” “all ads blocked” or official affiliation.
 

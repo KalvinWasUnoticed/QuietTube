@@ -1,0 +1,106 @@
+{
+  "Sources/QTCore.m": [
+    {
+      "before": "#import \"QTCore.h\"",
+      "after": "#import \"QTCore.h\"\n#import \"QTDiagnosticLog.h\"\n#import \"QTDiagnosticsBridge.h\""
+    },
+    {
+      "before": "    @synchronized(QTCounters) { QTCounters[event] = @([QTCounters[event] unsignedLongLongValue] + 1); }",
+      "after": "    @synchronized(QTCounters) {\n        // Keep arbitrary native error codes from growing an unbounded dictionary.\n        if (!QTCounters[event] && QTCounters.count>=128) event=@\"additional counter events\";\n        QTCounters[event] = @([QTCounters[event] unsignedLongLongValue] + 1);\n    }"
+    },
+    {
+      "before": "    @synchronized(QTStatuses) { QTStatuses[key] = value; }",
+      "after": "    @synchronized(QTStatuses) { QTStatuses[key] = value; }\n    if (QTDEnabled()) {\n        NSArray *parts=[key componentsSeparatedByString:@\" / \"];\n        QTDEvent(QTDEHook,@{@\"class\":parts.firstObject ?: @\"\",@\"selector\":parts.count==2?parts[1]:@\"\",@\"installed\":@([value hasPrefix:@\"installed\"])});\n    }"
+    },
+    {
+      "before": "        QTRegisterDefaults();",
+      "after": "        QTRegisterDefaults();\n        NSString *cache=NSSearchPathForDirectoriesInDomains(NSCachesDirectory,NSUserDomainMask,YES).firstObject;\n        if (cache) QTDConfigure([cache stringByAppendingPathComponent:@\"QuietTubeDiagnostics\"]);\n        NSArray *names=@[UIApplicationDidBecomeActiveNotification,UIApplicationDidEnterBackgroundNotification,UIApplicationDidReceiveMemoryWarningNotification,UIApplicationWillTerminateNotification];\n        for (NSUInteger phase=0;phase<names.count;phase++) {\n            [NSNotificationCenter.defaultCenter addObserverForName:names[phase] object:nil queue:nil usingBlock:^(__unused NSNotification *note) {\n                QTDEvent(QTDEApp,@{@\"phase\":@(phase)});\n            }];\n        }"
+    }
+  ],
+  "Sources/QTFeatures.m": [
+    {
+      "before": "#import \"QTCore.h\"",
+      "after": "#import \"QTCore.h\"\n#import \"QTDiagnosticLog.h\"\n#import \"QTDiagnosticsBridge.h\""
+    },
+    {
+      "before": "if (QTOn(@\"feedAds\") || QTOn(@\"shorts\") ||",
+      "after": "if (QTDEnabled() || QTOn(@\"feedAds\") || QTOn(@\"shorts\") ||"
+    },
+    {
+      "before": "                NSArray *filtered = sections;",
+      "after": "                QTDDiagnosticBoundary(object,sections,0);\n                NSArray *filtered = sections;"
+    },
+    {
+      "before": "            if ([error isKindOfClass:NSError.class]) {",
+      "after": "            QTDError(error);\n            if ([error isKindOfClass:NSError.class]) {"
+    }
+  ],
+  "Sources/QTAdProfile.m": [
+    {
+      "before": "#import \"QTCore.h\"",
+      "after": "#import \"QTCore.h\"\n#import \"QTDiagnosticLog.h\"\n#import \"QTDiagnosticsBridge.h\""
+    },
+    {
+      "before": "static void QTAdRecord(NSString *event) {\n    @try {",
+      "after": "static void QTAdRecord(NSString *event) {\n    QTDDiagnosticPlayer(event);\n    @try {"
+    }
+  ],
+  "Sources/QTFeedInsertion.m": [
+    {
+      "before": "#import \"QTCore.h\"",
+      "after": "#import \"QTCore.h\"\n#import \"QTDiagnosticLog.h\"\n#import \"QTDiagnosticsBridge.h\""
+    },
+    {
+      "before": "                id forwarded=entries;",
+      "after": "                QTDDiagnosticBoundary(object,entries,1);\n                id forwarded=entries;"
+    },
+    {
+      "before": "                if (removed) {\n                    QTFeedAdd(QTFeedCompletedBatches,1);",
+      "after": "                QTDEvent(QTDEFeedBoundary,@{@\"phase\":@2,@\"removed\":@(removed),@\"kept\":@(kept),@\"scope\":@(QTFeedScopeDepth)});\n                if (removed) {\n                    QTFeedAdd(QTFeedCompletedBatches,1);"
+    }
+  ],
+  "Sources/QTMutationTrace.m": [
+    {
+      "before": "#import \"QTCore.h\"",
+      "after": "#import \"QTCore.h\"\n#import \"QTDiagnosticLog.h\"\n#import \"QTDiagnosticsBridge.h\""
+    },
+    {
+      "before": "static void QTTraceRecord(NSUInteger slot, id receiver, id argument, NSString *detail) {\n    @try {",
+      "after": "static void QTTraceRecord(NSUInteger slot, id receiver, id argument, NSString *detail) {\n    QTDDiagnosticMutation(slot,receiver,argument);\n    if (!QTOn(@\"mutationTrace\")) return; // Manual logging does not activate legacy capture.\n    @try {"
+    },
+    {
+      "before": "if (QTOn(@\"enabled\") && QTOn(@\"mutationTrace\"))",
+      "after": "if (QTOn(@\"enabled\") && (QTOn(@\"mutationTrace\") || QTDEnabled()))"
+    },
+    {
+      "before": "if (!QTOn(@\"enabled\") || !QTOn(@\"mutationTrace\")) return;",
+      "after": "if (!QTOn(@\"enabled\") || (!QTOn(@\"mutationTrace\") && !QTDEnabled())) return;"
+    }
+  ],
+  "Sources/QTSettings.m": [
+    {
+      "before": "#import \"QTCore.h\"",
+      "after": "#import \"QTCore.h\"\n#import \"QTDiagnosticLog.h\"\n#import \"QTDiagnosticsBridge.h\""
+    },
+    {
+      "before": "@property(nonatomic) NSUInteger noticeGeneration;",
+      "after": "@property(nonatomic) NSUInteger noticeGeneration;\n@property(nonatomic) BOOL diagnosticBusy;"
+    },
+    {
+      "before": "        if ([self.group isEqualToString:@\"Troubleshooting\"]) [rows addObjectsFromArray:@[",
+      "after": "        if ([self.group isEqualToString:@\"Troubleshooting\"]) [rows addObjectsFromArray:@[\n            @{@\"title\":@\"Start diagnostic session\",@\"action\":@\"startDiagnostics\",@\"note\":@\"Manual, sampled playback/feed clues. Saves up to 3 \u00d7 256 KiB locally; expires after 7 days on cleanup. Stops on relaunch. Master must be active.\"},\n            @{@\"title\":@\"Stop diagnostic session\",@\"action\":@\"stopDiagnostics\",@\"note\":@\"Stop new recording immediately. Saved files remain until cleared, expired or evicted.\"},\n            @{@\"title\":@\"Export diagnostic history\",@\"action\":@\"exportDiagnostics\",@\"note\":@\"Review identifier clues before sharing. No automatic upload. App cache files may be purged by iOS.\"},\n            @{@\"title\":@\"Clear diagnostic history\",@\"action\":@\"clearDiagnostics\",@\"note\":@\"Stops recording and deletes QuietTube diagnostic files. Does not clear the older in-memory reports.\"},"
+    },
+    {
+      "before": "    if (QTAdProfilePaused()) state=",
+      "after": "    if (QTDEnabled()) state=[state stringByAppendingString:@\"\\nDiagnostic session recording locally (sampled). Stop in Troubleshooting.\"];\n    if (QTAdProfilePaused()) state="
+    },
+    {
+      "before": "    } else if ([row[@\"action\"] isEqualToString:@\"adReport\"])",
+      "after": "    } else if ([row[@\"action\"] isEqualToString:@\"startDiagnostics\"]) {\n        if (!QTOn(@\"enabled\")) { [self showNotice:@\"Enable QuietTube and restart first\"]; return; }\n        if (QTDStart()) {\n            // Same installers and immutable launch flags; manual logging installs\n            // only additional observation paths, never changes saved settings.\n            if ([[NSBundle.mainBundle objectForInfoDictionaryKey:@\"CFBundleShortVersionString\"] isEqualToString:@\"21.38.2\"]) QTInstallFeatures();\n            [self showNotice:@\"Diagnostic session started \u00b7 Local only\"];\n        } else [self showNotice:@\"Diagnostics unavailable or busy\"];\n        [self.tableView reloadData];\n    } else if ([row[@\"action\"] isEqualToString:@\"stopDiagnostics\"]) {\n        QTDStop(); [self.tableView reloadData]; [self showNotice:@\"Recording stopped \u00b7 Files retained\"];\n    } else if ([row[@\"action\"] isEqualToString:@\"clearDiagnostics\"]) {\n        if (self.diagnosticBusy) return;\n        self.diagnosticBusy=YES;\n        __weak QTOptionsController *weakSelf=self;\n        QTDClear(^{ dispatch_async(dispatch_get_main_queue(),^{\n            QTOptionsController *page=weakSelf; page.diagnosticBusy=NO;\n            [page.tableView reloadData]; [page showNotice:@\"Diagnostic deletion requested \u00b7 Check export for failures\"];\n        }); });\n    } else if ([row[@\"action\"] isEqualToString:@\"exportDiagnostics\"]) {\n        if (self.diagnosticBusy) return;\n        self.diagnosticBusy=YES; [self showNotice:@\"Preparing local history\u2026\"];\n        NSString *context;\n        @try { context=QTDiagnostics(); }\n        @catch (__unused NSException *exception) { context=@\"Current support snapshot unavailable.\\n\"; }\n        __weak QTOptionsController *weakSelf=self;\n        QTDExport(^(NSString *report) { dispatch_async(dispatch_get_main_queue(),^{\n            QTOptionsController *page=weakSelf; page.diagnosticBusy=NO;\n            if (!page || !page.viewIfLoaded.window || page.presentedViewController) return;\n            UIActivityViewController *share=[[UIActivityViewController alloc] initWithActivityItems:@[[context stringByAppendingFormat:@\"\\n%@\",report]] applicationActivities:nil];\n            share.popoverPresentationController.sourceView=page.view;\n            share.popoverPresentationController.sourceRect=CGRectMake(CGRectGetMidX(page.view.bounds),CGRectGetMidY(page.view.bounds),1,1);\n            [page presentViewController:share animated:YES completion:nil];\n        }); });\n    } else if ([row[@\"action\"] isEqualToString:@\"adReport\"])"
+    },
+    {
+      "before": "The runtime and settings were tested on iPhone 14, iOS 26.5 and LiveContainer 3.8.0.",
+      "after": "Earlier player/settings builds were tested on iPhone 14, iOS 26.5 and LiveContainer 3.8.0. The new diagnostic controls still require device validation."
+    }
+  ]
+}

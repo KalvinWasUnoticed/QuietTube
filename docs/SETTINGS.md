@@ -48,3 +48,7 @@ Diagnostics distinguish requested preferences, installed hooks, actual calls and
 Normal restarts and updates retain your local preferences. Switching options, applying a preset/support setup or confirming Disable all options are intentional user changes. Removing/resetting app data, changing data containers or a sideloader assigning a new app identity can lose local preferences; no app can promise they survive those events forever. There is no cloud settings backup.
 
 The old 1.0.0 latch may already have saved video blocking off. After upgrading, enable it once if you want it on, then reopen the app. Old automatic-off values cannot be reliably distinguished from deliberate user-off values, so the update does not silently flip either.
+
+## Manual diagnostic sessions
+
+Advanced → Troubleshooting now has Start, Stop, Export and Clear diagnostic history actions. Session state is temporary and off after relaunch; it is not a persisted switch being reset. No ordinary preference changes when you start/stop. Files survive ordinary reopening within storage/expiry limits. [Capture instructions, privacy and limits](DIAGNOSTICS.md).
