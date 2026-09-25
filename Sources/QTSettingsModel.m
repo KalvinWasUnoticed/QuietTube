@@ -5,7 +5,7 @@ static NSArray<NSDictionary *> *QTCatalog(void) {
     static dispatch_once_t once;
     dispatch_once(&once, ^{
         NSArray *definitions=@[
-          @[@"adTest",@"Ads",@"Block video ads",@"Also enables the dynamic feed-ad fix when Block feed ads is on. Stops after an observed playback error; restart afterward."],
+          @[@"adTest",@"Ads",@"Block video ads",@"Also enables the dynamic feed-ad fix when Block feed ads is on. May pause for the current session after a playback error. Your choice stays saved; reopen the app to retry."],
           @[@"feedAds",@"Ads",@"Block feed ads",@"Hide recognized sponsored items. For ads inserted after minimizing, also enable Block video ads."],
           @[@"displayAds",@"Ads",@"Additional ad formats",@"Broader image-ad matching. May also hide nested promotional content. Enabling also enables feed ads and extended matching."],
           @[@"shorts",@"Feed",@"Hide Shorts shelves",@"Does not remove the Shorts tab or every Shorts surface."],

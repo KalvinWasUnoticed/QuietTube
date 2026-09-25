@@ -2,10 +2,10 @@ from pathlib import Path
 import json,unittest
 R=Path(__file__).resolve().parents[1]
 class AdProfileTests(unittest.TestCase):
-    def test_single_opt_in_and_retired_activation(self):
+    def test_fresh_default_and_retired_activation(self):
         core=(R/'Sources/QTCore.m').read_text()
         start=core.index('@"key":@"adTest"')
-        self.assertIn('@"default":@NO',core[start:core.index('},',start)])
+        self.assertIn('@"default":@YES',core[start:core.index('},',start)])
         for k in ['playerExperiment1','companionAds','playerExperiment2','insertionAds2']:
             self.assertNotIn('@"key":@"'+k+'"',core)
     def test_native_constructor_uses_verified_scope(self):
@@ -32,7 +32,7 @@ class AdProfileTests(unittest.TestCase):
     def test_error_latch_and_native_error_forwarding(self):
         s=(R/'Sources/QTAdProfile.m').read_text()
         self.assertIn('atomic_exchange(&QTAdTripped,true)',s)
-        self.assertIn('QTSet(@"adTest",NO)',s)
+        self.assertNotIn('QTSet(',s)
         self.assertIn('!atomic_load(&QTAdTripped)',s)
         features=(R/'Sources/QTFeatures.m').read_text()
         self.assertIn('QTAdPlaybackError(error);',features)

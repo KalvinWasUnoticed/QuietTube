@@ -11,3 +11,9 @@ for source in tests/test_feed_rules.c tests/test_template_scan.c tests/test_ad_s
   "$output"
 done
 bash -n scripts/build.sh scripts/check.sh
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  cc -fobjc-arc -Wall -Wextra -Werror -framework Foundation Sources/QTPreferences.m tests/test_preferences.m -o "$temp/preferences"
+  "$temp/preferences"
+else
+  echo 'Foundation preference execution skipped (requires macOS); the macOS IPA workflow runs it.'
+fi

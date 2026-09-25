@@ -39,3 +39,5 @@ NSString *QTFeedInsertionReport(void);
 void QTTraceFeedInsertion(id receiver, id operation);
 
 BOOL QTSettingsPendingRestart(void);
+
+BOOL QTAdProfilePaused(void);

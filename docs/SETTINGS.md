@@ -2,7 +2,7 @@
 
 [← QuietTube](../README.md)
 
-Open **You → Settings → General → Quiet controls**. Every switch saves a preference for the **next app launch**. The small notice disappears without confirmation; the footer keeps showing pending changes until you restart. The master switch pauses modifications without clearing your individual choices.
+Open **You → Settings → General → Quiet controls**. Every switch saves a preference for the **next app launch**. The small notice disappears without confirmation; the footer keeps showing pending changes until you restart. The master switch pauses modifications without clearing your individual choices. On a genuinely fresh installation, the master switch and video/feed ad blocking start on. Existing saved values, including off, are never replaced by these new defaults.
 
 ## Presets
 
@@ -19,7 +19,7 @@ The preview shows all affected settings before Apply. Backing out changes nothin
 - **Block feed ads:** filters recognized explicitly marked feed items. The tested post-minimize insertion fix needs both this and Block video ads enabled.
 - **Additional ad formats:** broader image/display-template matching. Also enables feed ads and extended matching. Nested promotional content may match.
 
-The insertion fix rejects explicitly marked entries only during a scoped synchronous native insertion transaction. It does not block every item following a swipe or use a generic “Sponsored” text rule. Other paths and formats may escape filtering. If YouTube reports a playback error, the safety latch reverts future calls to native behavior and saves the profile OFF; it does not repair an existing player or restore already-withheld feed entries. Restart or roll back if needed. There is no anti-detection or universal playback guarantee.
+The insertion fix rejects explicitly marked entries only during a scoped synchronous native insertion transaction. It does not block every item following a swipe or use a generic “Sponsored” text rule. Other paths and formats may escape filtering. If YouTube reports a playback error, the safety latch temporarily reverts future protected calls to native behavior for the current session. It does not change any saved toggle, repair an existing player or restore already-withheld feed entries. The settings footer and support report identify this pause. Reopening the app retries your saved choices. Restart or roll back if needed. There is no anti-detection or universal playback guarantee.
 
 ## Feed
 
@@ -42,3 +42,9 @@ Important limits:
 - **Disable all options:** deliberately clears all QuietTube toggles for the next launch and asks for confirmation. It does not delete your YouTube account/history.
 
 Diagnostics distinguish requested preferences, installed hooks, actual calls and withheld entries. None alone proves all ads are gone. Detailed captures are bounded; missing events can mean an unmonitored path or a capture limit, not necessarily no activity. [Privacy →](PRIVACY.md)
+
+## Persistence and upgrades
+
+Normal restarts and updates retain your local preferences. Switching options, applying a preset/support setup or confirming Disable all options are intentional user changes. Removing/resetting app data, changing data containers or a sideloader assigning a new app identity can lose local preferences; no app can promise they survive those events forever. There is no cloud settings backup.
+
+The old 1.0.0 latch may already have saved video blocking off. After upgrading, enable it once if you want it on, then reopen the app. Old automatic-off values cannot be reliably distinguished from deliberate user-off values, so the update does not silently flip either.

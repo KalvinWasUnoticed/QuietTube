@@ -2,14 +2,14 @@
   "runtime": {
     "Sources/QTFeatures.m": "25312b93db7ad5de50927c17c74c5f15654a474a8b661c13044a8b6a22efe589",
     "Sources/QTLogo.m": "0eb9f6e10bdcb77caa4e018c9fde13468725c844fd9a5beafdb5866cc82b41df",
-    "Sources/QTAdProfile.m": "9df95d393af1afb05071b54dbcc088ae9d527d2451fdac8190c1830e68e4ea5d",
+    "Sources/QTAdProfile.m": "ced6c104e3ad2b48620693b48a9dcad9d074c151de405ef9d3cd705eaf1288d1",
     "Sources/QTFeedInsertion.m": "3ebff67ea5acf4137a164bdf0352beb8a0285e7d3127f32ea9dc280f95062ddf",
     "Sources/QTMutationTrace.m": "f895093d3dbcd12a155c24b765dd81e36b026d4f13bd3912792efc94eea00e14",
     "Sources/QTInsertionPolicy.h": "abf297c7aacb9113fff01239e20c5f657ea61c683a00fbe0e1ede7eef9caed6c",
     "Sources/QTFeedRules.h": "152f5052c7649ebb01d3462454b88bf3fd7920ee05f55345283d570076273a6f",
     "Sources/QTTemplateScan.h": "17f2e85a74b9d0dcef43a6d1005ed198ff82ff8d81e862bb34a7aedb7b880d4e",
-    "Sources/QTCore.m": "1797b82cd3de48362e698b90003c230eadfc5109fcd8f4fb41fd0ddb95285450",
-    "Sources/QTSettingsModel.m": "b5839817e2af03ad6df02d605849248026f6eb3b22dfdbc627018b2c6cae9dd8"
+    "Sources/QTCore.m": "8a6d704d1091ca932a4b4a9e283955865f22d65eacec44b382a0bb7fe60928b6",
+    "Sources/QTSettingsModel.m": "437b5f2b0c49547be2bd9a1fc9c91fef5dde8ce223c15afecd0284cc08bef98a"
   },
   "cleanup": {
     "files": {
@@ -20,9 +20,9 @@
     "ranges": [
       {
         "file": "Sources/QTCore.m",
-        "start": "void QTRegisterDefaults(void)",
+        "start": "    NSMutableDictionary *active = [NSMutableDictionary dictionary];",
         "end": "NSString *QTDiagnostics(void)",
-        "sha256": "ccc57fe535cd36a37507d03586c299c0d1a583158e020a42457b3000e497c370"
+        "sha256": "897cb99864da8cbc191f8a9704c7daa609d006017d371beb926161e43c5cac19"
       },
       {
         "file": "Sources/QTFeatures.m",
@@ -54,5 +54,6 @@
     "baseline": "0.13.1",
     "start": "    if (!QTPlayerProfileInstalled) {",
     "sha256": "f1cdacfd403f885d7b0e27b7987771e712580a84c1af7b3117161e530cb13563"
-  }
+  },
+  "intentional_1_0_1_changes": "Only preference initialization, removal of safety-latch preference writes, session-status reporting and settings descriptions changed. Player factory suffix, feed filters, all other runtime hashes and the raw launch snapshot/setter/hook helpers remain protected."
 }

@@ -12,7 +12,8 @@ class RevisionChecks(unittest.TestCase):
         self.assertNotIn('enablePipForNonPremiumUsers',features)
     def test_no_reset_migration_added(self):
         core=(R/'Sources/QTCore.m').read_text()
-        self.assertIn('QuietTube.recovery02.initialized',core)
+        self.assertNotIn('QuietTube.recovery02.initialized',core)
+        self.assertIn('QTInitializePreferences(d, QTOptions());',core)
         self.assertIn('QTActiveFlags = [active copy]',core)
         self.assertNotIn('recovery03',core)
     def test_navigation_is_owned_not_host_push(self):

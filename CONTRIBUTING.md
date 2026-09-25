@@ -18,13 +18,13 @@ The release manifest catches mixed uploads; it is not a trust signature. Intenti
 
 ## Preparation validation
 
-The final preparation suite passes 87 Python checks. The current validation includes a synthetic download → package → release-command round trip, mocked HTTP/GitHub failure cases, source/runtime preservation checks and four C sanitizer suites: 79 classifier fixtures + 5,000 random iterations; 20 template-scanner fixtures + 5,000 random iterations; 32 status combinations + an inactive-session regression; 26 insertion-policy checks. Workflow YAML and actionlint, shell syntax, relative documentation links, the source manifest and ZIP integrity were checked. No proprietary base or real GitHub build was used for these final preparation tests.
+The final preparation suite passes 93 Python checks. The current validation includes a synthetic download → package → release-command round trip, mocked HTTP/GitHub failure cases, source/runtime preservation checks and four C sanitizer suites: 79 classifier fixtures + 5,000 random iterations; 20 template-scanner fixtures + 5,000 random iterations; 32 status combinations + an inactive-session regression; 26 insertion-policy checks. Workflow YAML and actionlint, shell syntax, relative documentation links, the source manifest and ZIP integrity were checked. No proprietary base or real GitHub build was used for these final preparation tests.
 
 ## Scope of this release
 
-Every compiled runtime module is retained from the tested RC1 baseline, apart from release-label text; settings descriptions now use installer-neutral wording and the About copy describes the confirmed test environment. Do not refactor hook logic during documentation/distribution work. Keep preference keys and defaults stable. Use QTSettingsModel for public labels, prerequisite changes and preset bundles.
+The player constructor/fallback suffix, feed insertion/filter logic, logo and native integration remain protected. In 1.0.1 the preference initializer and safety-latch persistence policy deliberately change: missing defaults are initialized conservatively, and playback errors may pause only the current session without saving a user toggle off. The revised protection record documents these exceptions; it does not unfreeze the player/feed implementation. Do not refactor hook logic during documentation/distribution work. Keep preference keys and defaults stable. Use QTSettingsModel for public labels, prerequisite changes and preset bundles.
 
-Preserve the safety latch, thread-local feed scope, unknown-content pass-through, native results/errors, nonempty-section safeguards, native PiP/sign-in behavior and settings-sheet navigation. No reset on upgrade, no live hook installation from switches and no confirmation dialog for ordinary toggles.
+Preserve the safety latch, thread-local feed scope, unknown-content pass-through, native results/errors, nonempty-section safeguards, native PiP/sign-in behavior and settings-sheet navigation. No reset on upgrade, no background preference mutation from playback errors, no live hook installation from switches and no confirmation dialog for ordinary toggles.
 
 ## Test evidence and limits
 
@@ -39,3 +39,7 @@ Before tagging/publishing, run the fork IPA workflow with an authorized pinned b
 - Do not commit proprietary app binaries, compiled libraries, credentials, signing data or personal diagnostic captures.
 - Third-party license notices are intentionally retained even when not compiled. They are not disposable build residue.
 - For maintainer publication and old-release cleanup, see [docs/MAINTAINERS.md](docs/MAINTAINERS.md).
+
+## Preference regression checks
+
+`tests/test_preferences.m` links the actual Foundation-only initializer, tests fresh/legacy/partial stores and 32 on/off combinations over 20 reinitializations. `scripts/check.sh` executes it on the macOS build runner before the iOS library compiles. It is skipped explicitly on Linux; it has not been executed during this preparation. It is not an iOS multi-process/data-container test. Device checks should cover at least several full closes/reopens, both manual off values, a clean install and an upgrade. Preserve existing app data when testing persistence.

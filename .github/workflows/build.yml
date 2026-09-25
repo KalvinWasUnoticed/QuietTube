@@ -1,5 +1,5 @@
 name: Build QuietTube IPA
-run-name: QuietTube 1.0.0 — user-provided base
+run-name: QuietTube 1.0.1 — user-provided base
 on:
   workflow_dispatch:
     inputs:
@@ -23,7 +23,7 @@ jobs:
     permissions:
       contents: write
     env:
-      IPA_PATH: artifacts/QuietTube-1.0.0-21.38.2.ipa
+      IPA_PATH: artifacts/QuietTube-1.0.1-21.38.2.ipa
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:

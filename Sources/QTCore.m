@@ -1,4 +1,5 @@
 #import "QTCore.h"
+#import "QTPreferences.h"
 #include <string.h>
 #include "QTTemplateScan.h"
 
@@ -21,7 +22,7 @@ NSArray<NSDictionary *> *QTOptions(void) {
           @{ @"key":@"mutationTrace", @"title":@"Trace minimize and feed updates", @"group":@"Advanced", @"default":@NO,
              @"note":@"Read-only bounded event timeline. Prepare ad test enables this. Restart required." },
 // BEGIN 0.13 AD PROFILE
-          @{ @"key":@"adTest", @"title":@"Ad test profile", @"group":@"Playback", @"default":@NO,
+          @{ @"key":@"adTest", @"title":@"Ad test profile", @"group":@"Playback", @"default":@YES,
              @"note":@"Native player no-op plus scoped feed insertion filtering (requires feed ads). Experimental; restart required. Stops on observed playback errors." },
 // END 0.13 AD PROFILE
 // BEGIN 0.9.1 WATCH AGAIN
@@ -46,8 +47,8 @@ NSArray<NSDictionary *> *QTOptions(void) {
              @"note":@"Requires Extended feed formats. Limited template coverage." },
           @{ @"key":@"eventPromos", @"title":@"Hide featured / promo cards", @"group":@"Distractions", @"default":@NO,
              @"note":@"Requires Extended feed formats. Experimental; does not change the header logo." },
-          @{ @"key":@"feedAds", @"title":@"Filter explicit feed ads", @"group":@"Distractions", @"default":@NO,
-             @"note":@"New presentation-boundary experiment. Limited coverage; test this alone first." },
+          @{ @"key":@"feedAds", @"title":@"Filter explicit feed ads", @"group":@"Distractions", @"default":@YES,
+             @"note":@"Filter recognized feed ads. Dynamic insertion filtering also requires video-ad protection." },
           @{ @"key":@"shorts", @"title":@"Filter explicit Shorts shelves", @"group":@"Distractions", @"default":@NO,
              @"note":@"Does not hide the Shorts tab or every Shorts surface." },
           @{ @"key":@"background", @"title":@"Background audio", @"group":@"Playback", @"default":@NO },
@@ -59,18 +60,8 @@ NSArray<NSDictionary *> *QTOptions(void) {
 }
 
 void QTRegisterDefaults(void) {
-    NSMutableDictionary *defaults = [NSMutableDictionary dictionary];
-    defaults[[QTPrefix stringByAppendingString:@"enabled"]] = @NO;
-    for (NSDictionary *option in QTOptions())
-        defaults[[QTPrefix stringByAppendingString:option[@"key"]]] = option[@"default"];
-    [[NSUserDefaults standardUserDefaults] registerDefaults:defaults];
     NSUserDefaults *d = NSUserDefaults.standardUserDefaults;
-    // One-time migration prevents previously enabled 0.1 settings carrying over.
-    if (![d boolForKey:@"QuietTube.recovery02.initialized"]) {
-        [d setBool:NO forKey:[QTPrefix stringByAppendingString:@"enabled"]];
-        for (NSDictionary *o in QTOptions()) [d setBool:NO forKey:[QTPrefix stringByAppendingString:o[@"key"]]];
-        [d setBool:YES forKey:@"QuietTube.recovery02.initialized"];
-    }
+    QTInitializePreferences(d, QTOptions());
     NSMutableDictionary *active = [NSMutableDictionary dictionary];
     active[@"enabled"] = @([d boolForKey:[QTPrefix stringByAppendingString:@"enabled"]]);
     for (NSDictionary *o in QTOptions())
@@ -182,7 +173,7 @@ void QTObserveUnmatchedElement(NSData *data) {
 }
 NSString *QTDiagnostics(void) {
     NSMutableString *s = [NSMutableString stringWithFormat:
-        @"QuietTube 1.0.0 Ad profile and bounded troubleshooting\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
+        @"QuietTube 1.0.1 Ad profile and bounded troubleshooting\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
         [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"], UIDevice.currentDevice.systemVersion];
 // BEGIN 0.13 AD PROFILE
     [s appendString:QTAdReport()];

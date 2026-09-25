@@ -35,15 +35,14 @@ static void QTAdRecord(NSString *event) {
 static BOOL QTAdActive(void) {
     return QTOn(@"adTest") && !atomic_load(&QTAdTripped);
 }
+BOOL QTAdProfilePaused(void) { return QTOn(@"adTest") && atomic_load(&QTAdTripped); }
 BOOL QTAdProfileActive(void) { return QTOn(@"enabled") && QTAdActive(); }
 // Count only numeric errors and allowlisted domain categories; no localized
 // descriptions, signed URLs, userInfo dump, account IDs or response payloads.
 void QTAdPlaybackError(NSError *error) {
     if (!QTOn(@"adTest")) return;
     if (!atomic_exchange(&QTAdTripped,true)) {
-        @try { QTSet(@"adTest",NO); }
-        @catch (__unused NSException *exception) { QTAdRecord(@"could not save profile OFF — disable manually before restart"); }
-        QTAdRecord(@"SAFETY STOP: native behavior for future calls; profile saved OFF; restart required");
+        QTAdRecord(@"SESSION SAFETY PAUSE: native behavior for future calls; saved preferences unchanged; restart to retry");
     }
     @try {
         QTAdPrepare();
@@ -68,7 +67,7 @@ void QTAdPlaybackError(NSError *error) {
 NSString *QTAdReport(void) {
     QTAdPrepare();
     QTAdInstallState state=QTAdState(QTOn(@"enabled"),QTOn(@"adTest"),atomic_load(&QTAdTripped),QTPlayerProfileInstalled,QTFeedProfileInstalled);
-    NSMutableString *s=[NSMutableString stringWithFormat:@"QUIETTUBE 1.0.0 AD TEST REPORT\nProfile requested this launch: %@\nInstallation state: %s\nSaved for next launch: %@\nAd profile enables player and scoped feed insertion; feed also requires feedAds. Old branch preferences are ignored.\nPlayer hook installed: %@; feed hooks installed: %@\n",
+    NSMutableString *s=[NSMutableString stringWithFormat:@"QUIETTUBE 1.0.1 AD TEST REPORT\nProfile requested this launch: %@\nInstallation state: %s\nSaved for next launch: %@\nAd profile enables player and scoped feed insertion; feed also requires feedAds. Old branch preferences are ignored.\nPlayer hook installed: %@; feed hooks installed: %@\n",
         QTOn(@"adTest")?@"on":@"off",QTAdStateName(state),
         [NSUserDefaults.standardUserDefaults boolForKey:@"QuietTube.v1.adTest"]?@"on":@"off",
         QTPlayerProfileInstalled?@"yes":@"no",QTFeedProfileInstalled?@"yes":@"no"];
@@ -77,7 +76,7 @@ NSString *QTAdReport(void) {
         unsigned long long supplied=[QTAdTotals[@"native no-op coordinator supplied"] unsignedLongLongValue];
         [s appendFormat:@"Player invocation: %llu calls; %llu native no-op objects supplied.\n",calls,supplied];
         if (!supplied) [s appendString:@"PLAYER BLOCKING NOT DEMONSTRATED: no no-op substitution recorded.\n"];
-        [s appendString:@"Installation/invocation does not prove ad removal. Safety stop requires restart for existing players.\n\n"];
+        [s appendString:@"Installation/invocation does not prove ad removal. Session safety pause does not change saved preferences. Restart retries saved choices; existing players are not repaired.\n\n"];
         for (NSString *key in [[QTAdTotals allKeys] sortedArrayUsingSelector:@selector(compare:)])
             [s appendFormat:@"%@ : %@\n",key,QTAdTotals[key]];
         [s appendFormat:@"\nLast %lu events (older discarded: %lu)\n",(unsigned long)QTAdEvents.count,(unsigned long)QTAdDiscarded];

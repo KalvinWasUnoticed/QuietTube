@@ -56,8 +56,8 @@ The URL is a workflow input, **not a secret**. Don't use a link containing passw
 
 When the run succeeds:
 
-- Open its **Summary → DOWNLOAD IPA — QuietTube 1.0.0**, **or**
-- Open your fork's **Releases**, select the newest build and download **QuietTube-1.0.0-21.38.2.ipa**.
+- Open its **Summary → DOWNLOAD IPA — QuietTube 1.0.1**, **or**
+- Open your fork's **Releases**, select the newest build and download **QuietTube-1.0.1-21.38.2.ipa**.
 
 Download the `.ipa`, not the source-code ZIP. The release also includes small verification files; those are not what you install. Each run has its own release, so make sure you're downloading the build you just ran.
 
@@ -78,9 +78,11 @@ Need to set it up first? Use the official guides: [SideStore prerequisites](http
 
 ## 6. Turn on the options you want
 
-Open **You → Settings → General → Quiet controls**. The footer should show **1.0.0**.
+Open **You → Settings → General → Quiet controls**. The footer should show **1.0.1**.
 
-New users can open **Presets**, choose **Ads & essentials** or **Focused feed**, review the changes and tap **Apply**. Existing settings are kept on upgrade.
+On a fresh installation, the master switch and **video/feed ad blocking are already on**. Presets are optional: choose one if you want its additional settings. Existing on/off choices are kept on upgrade.
+
+If 1.0.0 had already turned video blocking off, enable it once after this update and reopen the app. The new version no longer saves it off after a playback error. A safety pause can still last until you reopen the app, and the settings footer explains it.
 
 **Fully close and reopen the app after changing settings.** Refreshing the feed isn't a restart. In LiveContainer, stop and relaunch the guest. Use YouTube's own PiP setting; Background audio is a separate QuietTube option.
 
@@ -116,7 +118,7 @@ The packager also checks app ID/version, ARM64 structure, encryption and duplica
 Advanced users can build the library on macOS with `bash scripts/build.sh` and package locally using Python 3.11+:
 
 ```sh
-python3 scripts/package.py "/path/to/authorized-base.ipa" "artifacts/QuietTube.dylib" "artifacts/QuietTube-1.0.0-local.ipa"
+python3 scripts/package.py "/path/to/authorized-base.ipa" "artifacts/QuietTube.dylib" "artifacts/QuietTube-1.0.1-local.ipa"
 ```
 
 On Windows, the Python packaging step can use `py -3` with a matching compiled library. The normal Actions flow doesn't need these local tools.

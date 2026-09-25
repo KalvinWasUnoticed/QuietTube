@@ -12,7 +12,7 @@ static QTAdInstallState QTAdState(int master, int requested, int stopped, int pl
 static const char *QTAdStateName(QTAdInstallState state) {
     switch (state) {
         case QTAdOff: return "OFF";
-        case QTAdStopped: return "SAFETY STOP - restart required";
+        case QTAdStopped: return "SESSION SAFETY PAUSE - saved settings unchanged; restart to retry";
         case QTAdPending: return "WAITING/UNAVAILABLE - no complete workaround hook groups installed";
         case QTAdPartial: return "PARTIAL - a workaround hook group is unavailable";
         case QTAdInstalled: return "PLAYER AND FEED HOOKS INSTALLED - invocation/removal not implied";

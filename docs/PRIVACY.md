@@ -4,7 +4,7 @@ QuietTube adds local preferences and bounded local diagnostic counters/capture. 
 
 Detailed feed/template capture is optional. Everyday presets turn it off; upgrades preserve your saved choices. Preparing a support test explicitly enables it. Reports can contain flags, internal class/template identifiers, relative event times and bounded error categories/codes. Raw payloads, video-ID fields, account credentials and signed URL fields are not intentionally printed. Lexical template scanning is not a privacy-proof parser: **review before sharing**.
 
-Event rings and template capture are in memory and reset when the app restarts. Preferences persist in the app preferences. Clear template capture clears that capture, not all counters or preferences. Copied reports/screenshots persist wherever you share them.
+Event rings and template capture are in memory and reset when the app restarts. Preferences are stored locally in the app. They persist across ordinary restarts and updates, but can be lost if app data is removed or a different data container/app identity is used. Clear template capture clears that capture, not all counters or preferences. Copied reports/screenshots persist wherever you share them.
 
 The manual build workflow downloads the IPA URL you provide on GitHub's runner, checks the input and builds an output IPA. It deletes its temporary base/output files after the job. Successful output is published to Releases in your fork; it is publicly downloadable if the fork is public. Deleting runner files does not remove release assets, workflow metadata, logs, previous runs or history.
 

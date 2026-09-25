@@ -56,7 +56,9 @@ Open **You → Settings → General → Quiet controls**.
 - **Ads & essentials:** ad protection and the classic logo, with detailed logging off.
 - **Focused feed:** the essentials plus the available feed-cleanup options.
 
-Both preview the changes before applying and leave your background-audio/next-video choices alone. Existing settings survive updates. Fully close and reopen the app after making changes.
+Both preview the changes before applying and leave your background-audio/next-video choices alone. On a fresh installation, QuietTube, video-ad blocking and feed-ad blocking start **on**. Existing on/off choices survive updates and restarts. Fully close and reopen the app after making changes.
+
+**Updating from 1.0.0?** If video-ad blocking was already switched off by the old safety latch, turn it on once after updating, then reopen the app. We won’t override an existing off setting because it could be your own choice. A playback error can temporarily pause protection for that session; it no longer changes your saved toggle.
 
 ## Tested, not guessed
 
@@ -64,7 +66,7 @@ Both preview the changes before applying and leave your background-audio/next-vi
 
 Ad blocking, Google sign-in, native PiP, background audio and the settings were confirmed in this setup. LiveContainer was the **test environment**, not a design requirement. Other sideloading methods have not been verified; signing, installation and sign-in behavior can vary. The package needs your installer's signing/preparation and does not include app extensions.
 
-The tested runtime/settings are retained from the working development builds. Each new output still needs its own device check. No promise of every ad blocked or compatibility with every installer.
+The player/feed implementation is retained from the working development builds. Version 1.0.1 changes preference initialization and session-safety behavior; this change and each new output still need a device check. No promise of every ad blocked or compatibility with every installer.
 
 ---
 
