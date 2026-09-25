@@ -61,3 +61,21 @@ class DistributionTests(unittest.TestCase):
   self.assertIn(v,(R/'scripts/package.py').read_text())
   self.assertNotIn('0.14.0-rc1',(R/'Sources/QTSettings.m').read_text())
 
+
+ def test_installer_neutral_branding_with_honest_test_scope(self):
+  banner=(R/'docs/assets/banner.svg').read_text()
+  readme=(R/'README.md').read_text()
+  settings=(R/'Sources/QTSettings.m').read_text()
+  self.assertNotIn('MADE FOR LIVECONTAINER',banner)
+  self.assertIn('other sideloading methods',readme.lower())
+  self.assertIn('not a design requirement',readme)
+  self.assertNotIn('fully stop and reopen the LiveContainer guest',settings)
+  self.assertIn('LiveContainer 3.8.0',settings)
+ def test_catbox_is_an_upload_option_not_a_bundled_base(self):
+  guide=(R/'docs/INSTALL.md').read_text()
+  self.assertIn('https://catbox.moe/',guide)
+  self.assertIn('200 MB',guide)
+  self.assertIn('base_ipa_url',guide)
+  self.assertIn('acknowledge_rights',guide)
+  self.assertIn('not a secret',guide)
+  self.assertNotIn('catbox.moe',(R/'scripts/download_base.py').read_text())

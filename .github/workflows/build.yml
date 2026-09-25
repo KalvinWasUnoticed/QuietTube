@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       base_ipa_url:
-        description: 'Direct HTTPS URL to your authorized decrypted YouTube 21.38.2 IPA. Exact supported SHA256 required; see docs/INSTALL.md.'
+        description: 'Paste the direct link to your decrypted YouTube 21.38.2 IPA. Catbox is an upload option. Compatibility is checked automatically; see docs/INSTALL.md.'
         type: string
         required: true
       acknowledge_rights:

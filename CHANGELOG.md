@@ -2,6 +2,9 @@
 
 ## 1.0.0 — final fork-build package
 
+- Installer-neutral branding and restart instructions. LiveContainer is listed as the tested environment, not a requirement; other sideloading methods are unverified.
+- Shorter README and beginner upload/link/build guide, with Catbox as an optional file host and its size/privacy limits explained.
+
 - Preserves the tested native player protection, scoped explicit-ad feed insertion filter, accepted cleanup, classic logo, Google sign-in/native PiP behavior and RC1 settings layout. Existing preferences remain intact.
 - Provides two preview-before-Apply presets and non-modal restart notices.
 - Manual **fork → Actions → user-provided decrypted YouTube 21.38.2 HTTPS URL → IPA released in that fork** workflow. No built-in base-app link, no upstream repository publishing.

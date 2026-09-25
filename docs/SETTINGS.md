@@ -2,7 +2,7 @@
 
 [← QuietTube](../README.md)
 
-Open **You → Settings → General → Quiet controls**. Every switch saves a preference for the **next guest launch**. The small notice disappears without confirmation; the footer keeps showing pending changes until you restart. The master switch pauses modifications without clearing your individual choices.
+Open **You → Settings → General → Quiet controls**. Every switch saves a preference for the **next app launch**. The small notice disappears without confirmation; the footer keeps showing pending changes until you restart. The master switch pauses modifications without clearing your individual choices.
 
 ## Presets
 

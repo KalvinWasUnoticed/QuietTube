@@ -1,13 +1,15 @@
 # Privacy and support data
 
-QuietTube adds local preferences and bounded local diagnostic counters/capture. It adds no automatic diagnostic upload, activation server or analytics endpoint. YouTube, Google sign-in, LiveContainer, SideStore and GitHub have their own data/network practices; this statement is not an offline or privacy guarantee for those applications.
+QuietTube adds local preferences and bounded local diagnostic counters/capture. It adds no automatic diagnostic upload, activation server or analytics endpoint. YouTube, Google sign-in, your installation tools, Catbox (if used) and GitHub have their own data/network practices; this statement is not an offline or privacy guarantee for those applications.
 
 Detailed feed/template capture is optional. Everyday presets turn it off; upgrades preserve your saved choices. Preparing a support test explicitly enables it. Reports can contain flags, internal class/template identifiers, relative event times and bounded error categories/codes. Raw payloads, video-ID fields, account credentials and signed URL fields are not intentionally printed. Lexical template scanning is not a privacy-proof parser: **review before sharing**.
 
-Event rings and template capture are in memory and reset when the guest restarts. Preferences persist in the guest defaults. Clear template capture clears that capture, not all counters or preferences. Copied reports/screenshots persist wherever you share them.
+Event rings and template capture are in memory and reset when the app restarts. Preferences persist in the app preferences. Clear template capture clears that capture, not all counters or preferences. Copied reports/screenshots persist wherever you share them.
 
 The manual build workflow downloads the IPA URL you provide on GitHub's runner, checks the input and builds an output IPA. It deletes its temporary base/output files after the job. Successful output is published to Releases in your fork; it is publicly downloadable if the fork is public. Deleting runner files does not remove release assets, workflow metadata, logs, previous runs or history.
 
 The URL is a workflow input, **not a GitHub secret**. It may be retained in GitHub's event/workflow records. The downloader masks its own log output and does not echo URL-bearing exceptions, but that is not a secrecy guarantee. Do not include passwords, personal information or long-lived private tokens. No Apple credentials/signing certificate are requested by this workflow. A rights/publication acknowledgement is required.
 
 Never attach app binaries, tokens, cookies, passwords or unreviewed full captures to issues. If sensitive material has been exposed, remove it, revoke affected secrets where applicable and use GitHub's documented removal/reporting process rather than reposting it.
+
+If you choose Catbox, you are uploading the IPA to a third-party host. Anyone with its file link may be able to download it, and anonymous uploads are not a private file vault. Only upload files you have permission to share; follow [Catbox’s rules](https://catbox.moe/legal.php). QuietTube does not manage or delete those uploads.

@@ -33,13 +33,13 @@ def publish(env, root=ROOT, run=subprocess.run):
     info.write_text(json.dumps({'quiettube':version,'youtube':'21.38.2','source_commit':commit,'ipa_sha256':digest,'source_repository':repo,'run':f'{server}/{repo}/actions/runs/{run_id}'},indent=2)+'\n')
     sums=path.parent/'SHA256SUMS';sums.write_text(f'{digest}  {path.name}\n')
     notes=path.parent/'release-notes.md'
-    notes.write_text(f'# QuietTube {version} — user-provided base build\n\n[Download IPA]({url})\n\nSource: `{commit}` in `{repo}`.\n\nUser supplied the compatible base and acknowledged publication rights. This is not independent legal clearance. A public fork produces publicly downloadable release assets.\n\nImport into LiveContainer for signing/preparation; no second injection. Preserve your data and known-working backup. Runtime validation is still required for this artifact.\n\nIPA SHA256: `{digest}`\n')
+    notes.write_text(f'# QuietTube {version} — user-provided base build\n\n[Download IPA]({url})\n\nSource: `{commit}` in `{repo}`.\n\nUser supplied the compatible base and acknowledged publication rights. This is not independent legal clearance. A public fork produces publicly downloadable release assets.\n\nInstall with your preferred IPA installer and follow its signing instructions. QuietTube is already included; do not inject it again. Only LiveContainer has been tested. Keep your data and known-working backup. Runtime validation is still required for this artifact.\n\nIPA SHA256: `{digest}`\n')
     args=['gh','release','create',tag,str(path),str(info),str(sums),'--repo',repo,'--target',commit,'--prerelease','--title',f'QuietTube {version} — build {run_id}.{attempt}','--notes-file',str(notes)]
     # Build a draft first: failed uploads must not leave a supposedly complete public release.
     run(args+['--draft'],check=True,env=env)
     run(['gh','release','edit',tag,'--repo',repo,'--draft=false'],check=True,env=env)
     with Path(env['GITHUB_STEP_SUMMARY']).open('a') as summary:
-        summary.write(f'# [DOWNLOAD IPA — QuietTube {version}]({url})\n\n[Release / assets]({page})\n\nDirect `.ipa`, not an artifact ZIP. Sign into GitHub if your fork requires access.\n\nSource commit: `{commit}`\n\nSHA256: `{digest}`\n\nImport into LiveContainer and fully restart the guest. Successful packaging is not device validation.\n')
+        summary.write(f'# [DOWNLOAD IPA — QuietTube {version}]({url})\n\n[Release / assets]({page})\n\nDirect `.ipa`, not an artifact ZIP. Sign into GitHub if your fork requires access.\n\nSource commit: `{commit}`\n\nSHA256: `{digest}`\n\nInstall with your preferred IPA installer, then fully close and reopen the app. Only LiveContainer is tested; other methods are unverified. Successful packaging is not device validation.\n')
     return url
 
 if __name__=='__main__':

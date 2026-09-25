@@ -23,7 +23,7 @@ No GitHub repository, release, artifact or history was modified during preparati
 - Run the source-integrity check, Python suite, four C sanitizer suites and shell checks.
 - Run the new workflow in an authorized fork with the actual pinned base and acknowledgement. A skipped job is not a successful build.
 - Confirm native compilation, packaging, upload and publication in that fork. Check the direct link, release source commit and IPA SHA256. If upload/publication fails, inspect any draft release; start a new run after correcting files.
-- Install that exact IPA locally in LiveContainer, preserving data/rollback. Confirm the 1.0.0 footer, sign-in, player/feed behavior, native PiP/background, settings/presets, restart status, light/dark and large text.
+- Install that exact IPA using the installation method being evaluated, preserving data/rollback. LiveContainer is the only reported tested method; test alternatives before claiming support. Confirm the 1.0.0 footer, sign-in, player/feed behavior, native PiP/background, settings/presets, restart status, light/dark and large text.
 - Only then announce a tested release. The automated per-run releases remain prereleases; source packaging alone is not a stable-device verdict.
 - Never advertise “DMCA-proof,” “undetectable,” “all ads blocked” or official affiliation.
 
@@ -32,3 +32,7 @@ No GitHub repository, release, artifact or history was modified during preparati
 Sources are the active implementation; scripts handle verification/tests/build/download/packaging/publication; tests/fixtures protect ABI/runtime and distribution behavior; `.github` holds workflows/issues; docs/assets support the README/tutorial; LICENSE/Notices retain attribution. VERSION and the manifest identify the complete source release. Every retained category has an active purpose.
 
 Retired stubs, development diaries, raw disassembly, obsolete baselines/tests and the old shell IPA publisher are removed. Current active metadata is consolidated in two fixtures. Do not restore built-in base-app URLs or silently loosen the exact-input checks.
+
+## Copy and compatibility
+
+Present QuietTube as an iOS customization, not a LiveContainer-exclusive app. Keep LiveContainer in the tested-environment table. Do not turn untested installation options into a universal compatibility claim. The beginner guide recommends Catbox only as a user-selected file host, not as a source of YouTube downloads. The package still removes app extensions and needs signing/preparation; behavior of other installers and sign-in/entitlements has not been validated.

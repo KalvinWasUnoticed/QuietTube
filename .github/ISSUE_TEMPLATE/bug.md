@@ -3,7 +3,8 @@ name: Bug report
 about: A settings, playback, feed or build problem
 ---
 QuietTube version and source commit:
-Device / iOS / LiveContainer version:
+Device / iOS version:
+Installation method and version (for example, LiveContainer):
 YouTube base version:
 New install or upgrade:
 

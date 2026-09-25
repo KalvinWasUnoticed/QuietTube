@@ -1,85 +1,73 @@
 <p align="center">
-  <img src="docs/assets/banner.svg" width="100%" alt="QuietTube — Less noise. More video. A simpler way to watch, still the native app.">
+  <img src="docs/assets/banner.svg" width="100%" alt="QuietTube — Less noise. More video.">
 </p>
 
 <p align="center">
-  <strong>An annoyance-free idea. A quieter way to watch.</strong><br>
-  Native YouTube customization for iOS, built around the video—not everything surrounding it.
+  <strong>YouTube, without so much getting in the way.</strong><br>
+  Less clutter. Fewer interruptions. The native player you already know.
 </p>
 
 <p align="center">
   <a href="https://github.com/KalvinWasUnoticed/QuietTube/fork"><strong>Fork & build ↗</strong></a>
-  &nbsp; · &nbsp; <a href="docs/INSTALL.md">Installation guide</a>
+  &nbsp; · &nbsp; <a href="docs/INSTALL.md">Easy setup guide</a>
   &nbsp; · &nbsp; <a href="https://github.com/KalvinWasUnoticed/QuietTube/issues">Get help</a>
 </p>
 
-> **Bring your own compatible base.** Fork the repository, run Actions with a direct HTTPS URL to your authorized decrypted YouTube **21.38.2** IPA, and download the built IPA from **your fork’s Releases**. The exact inspected SHA256 is required—not every repackaged 21.38.2 file will work. Public forks publish publicly accessible assets. [Requirements and rights acknowledgement →](docs/INSTALL.md#before-you-start)
+## Just watch the video
 
-## Why QuietTube?
+QuietTube started with a simple annoyance: opening YouTube to watch something, then dealing with ads, promotional shelves and a feed full of distractions.
 
-QuietTube started with a simple frustration: opening YouTube to watch a video, then dealing with ads, promotional shelves and recommendations you never asked for.
+It keeps the familiar app and lets you remove the parts you don't want. No replacement player. No extra dashboard.
 
-The goal isn't to add another screen full of features. It's to make watching feel simple again: fewer interruptions, a calmer feed and controls that stay out of the way. The familiar native player stays. You choose what disappears.
-
-## Keep the video. Lose the clutter.
-
-| A little less… | A little more… |
+| Less of this | More of this |
 | :--- | :--- |
-| **Ad interruption** | Video-ad protection and filtering for recognized feed ads, including the tested post-minimize insertion path. |
-| **Feed noise** | Optional hiding of Shorts shelves, Mixes, Watch it again, topic suggestions, Playables, promotional shelves and large portrait cards. |
-| **Unwanted next videos** | A switch to stop supported automatic next-video actions. |
-| **Settings friction** | Two preview-before-Apply presets, automatic prerequisite handling and restart notices without confirmation dialogs. |
-| **Unnecessary reinvention** | Background audio, YouTube's native PiP setting and the classic header logo. |
+| **Ads** | Video-ad protection and filtering for recognized sponsored feed items. |
+| **Feed clutter** | Options to hide Shorts shelves, Mixes, Watch it again, topics, Playables and promotional cards. |
+| **Unwanted autoplay** | Control over supported automatic next-video actions. |
+| **Settings hassle** | Two presets, a preview before Apply, and restart notices that don't interrupt you. |
 
-These are scoped rules, not a promise to remove every ad or every matching surface. Shorts-tab removal, downloads and SponsorBlock are **not** included. [Coverage & limitations →](docs/SETTINGS.md)
+Background audio and the classic logo are included. PiP uses YouTube's own setting. Coverage isn't universal; downloads, SponsorBlock and Shorts-tab removal are not included. [Settings and limits →](docs/SETTINGS.md)
 
-## Your settings, not another dashboard
+## Build your copy
+
+**Upload your IPA → copy the link → run Actions → download the result.**
+
+1. Have your own compatible **decrypted YouTube 21.38.2 IPA** ready. We don't provide one.
+2. Upload it to [Catbox](https://catbox.moe/) or another file host that gives a direct HTTPS download link. Only upload files you have permission to share.
+3. **Fork this repository.** In your fork, open **Actions → Build QuietTube IPA → Run workflow**.
+4. Paste the file link, read the permission/publication notice and start the build.
+5. When it finishes, choose **Summary → DOWNLOAD IPA**, or open your fork's **Releases**. Install the result with your preferred IPA installer.
+
+[Step-by-step guide, including Catbox and installation →](docs/INSTALL.md)
+
+> The build automatically checks that your IPA is the exact supported file. A different copy can be rejected even if it says 21.38.2. Catbox currently accepts files up to 200 MB; use another direct-link host for larger files. A public fork publishes a public download.
+
+## Set it once. Get on with watching.
 
 <p align="center">
-  <a href="docs/assets/settings.png"><img src="docs/assets/settings.png" width="300" alt="Quiet controls home: master switch, Presets, Ads, Feed, Playback, Appearance and Advanced."></a>
+  <a href="docs/assets/settings.png"><img src="docs/assets/settings.png" width="280" alt="Quiet controls home with Presets, Ads, Feed, Playback, Appearance and Advanced."></a>
   &nbsp;&nbsp;
-  <a href="docs/assets/presets.png"><img src="docs/assets/presets.png" width="300" alt="Preset chooser with Ads and essentials and Focused feed."></a>
+  <a href="docs/assets/presets.png"><img src="docs/assets/presets.png" width="280" alt="The Ads and essentials and Focused feed preset choices."></a>
 </p>
-<p align="center"><sub>Real screenshots supplied from the tested RC1 settings build. Cropped/resized only; the layout is retained in 1.0.0. Right: preset chooser, not the Apply preview.</sub></p>
+<p align="center"><sub>Real screenshots from the tested RC1 build. Same settings layout; current restart wording is installer-neutral. Images are cropped/resized, not edited UI mockups.</sub></p>
 
-**Ads & essentials** enables ad protection and the classic logo, with detailed logging off. **Focused feed** adds the available feed-cleanup options. Both show what will change before you apply them and leave background-audio/next-video preferences alone.
+Open **You → Settings → General → Quiet controls**.
 
-Find everything at **You → Settings → General → Quiet controls**. Existing preferences are kept on upgrade. Fresh installs opt in. Changes apply after fully stopping and reopening the LiveContainer guest.
+- **Ads & essentials:** ad protection and the classic logo, with detailed logging off.
+- **Focused feed:** the essentials plus the available feed-cleanup options.
 
-## Build it on your fork
+Both preview the changes before applying and leave your background-audio/next-video choices alone. Existing settings survive updates. Fully close and reopen the app after making changes.
 
-1. **Fork** this repository into your GitHub account.
-2. In **your fork**, open **Actions** and enable workflows if prompted.
-3. Select **Build QuietTube IPA → Run workflow**.
-4. Supply a **direct HTTPS download link** to your authorized decrypted YouTube 21.38.2 IPA and acknowledge the rights/publication notice.
-5. After success, use **Summary → DOWNLOAD IPA** or your fork's **Releases**. Import the `.ipa` into LiveContainer and fully restart the guest.
+## Tested, not guessed
 
-No base-app URL is bundled in this repository. The workflow downloads your supplied input, verifies its exact hash, compiles QuietTube, packages the app and publishes the IPA plus source/hash metadata to the invoking fork. It does not publish to the original repository. It runs only manually, in a fork, with acknowledgement enabled.
+**iPhone 14 · iOS 26.5 · LiveContainer 3.8.0 · YouTube 21.38.2**
 
-[Full tutorial: SideStore → LiveContainer → fork → build → import →](docs/INSTALL.md)
+Ad blocking, Google sign-in, native PiP, background audio and the settings were confirmed in this setup. LiveContainer was the **test environment**, not a design requirement. Other sideloading methods have not been verified; signing, installation and sign-in behavior can vary. The package needs your installer's signing/preparation and does not include app extensions.
 
-**Publication matters:** a user-supplied URL and a fork are not legal clearance or a DMCA guarantee. You must have the rights to obtain, modify and publish the app. Workflow inputs are not secret storage; do not provide credentials or sensitive long-lived URLs.
-
-## Tested, with boundaries
-
-| Component | Reported test environment |
-| :--- | :--- |
-| Device | **iPhone 14** |
-| iOS | **26.5** |
-| LiveContainer | **3.8.0**, installed through SideStore |
-| YouTube base | **21.38.2**, exact SHA256 checked during download and packaging |
-| Confirmed by the maintainer | Ad blocking, Google sign-in, native PiP, background audio and the redesigned settings |
-
-That evidence comes from the working 0.13.5 runtime and RC1 settings build retained for 1.0.0. It is not a broad compatibility matrix or a fresh test of every 1.0.0 artifact. The library targets iOS 17+ / arm64; other devices, app binaries and future server changes are not validated. [Validation & development →](CONTRIBUTING.md)
-
-## Small by design
-
-No automatic QuietTube diagnostic upload, activation service or added analytics endpoint. Optional local support reports are available under **Advanced → Troubleshooting**. Review them before sharing. YouTube and LiveContainer have their own data practices. [Privacy →](docs/PRIVACY.md)
-
-For problems, [open an issue](https://github.com/KalvinWasUnoticed/QuietTube/issues/new/choose) with your version, device and steps to reproduce—never credentials or app binaries. Keep your known-working local build for rollback.
+The tested runtime/settings are retained from the working development builds. Each new output still needs its own device check. No promise of every ad blocked or compatibility with every installer.
 
 ---
 
-Made by **[KalvinWasUnoticed](https://github.com/KalvinWasUnoticed)** · [MIT source license](LICENSE) · [Credits & third-party notices](Notices/REFERENCES.md) · [Changelog](CHANGELOG.md)
+Made by **[KalvinWasUnoticed](https://github.com/KalvinWasUnoticed)** · [Privacy](docs/PRIVACY.md) · [MIT license](LICENSE) · [Credits](Notices/REFERENCES.md) · [Changelog](CHANGELOG.md)
 
-<sub>QuietTube is unofficial and is not affiliated with or endorsed by YouTube or Google. YouTube and Google are their owners' trademarks. The source license does not license their app, services or branding. A user-provided base and publication in a fork do not guarantee immunity from legal claims or takedowns.</sub>
+<sub>Unofficial. Not affiliated with YouTube or Google. Use and share only files you have the rights to use and share. A fork, an upload service or a disclaimer does not guarantee protection from copyright claims.</sub>

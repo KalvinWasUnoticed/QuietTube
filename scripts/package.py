@@ -2,7 +2,7 @@
 """Package the exact user-supplied IPA with a compiled QuietTube dylib.
 
 No decryption, downloading, execution of input binaries, or account-data handling.
-Input is hash-pinned. Output is for LiveContainer to re-sign, not App Store install.
+Input is hash-pinned. Output requires signing/preparation by the chosen installer, not App Store install.
 """
 import argparse
 import hashlib
@@ -121,16 +121,16 @@ def package(ipa, dylib, output):
         executable.chmod(0o755)
         (app/'Frameworks').mkdir(exist_ok=True)
         shutil.copy2(dylib,app/'Frameworks'/'QuietTube.dylib')
-        # Invalidate/remove stale bundle signatures. LiveContainer must re-sign.
+        # Invalidate/remove stale bundle signatures. The chosen installer must re-sign.
         for path in list(app.rglob('_CodeSignature')):
             if path.is_dir(): shutil.rmtree(path)
         for path in list(app.rglob('embedded.mobileprovision')): path.unlink()
-        # Guest app extensions cannot be assumed to work in this install route.
+        # Preserve the tested packaging behavior: app extensions are not included.
         if (app/'PlugIns').exists(): shutil.rmtree(app/'PlugIns')
         (app/'QuietTube-build.json').write_text(json.dumps({
             'quiettube':'1.0.0','base_sha256':digest,'youtube':'21.38.2',
             'status':'locally packaged; this tool does not validate runtime behavior',
-            'signing':'LiveContainer must sign this guest app',
+            'signing':'Requires signing/preparation by the chosen installer; only LiveContainer tested',
             'extensions_removed':True,
         },indent=2))
         # Ship attribution with the packaged app as well as the source archive.
@@ -145,7 +145,7 @@ def package(ipa, dylib, output):
                 if path.is_file(): z.write(path,path.relative_to(root).as_posix())
         with zipfile.ZipFile(output) as z:
             if z.testzip(): raise ValueError('Output CRC failure')
-    print(f'Created {output}; import into LiveContainer for re-signing. Packaging is not runtime validation.')
+    print(f'Created {output}; use your chosen installer for signing/preparation. Packaging is not runtime validation.')
 
 if __name__ == '__main__':
     p=argparse.ArgumentParser()
