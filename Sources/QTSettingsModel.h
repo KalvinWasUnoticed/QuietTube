@@ -1,4 +1,5 @@
-#import "QTCore.h"
+#import "QTPreferences.h"
+#import <dispatch/dispatch.h>
 NSArray<NSDictionary *> *QTSettingsRows(NSString *group);
 NSString *QTSettingTitle(NSString *key);
 NSDictionary<NSString *,NSNumber *> *QTSettingChanges(NSString *key, BOOL enabled);

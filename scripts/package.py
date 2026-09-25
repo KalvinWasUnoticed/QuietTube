@@ -44,12 +44,21 @@ def commands(data):
 def inject(data, name=DYLIB_PATH):
     data = bytearray(data)
     cmds, end = commands(data)
+    if struct.unpack_from('<I', data, 12)[0] != 2:
+        raise ValueError('Expected MH_EXECUTE for the app executable')
     first_content = len(data)
     for cmd, pos, size in cmds:
-        if cmd in (0x21, 0x2C) and struct.unpack_from('<I', data, pos+16)[0]:
-            raise ValueError('Encrypted executable; not supported')
+        if cmd in (0x21, 0x2C):
+            if size < 24:
+                raise ValueError('Truncated encryption command')
+            if struct.unpack_from('<I', data, pos+16)[0]:
+                raise ValueError('Encrypted executable; not supported')
         if cmd in (0xC, 0x80000018, 0x8000001F):
+            if size < 24:
+                raise ValueError('Truncated dylib command')
             off = struct.unpack_from('<I',data,pos+8)[0]
+            if off < 24 or off >= size or b'\0' not in data[pos+off:pos+size]:
+                raise ValueError('Invalid dylib path offset or missing terminator')
             path = bytes(data[pos+off:pos+size]).split(b'\0')[0]
             if path == name.encode():
                 raise ValueError('QuietTube is already injected')
@@ -128,7 +137,7 @@ def package(ipa, dylib, output):
         # Preserve the tested packaging behavior: app extensions are not included.
         if (app/'PlugIns').exists(): shutil.rmtree(app/'PlugIns')
         (app/'QuietTube-build.json').write_text(json.dumps({
-            'quiettube':'1.0.1','base_sha256':digest,'youtube':'21.38.2',
+            'quiettube':'1.0.2','base_sha256':digest,'youtube':'21.38.2',
             'status':'locally packaged; this tool does not validate runtime behavior',
             'signing':'Requires signing/preparation by the chosen installer; only LiveContainer tested',
             'extensions_removed':True,

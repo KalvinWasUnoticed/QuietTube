@@ -67,7 +67,7 @@ void QTAdPlaybackError(NSError *error) {
 NSString *QTAdReport(void) {
     QTAdPrepare();
     QTAdInstallState state=QTAdState(QTOn(@"enabled"),QTOn(@"adTest"),atomic_load(&QTAdTripped),QTPlayerProfileInstalled,QTFeedProfileInstalled);
-    NSMutableString *s=[NSMutableString stringWithFormat:@"QUIETTUBE 1.0.1 AD TEST REPORT\nProfile requested this launch: %@\nInstallation state: %s\nSaved for next launch: %@\nAd profile enables player and scoped feed insertion; feed also requires feedAds. Old branch preferences are ignored.\nPlayer hook installed: %@; feed hooks installed: %@\n",
+    NSMutableString *s=[NSMutableString stringWithFormat:@"QUIETTUBE 1.0.2 AD TEST REPORT\nProfile requested this launch: %@\nInstallation state: %s\nSaved for next launch: %@\nAd profile enables player and scoped feed insertion; feed also requires feedAds. Old branch preferences are ignored.\nPlayer hook installed: %@; feed hooks installed: %@\n",
         QTOn(@"adTest")?@"on":@"off",QTAdStateName(state),
         [NSUserDefaults.standardUserDefaults boolForKey:@"QuietTube.v1.adTest"]?@"on":@"off",
         QTPlayerProfileInstalled?@"yes":@"no",QTFeedProfileInstalled?@"yes":@"no"];

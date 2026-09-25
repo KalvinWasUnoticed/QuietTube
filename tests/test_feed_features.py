@@ -6,7 +6,7 @@ class PatchScopeTests(unittest.TestCase):
     def test_preserved_baseline_functions_and_modules(self):
         rec=json.loads((R/'tests/fixtures/preservation.json').read_text())['cleanup']
         for file,expected in rec['files'].items():
-            text=(R/file).read_text().replace('1.0.1','VERSION')
+            text=(R/file).read_text().replace('1.0.2','VERSION')
             self.assertEqual(hashlib.sha256(text.encode()).hexdigest(),expected,file)
         for item in rec['ranges']:
             text=(R/item['file']).read_text()

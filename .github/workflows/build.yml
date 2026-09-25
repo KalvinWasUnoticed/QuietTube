@@ -1,5 +1,5 @@
 name: Build QuietTube IPA
-run-name: QuietTube 1.0.1 — user-provided base
+run-name: QuietTube 1.0.2 — user-provided base
 on:
   workflow_dispatch:
     inputs:
@@ -23,7 +23,7 @@ jobs:
     permissions:
       contents: write
     env:
-      IPA_PATH: artifacts/QuietTube-1.0.1-21.38.2.ipa
+      IPA_PATH: artifacts/QuietTube-1.0.2-21.38.2.ipa
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -33,13 +33,13 @@ jobs:
           python-version: '3.12'
       - name: Verify sources and run regression tests
         run: bash scripts/check.sh
+      - name: Compile the native tweak
+        run: bash scripts/build.sh
       - name: Download and validate user-provided base
         timeout-minutes: 7
         env:
           BASE_IPA_URL: ${{ inputs.base_ipa_url }}
         run: python scripts/download_base.py
-      - name: Compile the native tweak
-        run: bash scripts/build.sh
       - name: Package and verify the exact output
         run: |
           python scripts/package.py "$RUNNER_TEMP/QuietTube-base.ipa" artifacts/QuietTube.dylib "$IPA_PATH"

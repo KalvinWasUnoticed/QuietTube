@@ -6,7 +6,7 @@ MODEL=(R/'Sources/QTSettingsModel.m').read_text()
 class ReleaseUITests(unittest.TestCase):
  def test_runtime_frozen(self):
   for name,digest in json.loads((R/'tests/fixtures/preservation.json').read_text())['runtime'].items():
-   self.assertEqual(hashlib.sha256((R/name).read_text().replace('1.0.1','VERSION').encode()).hexdigest(),digest,name)
+   self.assertEqual(hashlib.sha256((R/name).read_text().replace('1.0.2','VERSION').encode()).hexdigest(),digest,name)
  def test_catalog_covers_existing_keys_once(self):
   keys=re.findall(r'@"key":@"(\w+)"',(R/'Sources/QTCore.m').read_text())
   catalog=re.findall(r'@\[@"(\w+)",@"(?:Ads|Feed|Playback|Appearance|Advanced|Troubleshooting)"',MODEL)

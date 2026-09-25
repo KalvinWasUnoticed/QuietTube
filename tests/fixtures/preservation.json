@@ -45,8 +45,14 @@
       {
         "file": "scripts/package.py",
         "start": "def commands(",
+        "end": "def inject(",
+        "sha256": "ad45d9c4c7489e04f0a650de64b63c8e55113e4304ab6a7d4397e87e229b8064"
+      },
+      {
+        "file": "scripts/package.py",
+        "start": "    encoded = name.encode()",
         "end": "def package(",
-        "sha256": "2ae8ebdac1765a7b8287c1284dc9530552d249718ff3b84e4f3b4714c275937e"
+        "sha256": "615e7d99c1f7cbe39e7f0f808d24ce73c7c54b743ca3017a42722e6ac27b80d5"
       }
     ]
   },
@@ -55,5 +61,6 @@
     "start": "    if (!QTPlayerProfileInstalled) {",
     "sha256": "f1cdacfd403f885d7b0e27b7987771e712580a84c1af7b3117161e530cb13563"
   },
-  "intentional_1_0_1_changes": "Only preference initialization, removal of safety-latch preference writes, session-status reporting and settings descriptions changed. Player factory suffix, feed filters, all other runtime hashes and the raw launch snapshot/setter/hook helpers remain protected."
+  "intentional_1_0_1_changes": "Only preference initialization, removal of safety-latch preference writes, session-status reporting and settings descriptions changed. Player factory suffix, feed filters, all other runtime hashes and the raw launch snapshot/setter/hook helpers remain protected.",
+  "intentional_1_0_2_changes": "Packaging rejects malformed executable/encryption/dylib command inputs earlier. Parser and binary-write/extraction suffix retain old-byte protection; all runtime preservation hashes unchanged. Header-only Foundation test decoupling, explicit UI import and release labels do not change runtime function bodies."
 }

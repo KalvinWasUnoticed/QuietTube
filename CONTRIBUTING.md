@@ -10,7 +10,7 @@ Use Python 3.11+ and a C compiler:
 bash scripts/check.sh
 ```
 
-This runs the release-integrity guard, Python source/packaging/distribution tests, four C suites under AddressSanitizer/UndefinedBehaviorSanitizer and shell checks. Native compilation requires macOS/Xcode's iPhoneOS SDK, locally through `scripts/build.sh` or through the manual Actions workflow. Actual iOS behavior requires device testing.
+This runs the release-integrity guard, Python source/packaging/distribution tests, five C suites under AddressSanitizer/UndefinedBehaviorSanitizer and shell checks. Native compilation requires macOS/Xcode's iPhoneOS SDK. Push/PR CI now has a macOS leg that runs Foundation tests and compiles the iOS library; the manual IPA workflow does the same before downloading its base. Actual iOS behavior requires device testing.
 
 `tests/fixtures/preservation.json` protects the tested runtime (version labels normalized), player constructor suffix and accepted integration boundaries. `native-abi.json` contains only method/ivar metadata used by current ABI tests, not executable disassembly. **Do not regenerate preservation hashes just to make a failure pass.** A runtime change needs a separate rationale, ABI review, regression tests and device evidence.
 
@@ -18,7 +18,7 @@ The release manifest catches mixed uploads; it is not a trust signature. Intenti
 
 ## Preparation validation
 
-The final preparation suite passes 93 Python checks. The current validation includes a synthetic download → package → release-command round trip, mocked HTTP/GitHub failure cases, source/runtime preservation checks and four C sanitizer suites: 79 classifier fixtures + 5,000 random iterations; 20 template-scanner fixtures + 5,000 random iterations; 32 status combinations + an inactive-session regression; 26 insertion-policy checks. Workflow YAML and actionlint, shell syntax, relative documentation links, the source manifest and ZIP integrity were checked. No proprietary base or real GitHub build was used for these final preparation tests.
+The final preparation suite passes 104 Python checks. The current validation includes a synthetic download → package → release-command round trip, mocked HTTP/GitHub failure cases, source/runtime preservation checks and five C sanitizer suites: 79 classifier fixtures + 5,000 random iterations; 20 template-scanner fixtures + 5,000 random iterations; 32 status combinations + an inactive-session regression; 26 insertion-policy checks; 100,000 structured mutation cases with boundary, determinism and input-immutability checks. Python additionally mutates 5,000 Mach-O headers. Workflow YAML and actionlint, shell syntax, relative documentation links, the source manifest and ZIP integrity were checked. No proprietary base or real GitHub build was used for these final preparation tests.
 
 ## Scope of this release
 
@@ -43,3 +43,5 @@ Before tagging/publishing, run the fork IPA workflow with an authorized pinned b
 ## Preference regression checks
 
 `tests/test_preferences.m` links the actual Foundation-only initializer, tests fresh/legacy/partial stores and 32 on/off combinations over 20 reinitializations. `scripts/check.sh` executes it on the macOS build runner before the iOS library compiles. It is skipped explicitly on Linux; it has not been executed during this preparation. It is not an iOS multi-process/data-container test. Device checks should cover at least several full closes/reopens, both manual off values, a clean install and an upgrade. Preserve existing app data when testing persistence.
+
+`python3 scripts/test_native.py` on macOS also executes the production settings model with an isolated write-boundary stub and runs the actual initializer across 80 reader processes for 16 complete 17-flag patterns. The subprocess probe explicitly flushes its isolated suite for deterministic ordering; it does not prove iOS force-kill durability. All new native tests remain unexecuted in this Linux preparation. Full audit: [docs/AUDIT-1.0.2.md](docs/AUDIT-1.0.2.md).

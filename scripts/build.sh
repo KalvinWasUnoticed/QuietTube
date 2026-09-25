@@ -6,6 +6,7 @@ sdk="$(xcrun --sdk iphoneos --show-sdk-path)"
 xcrun --sdk iphoneos clang -arch arm64 -isysroot "$sdk" \
   -miphoneos-version-min=17.0 -dynamiclib -fobjc-arc -fblocks \
   -O2 -Wall -Wextra -Wno-unused-parameter \
+  -Werror=implicit-function-declaration -Werror=incompatible-pointer-types -Werror=return-type \
   -install_name '@rpath/QuietTube.dylib' \
   -framework Foundation -framework UIKit \
   Sources/QTCore.m Sources/QTPreferences.m Sources/QTSettings.m Sources/QTSettingsModel.m Sources/QTFeatures.m Sources/QTLogo.m Sources/QTAdProfile.m Sources/QTMutationTrace.m Sources/QTFeedInsertion.m \

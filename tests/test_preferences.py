@@ -31,7 +31,8 @@ class PreferenceTests(unittest.TestCase):
     self.assertNotIn('setBool:',p.read_text(),p.name)
  def test_native_tests_and_build_are_wired(self):
   self.assertIn('Sources/QTPreferences.m',(R/'scripts/build.sh').read_text())
-  self.assertIn('tests/test_preferences.m',(R/'scripts/check.sh').read_text())
+  self.assertIn('scripts/test_native.py',(R/'scripts/check.sh').read_text())
+  self.assertIn('tests/test_preferences.m',(R/'scripts/test_native.py').read_text())
   s=(R/'tests/test_preferences.m').read_text()
   self.assertIn('bits<32',s);self.assertIn('launch<20',s)
   self.assertIn('initWithSuiteName:name',s)

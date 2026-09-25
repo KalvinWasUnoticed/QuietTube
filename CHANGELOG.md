@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.2 — audited build and regression gates
+
+- Retains the corrected preference-test syntax and all 1.0.1 preference/session-safety behavior.
+- Runs checks on Linux and macOS for pushes/PRs; macOS also compiles/signs the complete iOS library. Manual IPA builds compile before downloading the base.
+- Makes the unchanged settings model directly Foundation-testable via header separation. Adds native settings/dependency/preset/read/write tests and separate-process preference tests over all 17 saved flags.
+- Adds 100,000 structured C mutation cases, 5,000 malformed Mach-O header cases, interface/build inventory checks and an early delimiter guard.
+- Rejects truncated encryption/dylib load commands, invalid dylib name offsets/terminators and non-executable input types before injection. The accepted binary-write path is unchanged.
+- All runtime preservation hashes are retained; only packaging validation boundaries are deliberately revised. See the audit for actual local results and pending Apple/device validation.
+
 ## 1.0.1 — saved settings stay saved
 
 - Removed the playback-error latch’s persistent write that turned video-ad protection off. Safety fallback is now session-only; saved toggles remain unchanged and are retried on the next launch.

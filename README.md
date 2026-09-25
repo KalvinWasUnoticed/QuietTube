@@ -66,10 +66,12 @@ Both preview the changes before applying and leave your background-audio/next-vi
 
 Ad blocking, Google sign-in, native PiP, background audio and the settings were confirmed in this setup. LiveContainer was the **test environment**, not a design requirement. Other sideloading methods have not been verified; signing, installation and sign-in behavior can vary. The package needs your installer's signing/preparation and does not include app extensions.
 
-The player/feed implementation is retained from the working development builds. Version 1.0.1 changes preference initialization and session-safety behavior; this change and each new output still need a device check. No promise of every ad blocked or compatibility with every installer.
+The player/feed implementation is retained from the working development builds. Version 1.0.2 retains the 1.0.1 preference fix and strengthens build checks. Apple compilation, the new native tests and each new output still need validation. No promise of every ad blocked or compatibility with every installer.
 
 ---
 
 Made by **[KalvinWasUnoticed](https://github.com/KalvinWasUnoticed)** · [Privacy](docs/PRIVACY.md) · [MIT license](LICENSE) · [Credits](Notices/REFERENCES.md) · [Changelog](CHANGELOG.md)
 
 <sub>Unofficial. Not affiliated with YouTube or Google. Use and share only files you have the rights to use and share. A fork, an upload service or a disclaimer does not guarantee protection from copyright claims.</sub>
+
+Audit scope and test evidence: [1.0.2 audit](docs/AUDIT-1.0.2.md).
