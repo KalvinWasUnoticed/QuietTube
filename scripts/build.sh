@@ -8,7 +8,7 @@ xcrun --sdk iphoneos clang -arch arm64 -isysroot "$sdk" \
   -O2 -Wall -Wextra -Wno-unused-parameter \
   -Werror=implicit-function-declaration -Werror=incompatible-pointer-types -Werror=return-type \
   -install_name '@rpath/QuietTube.dylib' \
-  -framework Foundation -framework UIKit \
+  -framework Foundation -framework UIKit -framework CoreGraphics \
   Sources/QTCore.m Sources/QTDiagnosticLog.m Sources/QTDiagnosticsBridge.m Sources/QTPreferences.m Sources/QTSettings.m Sources/QTSettingsModel.m Sources/QTFeatures.m Sources/QTLogo.m Sources/QTAdProfile.m Sources/QTMutationTrace.m Sources/QTFeedInsertion.m \
   -o artifacts/QuietTube.dylib
 codesign --force --sign - artifacts/QuietTube.dylib

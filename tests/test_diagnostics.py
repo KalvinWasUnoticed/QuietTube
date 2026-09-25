@@ -81,3 +81,12 @@ class DiagnosticTests(unittest.TestCase):
   for line in header.splitlines():
    if line.startswith(('id QTGet','BOOL QTBool','BOOL QTMatches')):self.assertIn(line,core)
   self.assertIn('tests/test_diagnostic_bridge.m',(R/'scripts/test_native.py').read_text())
+
+ def test_export_geometry_framework_is_linked(self):
+  ui=(R/'Sources/QTSettings.m').read_text()
+  build=(R/'scripts/build.sh').read_text()
+  self.assertIn('CGRectGetMidX',ui)
+  self.assertIn('CGRectGetMidY',ui)
+  frameworks=re.findall(r'-framework\s+(\w+)',build)
+  for required in ['Foundation','UIKit','CoreGraphics']:
+   self.assertIn(required,frameworks)

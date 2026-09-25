@@ -1,5 +1,9 @@
 # 1.1.0 logging rebuild — audit and test evidence
 
+## Linker correction
+
+The supplied GitHub run passed the regression-check step, including the configured macOS native harnesses, then failed iOS linking on `CGRectGetMidX` / `CGRectGetMidY`. The export popover introduced those CoreGraphics symbols, but the build linked only Foundation and UIKit. The corrected build explicitly links CoreGraphics, and a source regression test checks that dependency. No production source or runtime behavior changed in this correction. The corrected Apple link and device execution still require confirmation; the earlier check-step pass does not validate them.
+
 ## Release status
 
 Complete source package, **not a compiled or device-validated IPA**. Linux checks were executed; macOS Foundation tests and the full Apple SDK build are configured but could not be executed here. Native runtime/UI validation is a release gate, not something source review can replace.
@@ -32,7 +36,7 @@ Existing interfaces reviewed: immutable launch preferences; master gating; absen
 
 ## Locally executed checks
 
-- **117 Python tests**, including source/ABI/preservation checks, settings/preference policies, module/interface wiring, privacy-schema guards, diagnostics admission/order guards, downloader/publisher mocks, packaging and 5,000 malformed Mach-O header mutations.
+- **118 Python tests**, including source/ABI/preservation checks, settings/preference policies, module/interface wiring, privacy-schema guards, diagnostics admission/order guards, downloader/publisher mocks, packaging and 5,000 malformed Mach-O header mutations.
 - **Six ASan/UBSan C suites**: original 79 classifier + 20 scanner fixtures and 10,000 random inputs; 32 ad-state combinations; 26 insertion-policy checks; 100,000 structured mutation cases; new **20,000 diagnostic admission combinations + 300,000 size checks** and expiry/nonfinite/overflow boundaries.
 - Workflow actionlint, shell syntax, source integrity, local documentation links and final ZIP extraction/retesting.
 

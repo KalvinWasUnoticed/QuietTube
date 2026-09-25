@@ -2,6 +2,8 @@
 
 ## 1.1.0 — manual diagnostic sessions
 
+- Build correction: explicitly link CoreGraphics for the export popover geometry functions; add a regression check. No production source changes in this correction.
+
 - Adds opt-in, temporary local recording for known playback/error, watch-transition, feed-mutation, explicit-ad and renderer/template discovery paths. It is not an all-events or network logger.
 - Adds bounded asynchronous disk history, schema redaction, seven-day cleanup, error-reserved admission, manual export/clear and file protection. Existing reports remain available.
 - Caps the older general counter dictionary. Saved preferences, blocking decisions, native player construction and native result/error forwarding remain unchanged outside explicit observation/control additions.
