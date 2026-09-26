@@ -1,6 +1,6 @@
 # Runtime function and interface inventory
 
-Companion to [the 1.1.0 audit](AUDIT-1.1.0.md). Source entry points/signatures, not measured execution or branch coverage. Inline blocks are reviewed with their owner.
+Entry points and signatures, not measured code coverage. The [1.1.0 audit](AUDIT-1.1.0.md) records what was reviewed and tested. Inline blocks are reviewed with the function that owns them.
 
 ## `QTAdProfile.m`
 

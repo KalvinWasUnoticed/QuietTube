@@ -1,42 +1,47 @@
-# Publishing and maintenance
+# Maintaining and publishing QuietTube
 
-## Distribution policy
+## Two release paths
 
-The repository supplies QuietTube source, not a YouTube base app link. Users fork it and manually provide an authorized decrypted 21.38.2 direct HTTPS IPA link. The IPA workflow compiles the library, downloads that input, checks the exact pinned hash, packages and releases the output **in the invoking fork**, never the upstream repository. It requires explicit rights/publication acknowledgement. Public forks create publicly downloadable releases.
+The repository provides the tweak, not a YouTube base app link.
 
-This arrangement is **not a DMCA guarantee or legal clearance**. User-supplied input and fork-based publication do not establish permission to obtain, modify or distribute an app. Source functionality, circumvention allegations, trademarks, service terms and links may raise separate issues. Consult a qualified professional rather than making legal assurances. See [GitHub's DMCA policy](https://docs.github.com/en/site-policy/content-removal-policies/dmca-takedown-policy).
+- **Build QuietTube IPA** runs in forks. The user supplies the authorized, exact supported decrypted 21.38.2 input. The job compiles, downloads/checks, packages and publishes an IPA plus dylib in that fork.
+- **Build QuietTube dylib only** runs in the original repository or forks. No base app is supplied or distributed. The caller chooses prerelease or regular release.
+- **Source checks** runs tests and the macOS compile check without downloading or publishing a real app. Tests may create synthetic, non-runnable fixtures.
 
-## Replace the tree, not isolated workflow files
+Both release flows require publication acknowledgement. A public repository makes its assets public. [Inputs, assets and publication behavior](RELEASE-FLOWS.md).
 
-Back up work. Replace the old tracked contents with this complete package at the repository root, including hidden `.github`. Preserve the repository and local `.git` directory. The manifest rejects mixed sources and known obsolete files. It is a consistency guard, not an authenticity signature.
+Do not store Apple credentials or add a personal token for these workflows. Use their existing job permissions.
 
-Actions should list **Build QuietTube IPA** and **Source checks**. Source checks never download or publish apps; the IPA workflow is manual and fork/acknowledgement gated. Do not grant a personal token or store Apple credentials for it.
+## Replace the source tree carefully
 
-## Existing remote content is separate
+Back up your changes. Replace the old tracked contents with the complete package at the repository root, including hidden `.github`. Preserve the repository and local `.git` directory. Commit the update and start a new run; re-running an old failed job uses the old commit.
 
-Replacing HEAD does not remove earlier content. Review old IPA release assets, artifacts, Actions runs/logs, tags, branches, wiki/issues and historic hosted-base links. Delete material you lack rights to distribute and remove obsolete links. A deletion commit leaves history accessible. If necessary, coordinate a history rewrite or clean-history repository with appropriate advice, backups and collaborators. Force pushes cannot erase third-party clones, forks or every cache. Revoke any exposed credentials.
+The manifest rejects mixed versions and known obsolete files. It does not prove who authored the files. Do not change hashes to hide a mixed upload.
 
-No GitHub repository, release, artifact or history was modified during preparation of this package. The owner must review and perform remote cleanup. Keep LICENSE and required attribution; they are not disposable residue.
+## Check the artifact you plan to publish
 
-## Validate before promoting
+Run the source checks and native build. For IPA mode, use the real authorized pinned base in a fork. Confirm the direct downloads, source commit and hashes. A skipped job is not a successful build, and an incomplete draft is not a completed release.
 
-- Run the source-integrity check, Python suite, six C sanitizer suites and shell checks.
-- Run the new workflow in an authorized fork with the actual pinned base and acknowledgement. A skipped job is not a successful build.
-- Confirm native compilation, packaging, upload and publication in that fork. Check the direct link, release source commit and IPA SHA256. If upload/publication fails, inspect any draft release; start a new run after correcting files.
-- Install that exact IPA using the installation method being evaluated, preserving data/rollback. LiveContainer is the only reported tested method; test alternatives before claiming support. Confirm the 1.1.0 footer, sign-in, player/feed behavior, native PiP/background, settings/presets, restart status, light/dark and large text. For 1.1.0, also test persistence across repeated launches and verify fresh-install defaults without overriding existing manual off values. Confirm the new Foundation test passes on the macOS runner.
-- Only then announce a tested release. The automated per-run releases remain prereleases; source packaging alone is not a stable-device verdict.
-- Never advertise “DMCA-proof,” “undetectable,” “all ads blocked” or official affiliation.
+Test the exact output while preserving a backup and existing data. Check the 1.1.0 footer, saved choices over restarts, fresh-install defaults in a disposable container, presets, navigation, large text/light/dark, playback/feed behavior, sign-in, native PiP and background audio. New logger controls need their own [device checks](AUDIT-1.1.0.md#required-device-acceptance).
 
-## Files retained
+LiveContainer is the reported tested method, not the only imaginable installer. Do not claim another method works until it has evidence. A regular release label is a publication choice, not a stable-device verdict.
 
-Sources are the active implementation; scripts handle verification/tests/build/download/packaging/publication; tests/fixtures protect ABI/runtime and distribution behavior; `.github` holds workflows/issues; docs/assets support the README/tutorial; LICENSE/Notices retain attribution. VERSION and the manifest identify the complete source release. Every retained category has an active purpose.
+## Remote cleanup is separate
 
-Retired stubs, development diaries, raw disassembly, obsolete baselines/tests and the old shell IPA publisher are removed. Current active metadata is consolidated in two fixtures. Do not restore built-in base-app URLs or silently loosen the exact-input checks.
+Replacing HEAD does not remove old assets or history. Review old releases, artifacts, Actions runs/logs, tags, branches, wiki/issues and obsolete hosted-base links. Remove material you lack rights to distribute. Revoke exposed credentials.
 
-## Copy and compatibility
+A deletion commit leaves history. A history rewrite needs backups, coordination and appropriate advice; even a force push cannot erase third-party clones, forks or every cache. No remote cleanup is performed by delivering this source package. Keep required license/credit text.
 
-Present QuietTube as an iOS customization, not a LiveContainer-exclusive app. Keep LiveContainer in the tested-environment table. Do not turn untested installation options into a universal compatibility claim. The beginner guide recommends Catbox only as a user-selected file host, not as a source of YouTube downloads. The package still removes app extensions and needs signing/preparation; behavior of other installers and sign-in/entitlements has not been validated.
+## Keep the claims straight
 
-## Authorized standalone upstream releases
+The output IPA has app extensions removed and needs installer signing/preparation. Other installers can handle identities, entitlements and sign-in differently. Keep the exact-input guard; a version string alone is not enough.
 
-The original repository may now publish **dylib-only** releases through the separate workflow, with a per-run prerelease choice. The IPA workflow remains fork-only. This is an intentional, narrowly scoped distribution-policy change; it does not enable upstream IPA publishing. See [release flows](RELEASE-FLOWS.md). The runtime/build sources are unchanged from the CoreGraphics link correction.
+Catbox is a user-selected upload host, not a source of YouTube downloads. A fork, checkbox or disclaimer does not establish permission to obtain, modify or distribute the app. Source functionality, service terms, trademarks and circumvention allegations can raise separate issues. For legal advice, ask a qualified professional; [GitHub’s DMCA policy](https://docs.github.com/en/site-policy/content-removal-policies/dmca-takedown-policy) describes its removal process.
+
+Do not advertise “DMCA-proof,” “undetectable,” “all ads blocked” or official affiliation.
+
+## What belongs in the tree
+
+`Sources` is the active implementation. `scripts` handles checks/build/distribution; `tests/fixtures` records the ABI, preservation and distribution evidence. `.github` contains workflows and the issue template. `docs/assets` holds the README artwork and real screenshots. `VERSION` and the manifest identify the source package.
+
+Keep those files and `LICENSE`/`Notices`. Leave out retired stubs, raw disassembly, development diaries, obsolete baselines and old publishers.

@@ -1,54 +1,71 @@
-# Make it your own
+# Settings
 
 [← QuietTube](../README.md)
 
-Open **You → Settings → General → Quiet controls**. Every switch saves a preference for the **next app launch**. The small notice disappears without confirmation; the footer keeps showing pending changes until you restart. The master switch pauses modifications without clearing your individual choices. On a genuinely fresh installation, the master switch and video/feed ad blocking start on. Existing saved values, including off, are never replaced by these new defaults.
+Open **You → Settings → General → Quiet controls**.
+
+Switches save choices for the next launch. Close and reopen the app to apply them. The short save notice disappears by itself; the footer keeps the restart reminder until the saved settings match the launch state.
+
+The master switch pauses modifications without clearing individual choices. On a fresh install, master/video/feed blocking start on. An update does not replace an existing off choice with the new defaults.
 
 ## Presets
 
-| Preset | Saves | Preserves |
-| --- | --- | --- |
-| Ads & essentials | Master, video ads, feed ads, additional ad formats, extended matching and classic logo ON; detailed activity/template capture OFF | Existing feed-cleanup choices, background audio, automatic-next-video preference |
-| Focused feed | Ads & essentials, plus all available feed cleanup ON | Background audio and automatic-next-video preference |
+Both presets show a preview. Backing out changes nothing.
 
-The preview shows all affected settings before Apply. Backing out changes nothing. Presets are additive bundles, not resets: switching from Focused feed to Ads & essentials does not undo feed cleanup. Basic bounded support counters still work with detailed tracing off.
+| Preset | What Apply saves | What it leaves alone |
+| --- | --- | --- |
+| Ads & essentials | Master, video/feed blocking, additional ad formats, extended matching and classic logo ON; detailed activity/template capture OFF | Existing feed-cleanup selections, background audio and automatic-next preference |
+| Focused feed | The above, plus all available feed-cleanup options ON | Background audio and automatic-next preference |
+
+Presets add settings; they are not resets. Switching from Focused feed to Ads & essentials does not undo the feed cleanup. Basic support counters still run when detailed capture is off. These presets do not control a temporary manual diagnostic session.
 
 ## Ads
 
-- **Block video ads:** enables the tested native player workaround. Also enables the dynamic feed-insertion fix when Block feed ads is on.
-- **Block feed ads:** filters recognized explicitly marked feed items. The tested post-minimize insertion fix needs both this and Block video ads enabled.
-- **Additional ad formats:** broader image/display-template matching. Also enables feed ads and extended matching. Nested promotional content may match.
+- **Block video ads** enables the native player workaround. It also enables the scoped dynamic feed-insertion workaround when **Block feed ads** is on.
+- **Block feed ads** filters recognized, explicitly marked feed items. The observed post-minimize insertion path needs both switches.
+- **Additional ad formats** adds broader image/display-template matching and enables feed ads plus extended matching. It can match nested promotional content too.
 
-The insertion fix rejects explicitly marked entries only during a scoped synchronous native insertion transaction. It does not block every item following a swipe or use a generic “Sponsored” text rule. Other paths and formats may escape filtering. If YouTube reports a playback error, the safety latch temporarily reverts future protected calls to native behavior for the current session. It does not change any saved toggle, repair an existing player or restore already-withheld feed entries. The settings footer and support report identify this pause. Reopening the app retries your saved choices. Restart or roll back if needed. There is no anti-detection or universal playback guarantee.
+### What the player workaround does
 
-## Feed
+QuietTube substitutes YouTube’s native `YTNoOpAdsPlaybackCoordinator` at the inspected factory, using the existing service-registry scope and delegate. Signature/constructor failures fall back to the original factory. It does not replace the content player or run a refresh/retry loop.
 
-Optional controls hide recognized Shorts shelves, Mixes, Watch it again shelves, topic suggestions, Playables, promotional shelves and large portrait cards. Most enable extended matching automatically when turned on. Disabling extended matching preserves these saved selections and pauses dependent rules; their descriptions explain the dependency.
+This is not an App Attest or PO-token implementation. “Something went wrong” is a generic error, not proof of one cause or proof that this workaround fixes it.
 
-Important limits:
-- Shorts shelves are not the Shorts tab, and not every Shorts surface is covered.
-- Watch it again uses English shelf-title matching and a bounded template fallback. It does not delete history.
-- Topic matching can affect other chip shelves; portrait-card matching can affect smaller portrait cards too.
-- Mix detection can match nested Mix destinations. These rules do not search arbitrary video titles.
+If the existing error observer sees a playback error while the ad profile is active, the safety latch pauses future player substitutions and protected scoped insertion for that session. The saved switch stays unchanged. The pause does not repair a player that already exists, restore withheld feed entries or switch off every independent feed-cleanup rule. Settings and the support report show the pause. A new launch retries the saved choice.
+
+The insertion filter operates inside a scoped synchronous native transaction. It checks explicit markers; it does not remove every item after a swipe or match generic “Sponsored” text. Other paths can still show ads.
+
+## Feed cleanup
+
+There are separate controls for Shorts shelves, Mixes, Watch it again, topic suggestions, Playables, promotional shelves and large portrait cards. Most require extended matching, which enabling the dependent option also enables. Turning extended matching off pauses those rules without deleting their saved choices.
+
+Limits worth knowing:
+
+- Hiding Shorts shelves does not remove the Shorts tab or every Shorts surface.
+- Watch it again uses English shelf titles and a bounded template fallback. It does not delete watch history.
+- Topic matching can catch other chip shelves; portrait-card matching can catch smaller portrait cards.
+- Mix detection can match nested Mix destinations. It does not search arbitrary video titles.
 
 ## Playback and appearance
 
-**Background audio** and **Stop the next video** are separate controls. The latter affects supported next-video actions, not in-feed previews. **Classic YouTube logo** removes seasonal/event header artwork. Use YouTube's native PiP control; there is no duplicate QuietTube PiP switch.
+**Background audio** and **Stop the next video** are separate. The latter affects supported automatic-next actions, not in-feed previews.
 
-## Advanced and support
+**Classic YouTube logo** replaces seasonal/event logo artwork. PiP stays in YouTube’s own settings; there is no duplicate QuietTube PiP switch.
 
-- **Extended feed matching:** shared prerequisite for broader cleanup.
-- **Troubleshooting:** optional local feed activity/template capture, short support report, full diagnostics and clearing template capture. Prepare a support test enables the current diagnostic prerequisites and requires restart; it preserves unrelated settings.
-- **Disable all options:** deliberately clears all QuietTube toggles for the next launch and asks for confirmation. It does not delete your YouTube account/history.
+## Advanced
 
-Diagnostics distinguish requested preferences, installed hooks, actual calls and withheld entries. None alone proves all ads are gone. Detailed captures are bounded; missing events can mean an unmonitored path or a capture limit, not necessarily no activity. [Privacy →](PRIVACY.md)
+**Extended feed matching** is the shared prerequisite for broader cleanup.
 
-## Persistence and upgrades
+**Troubleshooting** contains reports, the older activity/template capture switches, and manual diagnostic sessions. **Prepare a support test** enables its documented ad/matching/capture prerequisites for the next launch, leaving unrelated choices alone. [What each logging control does](DIAGNOSTICS.md).
 
-Normal restarts and updates retain your local preferences. Switching options, applying a preset/support setup or confirming Disable all options are intentional user changes. Removing/resetting app data, changing data containers or a sideloader assigning a new app identity can lose local preferences; no app can promise they survive those events forever. There is no cloud settings backup.
+**Disable all options** asks for confirmation, then saves all toggles off for the next launch. It does not delete your account or history. To stop a currently running manual diagnostic session immediately, use its **Stop** action.
 
-The old 1.0.0 latch may already have saved video blocking off. After upgrading, enable it once if you want it on, then reopen the app. Old automatic-off values cannot be reliably distinguished from deliberate user-off values, so the update does not silently flip either.
+## Saved choices
 
-## Manual diagnostic sessions
+Ordinary restarts and updates keep local preferences. Toggling a switch, applying a preset/support setup, or confirming Disable all options deliberately changes them. Deleting app data, using a new container or changing app identity can lose them. There is no cloud backup.
 
-Advanced → Troubleshooting now has Start, Stop, Export and Clear diagnostic history actions. Session state is temporary and off after relaunch; it is not a persisted switch being reset. No ordinary preference changes when you start/stop. Files survive ordinary reopening within storage/expiry limits. [Capture instructions, privacy and limits](DIAGNOSTICS.md).
+### Upgrading from 1.0.0
+
+The old error latch could save video blocking off. If that happened, enable it once after updating and restart. The updater cannot distinguish the old automatic off from a deliberate off, so it leaves either alone.
+
+Manual recording is different: it is temporary session state and starts off after relaunch. It does not reset a saved switch. Recent log files can remain available for export; [storage and expiry limits](DIAGNOSTICS.md#storage-and-deletion) still apply.

@@ -1,83 +1,66 @@
-<p align="center">
-  <img src="docs/assets/banner.svg" width="100%" alt="QuietTube — Less noise. More video.">
-</p>
+<picture>
+  <img src="docs/assets/banner.svg" width="100%" alt="QuietTube — a YouTube tweak for iOS.">
+</picture>
 
-<p align="center">
-  <strong>YouTube, without so much getting in the way.</strong><br>
-  Less clutter. Fewer interruptions. The native player you already know.
-</p>
+An iOS tweak for YouTube **21.38.2**. It adds video-ad blocking and feed filters while keeping YouTube’s native player.
 
-<p align="center">
-  <a href="https://github.com/KalvinWasUnoticed/QuietTube/fork"><strong>Fork & build ↗</strong></a>
-  &nbsp; · &nbsp; <a href="docs/INSTALL.md">Easy setup guide</a>
-  &nbsp; · &nbsp; <a href="https://github.com/KalvinWasUnoticed/QuietTube/issues">Get help</a>
-</p>
+I built it with AI help because I wanted fewer ads and less junk in the feed. Shorts shelves, Mixes and Playables have separate switches. Some ad formats still get through.
 
-## Just watch the video
+Settings are under **You → Settings → General → Quiet controls**.
 
-QuietTube started with a simple annoyance: opening YouTube to watch something, then dealing with ads, promotional shelves and a feed full of distractions.
+## Get it
 
-It keeps the familiar app and lets you remove the parts you don't want. No replacement player. No extra dashboard.
+| What you want | Where to go |
+| --- | --- |
+| Just `QuietTube.dylib` | [Releases](https://github.com/KalvinWasUnoticed/QuietTube/releases), or run **Build QuietTube dylib only** in this repo or a fork. No IPA URL needed. |
+| An IPA with QuietTube included | Fork the repo, supply your compatible decrypted YouTube IPA, then run **Build QuietTube IPA**. It publishes the IPA and a separate dylib in your fork. |
 
-| Less of this | More of this |
-| :--- | :--- |
-| **Ads** | Video-ad protection and filtering for recognized sponsored feed items. |
-| **Feed clutter** | Options to hide Shorts shelves, Mixes, Watch it again, topics, Playables and promotional cards. |
-| **Unwanted autoplay** | Control over supported automatic next-video actions. |
-| **Settings hassle** | Two presets, a preview before Apply, and restart notices that don't interrupt you. |
+The dylib is not an app you can install on its own. The IPA already contains it; don’t inject it twice.
 
-Background audio and the classic logo are included. PiP uses YouTube's own setting. Coverage isn't universal; downloads, SponsorBlock and Shorts-tab removal are not included. [Settings and limits →](docs/SETTINGS.md)
+[IPA build and install steps](docs/INSTALL.md) · [Both release workflows](docs/RELEASE-FLOWS.md)
 
-## Build your copy
+The IPA workflow checks the **exact input hash**, not just the version number. It can reject a different copy of 21.38.2. You supply the base app and need the rights to upload, modify and share it. A public fork means a public release.
 
-**Upload your IPA → copy the link → run Actions → download the result.**
+## What you can change
 
-1. Have your own compatible **decrypted YouTube 21.38.2 IPA** ready. We don't provide one.
-2. Upload it to [Catbox](https://catbox.moe/) or another file host that gives a direct HTTPS download link. Only upload files you have permission to share.
-3. **Fork this repository.** In your fork, open **Actions → Build QuietTube IPA → Run workflow**.
-4. Paste the file link, read the permission/publication notice and start the build.
-5. When it finishes, choose **Summary → DOWNLOAD IPA**, or open your fork's **Releases**. Install the result with your preferred IPA installer.
+- Video ads and recognized sponsored feed items.
+- Shorts shelves, Mixes, Watch it again, topic suggestions, Playables, promotional shelves and large portrait cards.
+- Background audio, supported automatic next-video actions and seasonal logo artwork.
+- Two presets with a preview before Apply.
 
-[Step-by-step guide, including Catbox and installation →](docs/INSTALL.md)
+PiP uses YouTube’s own setting. There’s no SponsorBlock, video downloader or Shorts-tab removal. [Settings and specific limits](docs/SETTINGS.md).
 
-> The build automatically checks that your IPA is the exact supported file. A different copy can be rejected even if it says 21.38.2. Catbox currently accepts files up to 200 MB; use another direct-link host for larger files. A public fork publishes a public download.
+## Settings
 
-## Set it once. Get on with watching.
-
-<p align="center">
-  <a href="docs/assets/settings.png"><img src="docs/assets/settings.png" width="280" alt="Quiet controls home with Presets, Ads, Feed, Playback, Appearance and Advanced."></a>
-  &nbsp;&nbsp;
+<p>
+  <a href="docs/assets/settings.png"><img src="docs/assets/settings.png" width="280" alt="Quiet controls home: Presets, Ads, Feed, Playback, Appearance and Advanced."></a>
   <a href="docs/assets/presets.png"><img src="docs/assets/presets.png" width="280" alt="The Ads and essentials and Focused feed preset choices."></a>
 </p>
-<p align="center"><sub>Real screenshots from the tested RC1 build. Same settings layout; current restart wording is installer-neutral. Images are cropped/resized, not edited UI mockups.</sub></p>
 
-Open **You → Settings → General → Quiet controls**.
+<sub>Real screenshots from the earlier RC1 build. These show the home and preset pages, not the newer diagnostic controls. Cropped and resized; no redrawn UI.</sub>
 
-- **Ads & essentials:** ad protection and the classic logo, with detailed logging off.
-- **Focused feed:** the essentials plus the available feed-cleanup options.
+Fresh installs start with the master switch and video/feed ad blocking on. Updates keep saved choices. Close and reopen the app after changing switches; refreshing the feed doesn’t count.
 
-Both preview the changes before applying and leave your background-audio/next-video choices alone. On a fresh installation, QuietTube, video-ad blocking and feed-ad blocking start **on**. Existing on/off choices survive updates and restarts. Fully close and reopen the app after making changes.
+Coming from 1.0.0 with video blocking unexpectedly off? [The upgrade note explains what happened](docs/SETTINGS.md#upgrading-from-100).
 
-**Updating from 1.0.0?** If video-ad blocking was already switched off by the old safety latch, turn it on once after updating, then reopen the app. We won’t override an existing off setting because it could be your own choice. A playback error can temporarily pause protection for that session; it no longer changes your saved toggle.
-
-## Tested, not guessed
+## Tested setup
 
 **iPhone 14 · iOS 26.5 · LiveContainer 3.8.0 · YouTube 21.38.2**
 
-Ad blocking, Google sign-in, native PiP, background audio and the settings were confirmed in this setup. LiveContainer was the **test environment**, not a design requirement. Other sideloading methods have not been verified; signing, installation and sign-in behavior can vary. The package needs your installer's signing/preparation and does not include app extensions.
+Earlier builds were tested here for ad blocking, Google sign-in, native PiP, background audio and settings. LiveContainer is the reported test environment, not a design requirement. Other sideloading methods have not been verified. Signing and sign-in behavior can differ; the packaged IPA needs installer preparation and has app extensions removed.
 
-The player/feed implementation is retained from the working development builds. Version 1.1.0 adds manual local diagnostic sessions while retaining the preference fix. Apple compilation, the new native tests and each new output still need validation. No promise of every ad blocked or compatibility with every installer.
+The maintainer has since reported a successful **1.1.0 standalone dylib build and release on GitHub**. That is build evidence, not a new device test of every logging control or installer. [Test records](docs/AUDIT-1.1.0.md).
+
+This is **not an App Attest or PO-token fix**. The native ad-coordinator change and session fallback are described in [Settings](docs/SETTINGS.md#what-the-player-workaround-does). They do not fix every “Something went wrong” error.
+
+## Report a problem
+
+Open an [issue](https://github.com/KalvinWasUnoticed/QuietTube/issues) with the version, device, installation method and what happened. For build failures, include the error from the failed step—not just “build failed.”
+
+For playback or feed problems, you can [record a short diagnostic session](docs/DIAGNOSTICS.md). Recording is manual, files are limited, and nothing is uploaded automatically. Review a report before sharing it.
 
 ---
 
-Made by **[KalvinWasUnoticed](https://github.com/KalvinWasUnoticed)** · [Privacy](docs/PRIVACY.md) · [MIT license](LICENSE) · [Credits](Notices/REFERENCES.md) · [Changelog](CHANGELOG.md)
+[KalvinWasUnoticed](https://github.com/KalvinWasUnoticed) · [Credits](Notices/REFERENCES.md) · [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md) · [Privacy](docs/PRIVACY.md) · [MIT license](LICENSE)
 
-<sub>Unofficial. Not affiliated with YouTube or Google. Use and share only files you have the rights to use and share. A fork, an upload service or a disclaimer does not guarantee protection from copyright claims.</sub>
-
-Audit scope and test evidence: [1.1.0 audit](docs/AUDIT-1.1.0.md).
-
-**Need to capture a playback/feed problem?** Start a manual session in Advanced → Troubleshooting, reproduce it briefly, then stop and export. Local files are bounded and recording stops on relaunch. [What it captures and how to clear it →](docs/DIAGNOSTICS.md)
-
-## Download just the tweak
-
-The IPA build now also publishes **QuietTube.dylib** separately. To release only the library—without downloading or distributing a YouTube IPA—run **Actions → Build QuietTube dylib only** in the original repository or a fork. Choose prerelease or regular release on each run. [Release flow guide →](docs/RELEASE-FLOWS.md)
+Unofficial. Not affiliated with YouTube or Google. The MIT license covers QuietTube’s source, not YouTube’s app or trademarks. A fork, file host or disclaimer does not protect you from copyright claims.

@@ -1,53 +1,66 @@
 # Contributing
 
-Keep QuietTube small, readable and focused on watching. Do not add unrelated features merely because another enhancer has them.
+I want QuietTube to stay focused on watching. Another tweak having a feature is not, by itself, a reason to add it here.
 
-## Check a change
+## Run the checks
 
-Use Python 3.11+ and a C compiler:
+Python 3.11+ and a C compiler:
 
 ```sh
 bash scripts/check.sh
 ```
 
-This runs the release-integrity guard, Python source/packaging/distribution tests, six C suites under AddressSanitizer/UndefinedBehaviorSanitizer and shell checks. Native compilation requires macOS/Xcode's iPhoneOS SDK. Push/PR CI now has a macOS leg that runs Foundation tests and compiles the iOS library; the manual IPA workflow does the same before downloading its base. Actual iOS behavior requires device testing.
+That checks the source manifest, runs the Python tests and six C suites under AddressSanitizer/UndefinedBehaviorSanitizer, and checks shell syntax. On macOS it also runs the Foundation tests through `scripts/test_native.py`.
 
-`tests/fixtures/preservation.json` protects the tested runtime (version labels normalized), player constructor suffix and accepted integration boundaries. `native-abi.json` contains only method/ivar metadata used by current ABI tests, not executable disassembly. **Do not regenerate preservation hashes just to make a failure pass.** A runtime change needs a separate rationale, ABI review, regression tests and device evidence.
+The iOS library needs macOS and Xcode’s iPhoneOS SDK:
 
-The release manifest catches mixed uploads; it is not a trust signature. Intentional source changes require a reviewed manifest update after tests are updated. It must not be used to bless accidentally restored old code. The runtime-preservation baseline is a separate safeguard.
+```sh
+bash scripts/build.sh
+```
 
-## Preparation validation
+Push/PR CI has Linux and macOS jobs. The macOS job runs the native tests and compiles the library. Both manual release flows check and compile before publication; the IPA flow does so before downloading its base. None of this replaces a device test.
 
-The final preparation suite passes 128 Python checks. The current validation includes a synthetic download → package → release-command round trip, mocked HTTP/GitHub failure cases, source/runtime preservation checks and six C sanitizer suites: 79 classifier fixtures + 5,000 random iterations; 20 template-scanner fixtures + 5,000 random iterations; 32 status combinations + an inactive-session regression; 26 insertion-policy checks; 100,000 structured mutation cases with boundary, determinism and input-immutability checks. The diagnostic policy adds 20,000 admission combinations, 300,000 size checks and expiry/overflow cases. Python additionally mutates 5,000 Mach-O headers. Workflow YAML and actionlint, shell syntax, relative documentation links, the source manifest and ZIP integrity were checked. No proprietary base or real GitHub build was used for these final preparation tests.
+## Don’t hide a regression with a new hash
 
-## Scope of this release
+`release-manifest.json` catches incomplete or mixed uploads. It is not an authenticity signature. Intentional source changes need reviewed hashes; an unexpected mismatch needs investigation.
 
-The player constructor/fallback suffix, feed insertion/filter logic, logo and native integration remain protected. In 1.0.1 the preference initializer and safety-latch persistence policy deliberately change: missing defaults are initialized conservatively, and playback errors may pause only the current session without saving a user toggle off. The revised protection record documents these exceptions; it does not unfreeze the player/feed implementation. Do not refactor hook logic during documentation/distribution work. Keep preference keys and defaults stable. Use QTSettingsModel for public labels, prerequisite changes and preset bundles.
+`tests/fixtures/preservation.json` is a different guard. It protects runtime code, the player constructor and accepted hook boundaries. `native-abi.json` records method/ivar metadata, not disassembly. Do not regenerate those baselines just to make a failure pass.
 
-Preserve the safety latch, thread-local feed scope, unknown-content pass-through, native results/errors, nonempty-section safeguards, native PiP/sign-in behavior and settings-sheet navigation. No reset on upgrade, no background preference mutation from playback errors, no live hook installation from switches and no confirmation dialog for ordinary toggles.
+The logging changes are listed in `diagnostics-delta.json`. Tests reverse exactly those additions before comparing the earlier runtime hashes. Expanding that list to conceal an unrelated behavior change defeats the test.
 
-## Test evidence and limits
+## Keep these contracts
 
-Maintainer-reported: iPhone 14 / iOS 26.5 / LiveContainer 3.8.0, installed through SideStore; ad blocking, Google sign-in, native PiP, background audio and the RC1 settings worked. One captured feed transaction explicitly withheld an ad-marked entry and produced no subsequent insert notification/card. This is limited device evidence, not an all-ads/all-devices guarantee.
+- Keep preference keys and saved choices. Do not reset them on upgrade or save a switch off from a playback-error callback.
+- Preserve the session safety latch, thread-local insertion scope, native return values/error pointers and exception forwarding.
+- Let unknown content pass. Preserve copy-before-edit and the nonempty top-level presentation safeguard.
+- Leave native PiP/sign-in behavior alone. Keep QuietTube’s settings sheet separate from YouTube’s private navigation layout.
+- Switches save for the next launch; they do not install hooks live. The explicit manual diagnostic action has its own observation path and version guard.
+- Use `QTSettingsModel` for labels, dependencies and preset bundles. Ordinary toggles should not create confirmation dialogs.
 
-Before tagging/publishing, run the fork IPA workflow with an authorized pinned base, verify the release IPA metadata/hash, and test navigation, fast toggles, preset cancellation/Apply, light/dark/large text, restart state, player/feed behavior, native PiP/background and sign-in. Keep a working local backup. The new fork IPA pipeline was not executed on GitHub during repository preparation. Mocked release commands do not prove live permissions, macOS compilation or successful publication.
+A runtime change needs a reason, an ABI review, regression checks and device evidence. Documentation work is not a reason to refactor hooks.
 
-## Repository hygiene
+## What the tests establish
 
-- Keep active sources, build/packaging helpers, tests/fixtures, concise docs, referenced graphics and required notices.
-- Do not restore a built-in base download URL, upstream IPA publication, development diaries, disassembly dumps or retired stub modules. IPA publication remains restricted to the invoking fork and explicit acknowledgement. The separately authorized dylib-only workflow also permits the original repository, with explicit acknowledgement and a per-run prerelease choice.
-- Do not commit proprietary app binaries, compiled libraries, credentials, signing data or personal diagnostic captures.
-- Third-party license notices are intentionally retained even when not compiled. They are not disposable build residue.
-- For maintainer publication and old-release cleanup, see [docs/MAINTAINERS.md](docs/MAINTAINERS.md).
+The preceding distribution package passed **128 Python checks** and **six C sanitizer suites**, including synthetic packaging/publication failures and bounded mutation tests. The detailed counts and limits are in the [1.1.0 audit](docs/AUDIT-1.1.0.md); keep historical results tied to the version that produced them.
 
-## Preference regression checks
+The Foundation initializer tests cover fresh, legacy and partial stores, plus 32 combinations over 20 reinitializations. Separate-process tests use 16 full 17-flag patterns and 80 reader launches. They explicitly flush the test suite for deterministic ordering; that does not prove iOS force-kill durability.
 
-`tests/test_preferences.m` links the actual Foundation-only initializer, tests fresh/legacy/partial stores and 32 on/off combinations over 20 reinitializations. `scripts/check.sh` executes it on the macOS build runner before the iOS library compiles. It is skipped explicitly on Linux; it has not been executed during this preparation. It is not an iOS multi-process/data-container test. Device checks should cover at least several full closes/reopens, both manual off values, a clean install and an upgrade. Preserve existing app data when testing persistence.
+The settings tests run the real model with a recording stub at its write boundary. Logger tests run the actual Foundation implementation; observer tests use mocked native getters. Linux checks their shared C policies and source constraints, not Foundation or UIKit.
 
-`python3 scripts/test_native.py` on macOS also executes the production settings model with an isolated write-boundary stub and runs the actual initializer across 80 reader processes for 16 complete 17-flag patterns. The subprocess probe explicitly flushes its isolated suite for deterministic ordering; it does not prove iOS force-kill durability. All new native tests remain unexecuted in this Linux preparation. Full audit: [docs/AUDIT-1.1.0.md](docs/AUDIT-1.1.0.md).
+Earlier device evidence came from iPhone 14 / iOS 26.5 / LiveContainer 3.8.0, installed through SideStore. Ad blocking, sign-in, native PiP, background audio and the RC1 settings worked there. An observed feed transaction withheld an explicitly marked entry without a later insert notification/card. That is evidence for that path, not every ad.
 
-## Diagnostics review boundary
+The maintainer later reported a successful standalone 1.1.0 dylib build/release on GitHub. Do not confuse it with the earlier local checks or a fresh device test of all logging/UI behavior.
 
-`diagnostics-delta.json` enumerates the intentional logging additions; preservation checks reverse exactly those deltas before comparing the old runtime hashes. Do not broaden this record to hide unrelated behavior changes. The real Foundation logger and observer (with mocked native getter boundary) are compiled and run by `scripts/test_native.py` on macOS. Linux executes their shared C admission/storage/expiry policy and source guards, not Foundation or UIKit. Capture privacy is schema-limited, not guaranteed anonymization.
+## Before publishing a behavior change
 
-Distribution changes are documented in [docs/RELEASE-FLOWS.md](docs/RELEASE-FLOWS.md). New publishing tests are mocked/synthetic; live release creation and fresh Apple compilation were not executed for this change.
+Build the exact artifact, verify its commit/checksum and keep a working backup. Test saved off/on values over full restarts, preset cancellation/Apply, dependency toggles, navigation, notices and large text/light/dark layouts. Check playback, feed insertion, sign-in, native PiP and background audio on the installation method you claim to support.
+
+For logging changes, check start/stop/export/clear, storage errors, dropped events and callback overhead. Reports contain identifier clues; allowed fields are not a promise of anonymity.
+
+## Repository boundaries
+
+Keep active sources, tests/fixtures, scripts, docs/artwork and required notices. Do not add proprietary app binaries, credentials, signing data, raw captures or disassembly dumps. Don’t restore retired stub modules or built-in base-app URLs.
+
+IPA publication stays fork-only with acknowledgement. The separate dylib-only flow also permits the original repository and a per-run prerelease choice. Both rules are deliberate. [Release flows](docs/RELEASE-FLOWS.md).
+
+Keep `LICENSE` and third-party license notices intact. The [maintainer guide](docs/MAINTAINERS.md) covers source replacement and remote cleanup.

@@ -1,41 +1,72 @@
-# Manual diagnostic sessions (1.1.0)
+# Capture a playback or feed problem
 
-## Capture a problem
+Recording is manual. It helps collect clues; it does not fix an error or decide that an unfamiliar item is an ad.
 
-1. Use the supported YouTube **21.38.2** build. QuietTube's master switch must already be active; enabling it requires a full restart as before.
+## Record a short session
+
+1. Use the supported YouTube **21.38.2** build. QuietTube’s master switch must already be active; changing that switch still requires a restart.
 2. Open **You → Settings → General → Quiet controls → Advanced → Troubleshooting**.
-3. Tap **Start diagnostic session**, then return to the video/feed and reproduce the issue briefly. No restart is needed for starting this session. Ordinary blocking/preferences are not changed.
-4. Return and tap **Stop diagnostic session**. Already-admitted writes drain; new recording stops immediately.
-5. Tap **Export diagnostic history**. This opens the system share sheet with report **text**, including the current support snapshot. Copy/save/share through a destination you trust. Review the identifiers and timestamps before posting an issue.
-6. Tap **Clear diagnostic history** when finished. It stops recording and queues deletion after preceding writes. The notice asks you to check an export for storage failures, because filesystem deletion can fail. This is not secure erasure and cannot delete copies you shared elsewhere.
+3. Tap **Start diagnostic session**, go back to the video/feed and reproduce the problem. Starting this session needs no restart and does not change saved blocking preferences.
+4. Tap **Stop diagnostic session**. New recording stops immediately. Records already in the write queue finish writing.
+5. Tap **Export diagnostic history**. The share sheet receives report text, including the current support snapshot—not a ZIP of the internal files. Review it before copying, saving or posting it.
+6. Use **Clear diagnostic history** when finished. Check an export for storage failures if deletion is in doubt.
 
-Sessions always start **off after a process relaunch**. This is temporary diagnostic state, not a saved setting that turns itself off. Existing saved ON/OFF choices remain unchanged. Files normally survive reopening; you can export the previous session without starting another one. iOS may evict cache files, and uninstall/data reset/new containers can remove them.
+A full relaunch stops recording. You can export the previous files without starting again, unless they expired, were cleared or iOS removed the cache.
 
-The old **Record feed activity**, **Record template clues**, **Prepare a support test** and report pages are retained. They are separate legacy tools with their existing saved preferences. The new session does not automatically enable those switches. Export includes their current in-memory snapshot if you separately used them. Clearing the new disk history does **not** clear those old reports; the existing Clear template capture action is separate.
+## The controls are separate
 
-## What it observes
+| Control | What it affects |
+| --- | --- |
+| Start / Stop diagnostic session | Temporary recording state. Off on every process launch. Does not change ordinary preferences. |
+| Export diagnostic history | Recent disk events plus the current support snapshot. If you used the older capture tools, their current in-memory data can appear in that snapshot. |
+| Clear diagnostic history | Stops the manual session and queues deletion of its event files after earlier writes. Does not clear older in-memory reports or exported copies. |
+| Record feed activity / Record template clues | Older capture tools with saved switches and their original restart rules. Starting a manual session does not turn these on. |
+| Prepare a support test | Saves the existing diagnostic prerequisites for the next launch. It is an explicit settings change. |
+| Clear template capture | Clears the older template capture, not all counters or disk history. |
 
-- Playback errors reaching the existing supported native error handler: numeric codes and a short domain-category enum, with at most three underlying errors. No localized descriptions or arbitrary userInfo dump.
-- Player factory/no-op/fallback and safety-pause events **when the existing player profile is installed and invoked**. It is not an independent monitor of every player implementation.
-- Existing watch-collapse/layout callbacks, feed mutation operations, initial presentation inputs, scoped insertion inputs and successful return boundaries, where the known ABI-checked hooks are available.
-- Sampled internal renderer/class and template-name clues, explicit adLoggingData presence, payload byte size and existing classification mask. A Playables renderer or a new template may become visible here. Unknown/unmatched material is observed without becoming a new blocking rule.
-- Foreground/background, memory-warning and termination notifications received while recording. iOS does not guarantee a termination notification or a final disk flush.
-- Hook attempts made during recording. The current support snapshot supplies hook status, active/saved flags, YouTube/iOS versions and existing counters.
+## What you can see
 
-**Not captured:** every app event, network packets/responses, authentication fields, cookies/passwords, explicit video/account-ID fields, a viewing-history database, decoded remote experiments/config values, crash stacks, or a complete play/pause/buffering timeline. Renderer/template clues can reveal a new surface, but this is not a server-configuration diff tool. It cannot guarantee every new Playables/ad format is discovered.
+- Errors reaching the supported native playback-error handler: numeric codes, a short domain category and at most three underlying errors. No localized description or arbitrary `userInfo` dump.
+- Player factory/no-op/fallback and safety-pause events when the existing player-profile hook is installed and invoked.
+- Known watch-collapse/layout callbacks, feed mutations, presentation inputs, scoped insertion inputs and successful return boundaries. Missing or incompatible private methods remain unmonitored.
+- Sampled renderer/template names, explicit `adLoggingData` presence, payload size and the existing classifier’s mask. This can expose Playables or unfamiliar feed elements. It does not add blocking rules.
+- Foreground/background, memory-warning and termination notifications received during recording. iOS does not promise a termination notification or a final flush.
+- Hook attempts during recording. The support snapshot adds current hook status, active/saved flags, YouTube/iOS versions and counters.
 
-## Limits and meaning
+This is not an all-events recorder. It does not capture network traffic, authentication fields, passwords/cookies, explicit account/video-ID fields, a viewing-history database, remote experiment values, crash stacks or a complete play/pause/buffering timeline. It is not a server-config diff tool.
 
-- Three recognized JSON-lines cache files, **256 KiB each**: at most **768 KiB of retained event files**. Atomic cleanup may temporarily create one additional file of up to 256 KiB; exported text and in-memory buffers are additional bounded working data.
-- A **7-day record window**, enforced during startup, start/export and periodic active writes. An app that is closed or idle cannot erase files on a wall-clock schedule; stale records are removed on the next cleanup. Clock changes can affect expiry.
-- At most **64 queued write tasks**; ordinary events reserve eight queue positions and six rate positions for errors/safety pauses. Up to **30 data events per second within a continuous session** (ordinary events capped at 24). Start/stop metadata is additional; restarting a manual session resets its rate window. Overload drops are counted, not silently described as complete capture.
-- Shared budget of **four discovery admissions/second per session** for graph walks/payload samples. Each graph walk visits at most 12 nodes, depth three, three entries per array, and only a closed list of existing signature-checked getters. Payloads over 256 KiB are not scanned; at most four template names are emitted per sampled element. Class-name fields retain only valid YT/ML-prefixed identifiers; other class families and unnamed/new template formats may be missed.
-- Observation does not seek, retry playback, modify feed objects, suppress native exceptions, change saved preferences or create new blocking rules. Starting a session retries the existing idempotent feature installers with the same launch flags; unavailable private methods remain unavailable.
-- File I/O is serialized off the UI thread. Sampling itself happens at the native callback and has some overhead; iPhone performance remains to be measured.
-- Storage failures, rate/queue drops, unavailable hooks, sampling and abruptly ending the process can all leave missing evidence. **An absent event is not proof that it did not happen.** A nearby template is not proof it caused an error or is an ad.
+## Storage and deletion
 
-## Privacy
+| Limit | Detail |
+| --- | --- |
+| Retained files | Three JSON-lines cache files, **256 KiB each**, up to **768 KiB** of retained events. |
+| Temporary space | Atomic cleanup can add one temporary file of up to 256 KiB. Exported text and working buffers use additional limited memory/storage. |
+| Retention | A **seven-day record window**, checked at startup, session start/export and periodic active writes. |
+| While closed or idle | Cleanup is not a scheduled background eraser. Stale records remain until the next cleanup. Clock changes affect expiry. |
+| Cache loss | iOS can evict these files. App removal, data resets and new containers can also lose them. |
 
-Logs are local to the app cache, with restrictive permissions, backup exclusion requested and iOS file protection applied to event files. This is not separate encrypted storage or an anonymity guarantee. There is no automatic upload.
+Disk I/O runs on a serial queue, off the UI thread. Temporarily unreadable files are kept rather than treated as empty. Export rechecks record age and allowed fields, and drops malformed or incomplete lines.
 
-Only an allowlisted numeric/identifier schema is written. Export revalidates cached records; unknown fields and malformed/expired lines are discarded. The template scanner is lexical, not a privacy-proof protobuf decoder: identifier-shaped text may contain opaque or sensitive clues. **Review before sharing.** Do not post tokens, account details or unreviewed captures. Use a short reproduction rather than leaving recording on all day.
+Clear stops new recording before deletion is queued, so earlier writes finish before their files are removed. A later explicit Start begins another session. Filesystem operations can fail; the report includes storage-failure counts. Clearing is not secure erasure and cannot remove reports you already shared.
+
+## Sampling and dropped events
+
+- At most **64 queued write tasks**. Ordinary events leave eight queue places for errors/safety pauses.
+- Up to **30 data events/second** during a continuous session. Ordinary events stop at 24, leaving six rate positions for errors/safety pauses. Start/stop records are extra; a new manual session resets the rate window.
+- A shared budget of **four discovery admissions/second per session** for graph walks and payload samples.
+- Each walk visits at most **12 nodes**, depth **three**, with at most **three entries per array**, through a closed list of signature-checked getters.
+- Payloads over **256 KiB** are not scanned. A sampled element emits at most **four template names**. Class fields retain valid **YT/ML-prefixed** identifiers; other class families and unnamed formats can be missed.
+
+Queue/rate drops are counted. An absent event can mean an unavailable hook, a sampling limit, an I/O failure or an abrupt exit—not that nothing happened. A nearby template does not establish the cause of an error.
+
+Sampling still runs at the native callback and has a cost. Device frame/battery impact has not been measured here. Keep sessions short.
+
+## What recording does not change
+
+Observation does not seek, retry playback, edit feed objects, suppress native exceptions or alter saved choices. Start retries the existing idempotent installers with the same launch flags. The supported-version guard still applies. Stopping recording leaves installed observation wrappers in place, but the manual recorder stops accepting events.
+
+## Before sharing
+
+The files are in the app cache. Permissions are restricted, backup exclusion is requested, and iOS file protection is applied. This is not a separate encrypted vault or a promise of anonymity. No automatic upload is added.
+
+Only allowed numeric fields and identifiers are written. But template scanning is lexical, not a privacy-proof protobuf decoder: identifier-shaped text can contain sensitive clues. Review the report. Don’t attach tokens, account details or unreviewed captures to an issue. [Data handling](PRIVACY.md).

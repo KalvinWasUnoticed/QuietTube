@@ -12,6 +12,8 @@ What happened:
 What you expected:
 Steps to reproduce:
 
-For a build failure, paste the relevant failed-step error. For a playback/feed problem, optionally include a REVIEWED short report from Quiet controls → Advanced → Troubleshooting.
+For a build failure, paste the error from the failed step. Include which workflow you ran: IPA or dylib only.
 
-Do not attach IPAs, account identifiers, passwords, cookies, tokens or unreviewed full diagnostics. Requests for base-app downloads or encryption bypass instructions are outside this project's distribution policy.
+For playback/feed issues, a reviewed support report or short manual capture from Quiet controls → Advanced → Troubleshooting can help. Check its contents before posting it.
+
+Do not attach IPAs, account identifiers, passwords, cookies, tokens or unreviewed full diagnostics. This project does not provide base-app downloads or encryption-bypass instructions.

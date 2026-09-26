@@ -1,27 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="480" viewBox="0 0 1280 480" role="img" aria-labelledby="title desc">
-  <title id="title">QuietTube — Less noise. More video.</title>
-  <desc id="desc">A minimal dark banner with pale blue accents. Native playback, a quieter feed, and settings that stay out of your way.</desc>
-  <defs>
-    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#11151b"/><stop offset="1" stop-color="#080b10"/></linearGradient>
-    <linearGradient id="line" x2="1" y2="1"><stop stop-color="#8bbfff"/><stop offset="1" stop-color="#3e6da6"/></linearGradient>
-  </defs>
-  <rect x="1" y="1" width="1278" height="478" rx="28" fill="url(#bg)" stroke="#25303e"/>
-  <g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif">
-    <circle cx="73" cy="62" r="5" fill="#91c3ff"/>
-    <text x="92" y="68" font-size="17" fill="#a5b1c0" letter-spacing="3">QUIETTUBE / 1.0</text>
-    <text x="64" y="191" font-size="76" font-weight="600" fill="#f4f6f9" letter-spacing="-3">Less noise.</text>
-    <text x="64" y="275" font-size="76" font-weight="600" fill="#a6cdff" letter-spacing="-3">More video.</text>
-    <text x="67" y="338" font-size="21" fill="#adb8c7">A simpler way to watch. Still the native app.</text>
-    <path d="M67 400h488" stroke="#29313d"/>
-    <text x="67" y="436" font-size="14" fill="#8c9aac" letter-spacing="1.5">OPEN SOURCE</text>
-    <circle cx="210" cy="431" r="2" fill="#536478"/>
-    <text x="226" y="436" font-size="14" fill="#8c9aac" letter-spacing="1.5">LESS CLUTTER. MORE CONTROL.</text>
-  </g>
-  <g fill="none">
-    <rect x="856" y="105" width="260" height="260" rx="78" stroke="#26374b"/>
-    <rect x="888" y="137" width="196" height="196" rx="58" stroke="url(#line)" stroke-width="3"/>
-    <path d="M969 201L969 269L1023 235Z" fill="#a6cdff" stroke="#a6cdff" stroke-linejoin="round" stroke-width="7"/>
-    <path d="M1059 305L1110 356" stroke="#a6cdff" stroke-width="7" stroke-linecap="round"/>
-    <path d="M828 235h-37M1147 235h37" stroke="#27364a" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="400" viewBox="0 0 1280 400" role="img" aria-labelledby="title desc">
+  <title id="title">QuietTube</title>
+  <desc id="desc">A printed-label style wordmark on warm paper, with charcoal lettering and a short vermilion rule. A YouTube tweak for iOS.</desc>
+  <rect width="1280" height="400" fill="#F1EBDD"/>
+  <rect x="54" y="104" width="12" height="169" fill="#C64936"/>
+  <g fill="#20201E" font-family="Arial, Helvetica, Liberation Sans, sans-serif">
+    <text x="105" y="228" font-size="152" font-weight="700" letter-spacing="-7">QuietTube</text>
+    <text x="112" y="294" font-size="24">A YouTube tweak for iOS.</text>
   </g>
 </svg>

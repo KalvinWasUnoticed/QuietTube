@@ -1,67 +1,72 @@
-# 1.1.0 logging rebuild — audit and test evidence
+# 1.1.0 audit and test record
 
-Subsequent distribution-only changes: see [release flows](RELEASE-FLOWS.md). Dylib-only upstream publication is now authorized; IPA publishing remains fork-only. The current suite has 128 Python tests; counts below describe the earlier logging/linker audit.
+This records the logging work, the linker correction and the later distribution update. Keep those stages separate. A successful build is not a device test.
 
-## Linker correction
+## Build history
 
-The supplied GitHub run passed the regression-check step, including the configured macOS native harnesses, then failed iOS linking on `CGRectGetMidX` / `CGRectGetMidY`. The export popover introduced those CoreGraphics symbols, but the build linked only Foundation and UIKit. The corrected build explicitly links CoreGraphics, and a source regression test checks that dependency. No production source or runtime behavior changed in this correction. The corrected Apple link and device execution still require confirmation; the earlier check-step pass does not validate them.
+The logging package was prepared and checked on Linux. Its new Foundation tests and iOS build could not run in that environment.
 
-## Release status
+The supplied GitHub run then passed the regression step, including the configured macOS tests, but failed linking on `CGRectGetMidX` and `CGRectGetMidY`. The new export popover used CoreGraphics; the build linked only Foundation and UIKit. Adding CoreGraphics fixed the missing dependency in the build configuration, and a regression check was added. No production source changed for that correction.
 
-Complete source package, **not a compiled or device-validated IPA**. Linux checks were executed; macOS Foundation tests and the full Apple SDK build are configured but could not be executed here. Native runtime/UI validation is a release gate, not something source review can replace.
+The maintainer later reported a successful standalone **1.1.0 dylib build and release**. That is later build evidence, not a retroactive Apple test of the original local package or proof that every new control works on-device.
 
-## Scope reviewed
+The subsequent distribution package added the [two release flows](RELEASE-FLOWS.md) and reached **128 Python tests**. IPA publication remains fork-only; dylib-only publication is allowed upstream or in forks. The logging/linker results below retain their own counts.
 
-All pre-existing Objective-C implementations were compared with 1.0.2. Changes to those files are enumerated in `tests/fixtures/diagnostics-delta.json`: logging imports/calls, manual observer admission, UI actions, startup notification registration and a bounded general-counter overflow bucket. Tests reverse only these explicit deltas and then verify the original frozen hashes. A direct comparison against the actual prior source tree also passed. The player constructor suffix, feed classifier/scanner, insertion policy, settings model, preference initializer, logo and original native call/result/error paths remain protected.
+## Code reviewed
 
-New modules:
+Existing Objective-C implementations were compared with 1.0.2. `tests/fixtures/diagnostics-delta.json` records the intentional changes: logging imports/calls, manual observer admission, UI actions, startup notification registration and the general-counter cap. Tests reverse exactly those changes before checking the original hashes. A direct comparison against the prior source tree also passed.
 
-| Module | Responsibility / review |
-|---|---|
-| QTDiagnosticLog.h/.m | Transient manual session state, fixed schema, finite numeric/identifier validation, private directory, serial asynchronous writes, file/type/size checks, rotation, recent-record validation, replay redaction, overload/error-reserve policy, error-chain bound, export and clear ordering. No preferences or network APIs. |
-| QTDiagnosticPolicy.h | Shared executable C policy for admission, overflow-safe byte bounds and finite timestamp expiry. Used by production storage, not a duplicate test implementation. |
-| QTDiagnosticsBridge.h/.m | Read-only observations using the existing signature-checked getters. Closed graph edges, depth/node/array bounds, shared sample budget, class/template metadata and explicit marker presence. Unknown content does not change filtering decisions. |
-| QTObservationAccess.h | Foundation-only declarations matching the existing core getter interfaces exactly, allowing the new observer to be exercised with native mocks on macOS. |
+The player constructor suffix, feed classifier/scanner, insertion policy, settings model, preference initializer, logo and underlying native call/result/error paths remain protected.
 
-Existing interfaces reviewed: immutable launch preferences; master gating; absent-only defaults; player atomic latch; native fallback and error forwarding; scoped feed insertion/result/error-pointer forwarding; copy-before-edit feed cleanup; native logo reset/reentrancy; background/autoplay hooks; legacy trace ownership/windowing; settings navigation/preview/apply/dependencies/notices; packaging/download/publish guards and fork-only policy. See [function inventory](FUNCTION-INVENTORY.md) for entry points and [diagnostic behavior](DIAGNOSTICS.md) for actual coverage limits.
+| New module | What was checked |
+| --- | --- |
+| `QTDiagnosticLog.h/.m` | Temporary session state, fixed field schema, finite numbers/valid identifiers, private directory, serial writes, file/type/size checks, rotation/expiry, export revalidation, queue/rate reserves, error-chain limit and clear ordering. No preference writes or network APIs. |
+| `QTDiagnosticPolicy.h` | Admission, overflow-safe byte bounds and finite timestamp expiry. Production uses the same C policy that the tests execute. |
+| `QTDiagnosticsBridge.h/.m` | Existing signature-checked getters; closed traversal edges and depth/node/array limits; shared sampling budget; class/template and explicit-marker observations. No new filtering decisions. |
+| `QTObservationAccess.h` | Foundation-only declarations that match the core getter interfaces, so mock-object tests can call the observer on macOS. |
 
-## Findings addressed
+Existing interfaces reviewed included launch snapshots/defaults/master gating, the atomic player latch, native fallback/error forwarding, scoped insertion/error-pointer handling, copy-before-edit filtering, logo reentrancy, background/autoplay hooks, legacy trace ownership/windows, settings navigation/dependencies/presets/notices and packaging/download/publication guards. [Function inventory](FUNCTION-INVENTORY.md).
 
-- General session counters could grow for arbitrarily many distinct error-code keys: now at most 128 distinct keys plus one overflow bucket.
-- An observer must not bypass the supported-version guard: manual startup checks 21.38.2 before calling the existing installers.
-- Manual observation must not silently enable legacy tracing: legacy capture still checks its original flag; the new observer has its own temporary admission state.
-- Error events can be crowded out by feed traffic: reserved queue/rate capacity, with overload counts and no claim of lossless capture.
-- Expired/corrupt records must not leak through replay: export prunes and re-sanitizes; incomplete lines are discarded. File reads are bounded and nonregular log files are rejected.
-- Clear must not race earlier writes: recording is disabled before deletion is enqueued on the same serial queue. A later explicit Start is a new session.
-- Cache eviction can remove the directory: the writer recreates its private directory when absent and rejects a replacement non-directory/symlink.
-- UI export uses asynchronous completion, main-thread presentation, weak controller ownership, a per-page busy guard and an iPad popover anchor. Disk errors are reported, not echoed with paths or raw exception text.
+## Problems addressed
 
-## Locally executed checks
+- Arbitrary error-code keys could grow the general counter dictionary. It now allows 128 distinct keys plus one overflow bucket.
+- Manual observation could have bypassed the version guard. Startup checks 21.38.2 before calling the installers.
+- Starting a session must not enable older tracing switches. Their original flags still govern that capture.
+- Feed traffic can crowd out errors. Queue/rate reserves reduce that risk; drops remain possible and are counted.
+- Export must not replay expired/corrupt data. It prunes and checks fields again, drops incomplete lines, limits reads and rejects nonregular log files.
+- Clear must follow earlier writes. It disables admission before queuing deletion on the same serial queue. A later Start is a new session.
+- Cache eviction can remove the directory. The writer recreates it when absent and rejects a replacement non-directory/symlink.
+- Export finishes asynchronously, presents on the main thread, uses weak controller ownership and a per-page busy guard, and anchors the iPad popover. Failures are counted without printing paths or raw exceptions.
 
-- **118 Python tests**, including source/ABI/preservation checks, settings/preference policies, module/interface wiring, privacy-schema guards, diagnostics admission/order guards, downloader/publisher mocks, packaging and 5,000 malformed Mach-O header mutations.
-- **Six ASan/UBSan C suites**: original 79 classifier + 20 scanner fixtures and 10,000 random inputs; 32 ad-state combinations; 26 insertion-policy checks; 100,000 structured mutation cases; new **20,000 diagnostic admission combinations + 300,000 size checks** and expiry/nonfinite/overflow boundaries.
-- Workflow actionlint, shell syntax, source integrity, local documentation links and final ZIP extraction/retesting.
+## Local logging/linker checks
 
-These are test-case counts, **not complete branch coverage, a security proof or proof of YouTube hook execution**. Python source checks do not execute Objective-C.
+| Check | Recorded result |
+| --- | --- |
+| Python | **118 tests**, including ABI/preservation, preferences/settings, interfaces, field restrictions, queue/order guards, download/publish mocks, packaging and **5,000 Mach-O header mutations**. |
+| C under ASan/UBSan | **Six suites**: 79 classifier fixtures, 20 scanner fixtures, 10,000 random inputs, 32 ad-state combinations, 26 insertion-policy checks and 100,000 structured mutation cases. |
+| Diagnostic policy | **20,000 admission combinations**, **300,000 size checks**, plus expiry/nonfinite/overflow boundaries; included in the six C suites. |
+| Package/workflows | actionlint, shell syntax, source hashes, local links and checks repeated after extracting the ZIP. |
 
-## Native tests added — pending macOS execution
+These are case counts, not complete branch coverage, a security proof or execution of YouTube’s private hooks. Python source checks do not execute Objective-C.
 
-The push/PR macOS job and manual IPA job run `scripts/test_native.py` before compiling the iOS library:
+## Native test programs
 
-- Actual Foundation logger: off/start/stop; schema redaction; 1,000 concurrent calls; error reserve after a flood; export stability; expiry/corrupt tails; disk rotation limits; unrelated-file preservation; preservation of temporarily unreadable records (non-root test runs); clear and storage failure.
-- Actual observer with mock native objects/getters: inert off path; Playables and ad-marker clues; payload immutability; bounded getters; oversize/nil/throwing inputs; mutation/player entry points. Mock objects do not validate real YouTube schemas or ABI behavior.
-- Existing actual settings-model harness and initializer tests, including 80 reader processes over 16 full 17-flag patterns. Deterministic test flushes do not establish iOS force-kill durability.
-- Full iOS build/sign step covers all Objective-C modules and UIKit integration. It is still **unrun here**.
+The macOS jobs run `scripts/test_native.py` before compiling the iOS library. These were added during Linux preparation; do not describe them as having run locally then.
+
+- The actual Foundation logger is tested for off/start/stop, allowed fields, 1,000 concurrent calls, error reserves after a flood, stable export, expiry/corrupt tails, rotation limits, unrelated-file retention, unreadable-file preservation on non-root runs, clear and storage failure.
+- The actual observer is called with mock native objects/getters: off-path behavior, Playables/ad clues, payload immutability, read limits, oversized/nil/throwing inputs and mutation/player entry points. Mocks do not establish real YouTube schemas or hook compatibility.
+- The settings model and initializer tests include 80 reader processes over 16 full 17-flag patterns. Test flushes make ordering deterministic; they do not prove iOS force-kill durability.
+- The build/sign step compiles every Objective-C module and UIKit integration. The later reported successful dylib build is recorded above; device behavior still needs its own evidence.
 
 ## Required device acceptance
 
-1. Both Source checks jobs must pass; build the exact fork IPA and verify version/commit/checksum. Do not remove checks to get an artifact.
-2. Preserve app data on upgrade. Recheck all ON/OFF choices over repeated full reopens; fresh disposable installs should still start master/video/feed protection ON.
-3. Before starting logging, verify no event files grow and ordinary player/feed behavior remains normal. Start a session; reproduce one issue; stop; export; verify timing, drop/failure counts and useful clues.
-4. Test with player/feed blocking individually off and on. Logging must not enable either or change saved preferences. Missing player-factory observations when its hook is absent are expected.
-5. Test minimize/restore, feed insertions, Playables/unknown content, ordinary errors if naturally encountered, background audio, native PiP, sign-in, logo and all existing cleanup. Never assume a sampled mask is causal evidence.
-6. Close/reopen: recording must be off, previous recent files exportable unless iOS evicted them. Clear while events are queued; wait for completion, export to check deletion/failure status. Explicitly start again if desired.
-7. Exercise share/cancel, back/Done while export is pending, light/dark, larger text and iPad anchoring where available. Measure playback/frame/battery impact with logging off and on.
-8. Retention, storage-failure/locked-device behavior and abrupt-exit loss need on-device checks. No termination/crash-handler or last-event durability guarantee is made.
+1. Pass both Source checks jobs, build the intended artifact and verify version/commit/checksum. Do not remove checks to obtain a file.
+2. Preserve data during upgrade. Recheck saved ON/OFF choices over full reopens; use a disposable fresh install to check master/video/feed defaults.
+3. With recording off, confirm event files do not grow and playback/feed behavior stays normal. Start, reproduce, stop and export; inspect timing, drops, failures and clues.
+4. Test player/feed switches independently. Logging must not enable them or change saved preferences. No factory hook means no factory observations.
+5. Check minimize/restore, feed insertion, Playables/unknown content, naturally encountered errors, background audio, native PiP, sign-in, logo and existing cleanup. A sampled mask is not causal evidence.
+6. Reopen: recording must be off; recent files should remain exportable unless evicted. Clear with writes queued, wait, then check export/deletion failures. Start again explicitly if needed.
+7. Check share/cancel, back/Done during export, light/dark, larger text and iPad anchoring where available. Measure frame/playback/battery impact with recording on and off.
+8. Check retention, locked-device/storage failures and abrupt-exit loss. There is no promised termination callback, crash handler or last-event durability.
 
-The older [1.0.2 audit](AUDIT-1.0.2.md) is historical. Its uncapped-counter and deferred-logger notes are superseded here; its native/device caveats remain applicable. Expanded capture still does not mean every app event, every server experiment or every new ad is understood.
+The [1.0.2 audit](AUDIT-1.0.2.md) remains a historical record. Its uncapped-counter and deferred-logger notes were superseded by this work. Expanded logging still does not capture every event, server experiment or new ad format. [Actual capture limits](DIAGNOSTICS.md).
