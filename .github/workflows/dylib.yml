@@ -1,5 +1,5 @@
 name: Build QuietTube dylib only
-run-name: QuietTube 1.1.0 — standalone dylib
+run-name: QuietTube 1.2.0 — standalone dylib
 on:
   workflow_dispatch:
     inputs:

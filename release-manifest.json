@@ -2,9 +2,9 @@
   "release": "1.2.0",
   "sha256": {
     ".github/ISSUE_TEMPLATE/bug.md": "e5de77f50641011e23dfb5adac054536a2345f143538501fa2227d389736a8df",
-    ".github/workflows/build.yml": "19d6737ced209258b58c3ab25c89a61cb976eb88a6d3169ddc4e237b82cc9217",
+    ".github/workflows/build.yml": "4de7adf1364833f0d26cdce91a40e908bc4d1b3064a72f67807bec90741df07a",
     ".github/workflows/checks.yml": "02f96fc2e04b93668897e2c0cbd579a94af9c8ffcb7bafce7f3c4bf55b4d7ebd",
-    ".github/workflows/dylib.yml": "88bca683bd958b292cdaf4635a42b5c0b3e8748167add6546c3987652a134c0b",
+    ".github/workflows/dylib.yml": "915f0544c612f8960b6f770bfaea128aa67d993920e3030462fe9d5098b541f6",
     "CHANGELOG.md": "ad50239ee502338d2690b4d3b58a2b923c53f04eb9452443c92f76ff31f30f3b",
     "CONTRIBUTING.md": "f2c8f9c244a10d2ebe557e9eb7c5b6e1c7b92c3b4d49494346a13271d714dbc9",
     "LICENSE": "9c8443bd28820bbf01e931c7f01662c6b90f0e9dd685bb0e9b0f5b1f338b6d30",
