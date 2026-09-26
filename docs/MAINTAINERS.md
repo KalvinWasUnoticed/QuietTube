@@ -18,6 +18,8 @@ Back up your changes. Replace the old tracked contents with the complete package
 
 The manifest rejects mixed versions and known obsolete files. It does not prove who authored the files. Do not change hashes to hide a mixed upload.
 
+`README.md` is editorial copy, not a frozen build input. You can edit it without updating a checksum. Tests check its local links, not mandatory wording. Other files listed in the manifest still need reviewed hashes when deliberately changed. Put release-specific changes in the release notes; the README links there.
+
 ## Check the artifact you plan to publish
 
 Run the source checks and native build. For IPA mode, use the real authorized pinned base in a fork. Confirm the direct downloads, source commit and hashes. A skipped job is not a successful build, and an incomplete draft is not a completed release.

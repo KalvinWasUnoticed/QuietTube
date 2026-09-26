@@ -47,11 +47,7 @@ Coming from 1.0.0 with video blocking unexpectedly off? [The upgrade note explai
 
 **iPhone 14 · iOS 26.5 · LiveContainer 3.8.0 · YouTube 21.38.2**
 
-Earlier builds were tested here for ad blocking, Google sign-in, native PiP, background audio and settings. LiveContainer is the reported test environment, not a design requirement. Other sideloading methods have not been verified. Signing and sign-in behavior can differ; the packaged IPA needs installer preparation and has app extensions removed.
-
-The maintainer has since reported a successful **1.1.0 standalone dylib build and release on GitHub**. That is build evidence, not a new device test of every logging control or installer. [Test records](docs/AUDIT-1.1.0.md).
-
-This is **not an App Attest or PO-token fix**. The native ad-coordinator change and session fallback are described in [Settings](docs/SETTINGS.md#what-the-player-workaround-does). They do not fix every “Something went wrong” error.
+Earlier builds were tested here for ad blocking, Google sign-in, native PiP, background audio and settings. LiveContainer is the reported test environment, not a design requirement. Other sideloading methods have not been verified. Signing and sign-in behavior can differ; the packaged IPA needs signing/preparation through your installer and has app extensions removed.
 
 ## Report a problem
 
@@ -61,6 +57,6 @@ For playback or feed problems, you can [record a short diagnostic session](docs/
 
 ---
 
-[KalvinWasUnoticed](https://github.com/KalvinWasUnoticed) · [Credits](Notices/REFERENCES.md) · [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md) · [Privacy](docs/PRIVACY.md) · [MIT license](LICENSE)
+[KalvinWasUnoticed](https://github.com/KalvinWasUnoticed) · [Credits](Notices/REFERENCES.md) · [Release notes](https://github.com/KalvinWasUnoticed/QuietTube/releases) · [Contributing](CONTRIBUTING.md) · [Privacy](docs/PRIVACY.md) · [MIT license](LICENSE)
 
 Unofficial. Not affiliated with YouTube or Google. The MIT license covers QuietTube’s source, not YouTube’s app or trademarks. A fork, file host or disclaimer does not protect you from copyright claims.
