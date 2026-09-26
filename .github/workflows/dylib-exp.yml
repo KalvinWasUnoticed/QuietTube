@@ -1,15 +1,15 @@
-name: Build QuietTube dylib only
-run-name: QuietTube 1.2.0 — standalone dylib
+name: Build QuietTube dylib — EXPERIMENTAL SponsorSkip
+run-name: QuietTube 1.3.0-exp — dylib (experimental)
 on:
   workflow_dispatch:
     inputs:
       prerelease:
-        description: 'Publish as a prerelease (uncheck for a regular release). Neither choice proves device validation.'
+        description: 'Publish as a prerelease (experimental — always prerelease).'
         type: boolean
         required: true
         default: true
       acknowledge_rights:
-        description: 'I have the necessary rights to publish this QuietTube library and understand release assets follow repository visibility.'
+        description: 'I have the necessary rights to publish this experimental library.'
         type: boolean
         required: true
         default: false
@@ -17,8 +17,8 @@ permissions:
   contents: read
 jobs:
   build:
-    name: Build and release standalone dylib
-    if: ${{ !startsWith(github.ref, 'refs/heads/exp/') && github.ref != 'refs/heads/Experimental' && (github.repository == 'KalvinWasUnoticed/QuietTube' || github.event.repository.fork == true) && inputs.acknowledge_rights == true }}
+    name: Build EXPERIMENTAL dylib
+    if: ${{ (github.ref == 'refs/heads/Experimental' || github.ref == 'refs/heads/exp/sponsorskip' || startsWith(github.ref, 'refs/heads/exp/')) && (github.repository == 'KalvinWasUnoticed/QuietTube' || github.event.repository.fork == true) && inputs.acknowledge_rights == true }}
     runs-on: macos-15
     timeout-minutes: 25
     permissions:
@@ -32,15 +32,15 @@ jobs:
           python-version: '3.12'
       - name: Verify sources and run regression tests
         run: bash scripts/check.sh
-      - name: Compile the native tweak
+      - name: Compile the native tweak (experimental)
         run: bash scripts/build.sh
-      - name: Publish standalone dylib and show download link
+      - name: Publish EXPERIMENTAL dylib
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_KIND: dylib
           IS_FORK: ${{ github.event.repository.fork }}
           ACKNOWLEDGE_RIGHTS: ${{ inputs.acknowledge_rights }}
-          PRERELEASE: ${{ inputs.prerelease }}
+          PRERELEASE: true
         run: python scripts/publish.py
       - name: Remove temporary outputs
         if: always()
@@ -48,5 +48,5 @@ jobs:
       - name: Explain failure
         if: failure()
         run: |
-          echo '## Dylib publication failed — no successful download is confirmed' >> "$GITHUB_STEP_SUMMARY"
-          echo 'Open the failed step. Check Releases for an incomplete draft before rebuilding.' >> "$GITHUB_STEP_SUMMARY"
+          echo '## EXPERIMENTAL dylib failed' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Experimental branch may fail. Stable dylib on main is not affected.' >> "$GITHUB_STEP_SUMMARY"

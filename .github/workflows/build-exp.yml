@@ -1,14 +1,14 @@
-name: Build QuietTube IPA
-run-name: QuietTube 1.2.0 — user-provided base
+name: Build QuietTube IPA — EXPERIMENTAL SponsorSkip
+run-name: QuietTube 1.3.0-exp — SponsorSkip (experimental)
 on:
   workflow_dispatch:
     inputs:
       base_ipa_url:
-        description: 'Fork first — building in the original repo is skipped. Paste the direct link to your decrypted YouTube 21.38.2 IPA. Catbox is an upload option.'
+        description: 'EXPERIMENTAL — Fork first. Paste direct link to decrypted YouTube 21.38.2 IPA. SponsorSkip is off by default, hash-private.'
         type: string
         required: true
       acknowledge_rights:
-        description: 'I have the necessary rights to use, modify and publish this app. I understand the output is public if my fork is public.'
+        description: 'I have the necessary rights to use, modify and publish this app. EXPERIMENTAL build — may fail. I understand the output is public if my fork is public.'
         type: boolean
         required: true
         default: false
@@ -16,14 +16,14 @@ permissions:
   contents: read
 jobs:
   build:
-    name: Build and release in your fork
-    if: ${{ !startsWith(github.ref, 'refs/heads/exp/') && github.ref != 'refs/heads/Experimental' && github.event.repository.fork == true && inputs.acknowledge_rights == true }}
+    name: Build EXPERIMENTAL IPA (SponsorSkip)
+    if: ${{ (github.ref == 'refs/heads/Experimental' || github.ref == 'refs/heads/exp/sponsorskip' || startsWith(github.ref, 'refs/heads/exp/')) && github.event.repository.fork == true && inputs.acknowledge_rights == true }}
     runs-on: macos-15
     timeout-minutes: 25
     permissions:
       contents: write
     env:
-      IPA_PATH: artifacts/QuietTube-1.2.0-21.38.2.ipa
+      IPA_PATH: artifacts/QuietTube-1.3.0-exp-21.38.2.ipa
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -33,7 +33,7 @@ jobs:
           python-version: '3.12'
       - name: Verify sources and run regression tests
         run: bash scripts/check.sh
-      - name: Compile the native tweak
+      - name: Compile the native tweak (experimental)
         run: bash scripts/build.sh
       - name: Download and validate user-provided base
         timeout-minutes: 7
@@ -45,12 +45,15 @@ jobs:
           python scripts/package.py "$RUNNER_TEMP/QuietTube-base.ipa" artifacts/QuietTube.dylib "$IPA_PATH"
           test -s "$IPA_PATH" || { echo '::error::Expected IPA output missing'; exit 1; }
           ls -lh "$IPA_PATH"
-      - name: Publish IPA and dylib to this fork with download links
+          echo "## EXPERIMENTAL — SponsorSkip off by default" >> "$GITHUB_STEP_SUMMARY"
+          echo "Segments are community data and can be wrong/censored. See Quiet controls → SponsorSkip disclaimer." >> "$GITHUB_STEP_SUMMARY"
+      - name: Publish EXPERIMENTAL IPA and dylib
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_KIND: ipa
           IS_FORK: ${{ github.event.repository.fork }}
           ACKNOWLEDGE_RIGHTS: ${{ inputs.acknowledge_rights }}
+          PRERELEASE: true
         run: python scripts/publish.py
       - name: Remove downloaded base and temporary outputs
         if: always()
@@ -60,5 +63,5 @@ jobs:
       - name: Explain failure
         if: failure()
         run: |
-          echo '## Build/publication failed — no successful download is confirmed' >> "$GITHUB_STEP_SUMMARY"
-          echo 'Open the failed step. If publication failed, check Releases for an incomplete draft before rebuilding. Do not use an older IPA by mistake.' >> "$GITHUB_STEP_SUMMARY"
+          echo '## EXPERIMENTAL build failed — no successful download is confirmed' >> "$GITHUB_STEP_SUMMARY"
+          echo 'This is an experimental branch and may fail. Check the failed step. Stable 1.2.0 builds on main are not affected.' >> "$GITHUB_STEP_SUMMARY"
