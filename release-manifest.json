@@ -83,7 +83,7 @@
     "tests/test_release_modes.py": "67e97a8cbe233cfb752d6630529071124609f9904e04a5aa924c6656fc2f2491",
     "tests/test_runtime_guards.py": "264966d6057a813208af759ea320dac7702167bc789614133a9143a3ef3af10c",
     "tests/test_settings.py": "b3e3005d33356bc23f6c45931c5a28bdc350c74df3b6393af8eeb1d483e1175a",
-    "tests/test_settings_native.m": "0e89fe2b1d25927508c13eafb946897b2cd87499c2306cd222a83025e9989c14",
+    "tests/test_settings_native.m": "b4a689892d769a514cf11d790f495acdd1357f1c19874f2f776824408520afcd",
     "tests/test_stress.c": "2a8b2e1b765d6cf6d5b189ba825e709f7ad015f0965accd2db35fbae7e25e7bc",
     "tests/test_template_scan.c": "9792b81ca061c1c199b8a043dd92841c5fe6b43540ce33a7d45cbd7afb907e2b",
     "tests/test_trace.py": "325c22ed4be7a0a6dbf78a3c05eabf5939c57fa934da367512f9bdfd02e90162"

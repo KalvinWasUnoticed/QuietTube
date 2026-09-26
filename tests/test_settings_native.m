@@ -48,9 +48,9 @@ int main(int argc, const char *argv[]) {
             [writes removeAllObjects];
             NSDictionary *preset=QTPresetChanges(name);
             assert(writes.count==0);
-            assert(preset.count==(NSUInteger)([name isEqualToString:@"Focused feed"]?15:8));
+            assert(preset.count==(NSUInteger)([name isEqualToString:@"Focused feed"]?16:9));
             assert(!preset[@"background"] && !preset[@"autoplay"]);
-            assert(![preset[@"mutationTrace"] boolValue] && ![preset[@"inspectElements"] boolValue]);
+            assert(![preset[@"mutationTrace"] boolValue] && ![preset[@"inspectElements"] boolValue] && ![preset[@"enhancedLogging"] boolValue]);
             for (NSString *key in @[@"enabled",@"adTest",@"feedAds",@"displayAds",@"extendedFeed",@"plainLogo"]) assert([preset[key] boolValue]);
             QTSaveSettings(preset);
             assert([writes isEqualToDictionary:preset]);
