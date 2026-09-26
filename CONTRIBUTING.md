@@ -18,7 +18,7 @@ The release manifest catches mixed uploads; it is not a trust signature. Intenti
 
 ## Preparation validation
 
-The final preparation suite passes 118 Python checks. The current validation includes a synthetic download → package → release-command round trip, mocked HTTP/GitHub failure cases, source/runtime preservation checks and six C sanitizer suites: 79 classifier fixtures + 5,000 random iterations; 20 template-scanner fixtures + 5,000 random iterations; 32 status combinations + an inactive-session regression; 26 insertion-policy checks; 100,000 structured mutation cases with boundary, determinism and input-immutability checks. The diagnostic policy adds 20,000 admission combinations, 300,000 size checks and expiry/overflow cases. Python additionally mutates 5,000 Mach-O headers. Workflow YAML and actionlint, shell syntax, relative documentation links, the source manifest and ZIP integrity were checked. No proprietary base or real GitHub build was used for these final preparation tests.
+The final preparation suite passes 128 Python checks. The current validation includes a synthetic download → package → release-command round trip, mocked HTTP/GitHub failure cases, source/runtime preservation checks and six C sanitizer suites: 79 classifier fixtures + 5,000 random iterations; 20 template-scanner fixtures + 5,000 random iterations; 32 status combinations + an inactive-session regression; 26 insertion-policy checks; 100,000 structured mutation cases with boundary, determinism and input-immutability checks. The diagnostic policy adds 20,000 admission combinations, 300,000 size checks and expiry/overflow cases. Python additionally mutates 5,000 Mach-O headers. Workflow YAML and actionlint, shell syntax, relative documentation links, the source manifest and ZIP integrity were checked. No proprietary base or real GitHub build was used for these final preparation tests.
 
 ## Scope of this release
 
@@ -35,7 +35,7 @@ Before tagging/publishing, run the fork IPA workflow with an authorized pinned b
 ## Repository hygiene
 
 - Keep active sources, build/packaging helpers, tests/fixtures, concise docs, referenced graphics and required notices.
-- Do not restore a built-in base download URL, upstream-repository publication, development diaries, disassembly dumps or retired stub modules. The current publisher is restricted to the invoking fork and explicit acknowledgement.
+- Do not restore a built-in base download URL, upstream IPA publication, development diaries, disassembly dumps or retired stub modules. IPA publication remains restricted to the invoking fork and explicit acknowledgement. The separately authorized dylib-only workflow also permits the original repository, with explicit acknowledgement and a per-run prerelease choice.
 - Do not commit proprietary app binaries, compiled libraries, credentials, signing data or personal diagnostic captures.
 - Third-party license notices are intentionally retained even when not compiled. They are not disposable build residue.
 - For maintainer publication and old-release cleanup, see [docs/MAINTAINERS.md](docs/MAINTAINERS.md).
@@ -49,3 +49,5 @@ Before tagging/publishing, run the fork IPA workflow with an authorized pinned b
 ## Diagnostics review boundary
 
 `diagnostics-delta.json` enumerates the intentional logging additions; preservation checks reverse exactly those deltas before comparing the old runtime hashes. Do not broaden this record to hide unrelated behavior changes. The real Foundation logger and observer (with mocked native getter boundary) are compiled and run by `scripts/test_native.py` on macOS. Linux executes their shared C admission/storage/expiry policy and source guards, not Foundation or UIKit. Capture privacy is schema-limited, not guaranteed anonymization.
+
+Distribution changes are documented in [docs/RELEASE-FLOWS.md](docs/RELEASE-FLOWS.md). New publishing tests are mocked/synthetic; live release creation and fresh Apple compilation were not executed for this change.

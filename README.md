@@ -77,3 +77,7 @@ Made by **[KalvinWasUnoticed](https://github.com/KalvinWasUnoticed)** · [Privac
 Audit scope and test evidence: [1.1.0 audit](docs/AUDIT-1.1.0.md).
 
 **Need to capture a playback/feed problem?** Start a manual session in Advanced → Troubleshooting, reproduce it briefly, then stop and export. Local files are bounded and recording stops on relaunch. [What it captures and how to clear it →](docs/DIAGNOSTICS.md)
+
+## Download just the tweak
+
+The IPA build now also publishes **QuietTube.dylib** separately. To release only the library—without downloading or distributing a YouTube IPA—run **Actions → Build QuietTube dylib only** in the original repository or a fork. Choose prerelease or regular release on each run. [Release flow guide →](docs/RELEASE-FLOWS.md)

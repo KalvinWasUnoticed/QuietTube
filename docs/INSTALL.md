@@ -126,3 +126,7 @@ On Windows, the Python packaging step can use `py -3` with a matching compiled l
 </details>
 
 **A file host, fork or permission checkbox is not a legal guarantee.** Only use and share files you have the rights to use and share. [Privacy](PRIVACY.md) · [Settings](SETTINGS.md)
+
+## Separate dylib download / no-IPA releases
+
+The existing fork IPA workflow now provides separate **DOWNLOAD IPA** and **DOWNLOAD DYLIB** links. The IPA already contains that library; do not inject it again. To build/release only the library, without any base URL or YouTube download, use **Build QuietTube dylib only** in the original repository or a fork. Its prerelease checkbox defaults to on and can be unchecked for a regular release. [Steps and limitations](RELEASE-FLOWS.md). Select the release labelled for the asset you need, not simply the newest release.

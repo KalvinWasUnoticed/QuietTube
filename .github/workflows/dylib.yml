@@ -1,0 +1,52 @@
+name: Build QuietTube dylib only
+run-name: QuietTube 1.1.0 — standalone dylib
+on:
+  workflow_dispatch:
+    inputs:
+      prerelease:
+        description: 'Publish as a prerelease (uncheck for a regular release). Neither choice proves device validation.'
+        type: boolean
+        required: true
+        default: true
+      acknowledge_rights:
+        description: 'I have the necessary rights to publish this QuietTube library and understand release assets follow repository visibility.'
+        type: boolean
+        required: true
+        default: false
+permissions:
+  contents: read
+jobs:
+  build:
+    name: Build and release standalone dylib
+    if: (github.repository == 'KalvinWasUnoticed/QuietTube' || github.event.repository.fork == true) && inputs.acknowledge_rights == true
+    runs-on: macos-15
+    timeout-minutes: 25
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - name: Verify sources and run regression tests
+        run: bash scripts/check.sh
+      - name: Compile the native tweak
+        run: bash scripts/build.sh
+      - name: Publish standalone dylib and show download link
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_KIND: dylib
+          IS_FORK: ${{ github.event.repository.fork }}
+          ACKNOWLEDGE_RIGHTS: ${{ inputs.acknowledge_rights }}
+          PRERELEASE: ${{ inputs.prerelease }}
+        run: python scripts/publish.py
+      - name: Remove temporary outputs
+        if: always()
+        run: rm -rf artifacts
+      - name: Explain failure
+        if: failure()
+        run: |
+          echo '## Dylib publication failed — no successful download is confirmed' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Open the failed step. Check Releases for an incomplete draft before rebuilding.' >> "$GITHUB_STEP_SUMMARY"

@@ -54,6 +54,10 @@ class PublishTests(unittest.TestCase):
  def setup_tree(self,t):
   root=Path(t);(root/'artifacts').mkdir();(root/'VERSION').write_text('1.1.0\n')
   path=root/'artifacts/QuietTube-1.1.0-21.38.2.ipa';path.write_bytes(b'fixture')
+  import shutil
+  shutil.copy2(R/'LICENSE',root/'LICENSE');shutil.copytree(R/'Notices',root/'Notices')
+  lib=bytearray(fixture());struct.pack_into('<I',lib,12,6)
+  (root/'artifacts/QuietTube.dylib').write_bytes(lib)
   env=dict(os.environ,IS_FORK='true',ACKNOWLEDGE_RIGHTS='true',GITHUB_REPOSITORY='tester/QuietTube',GITHUB_SHA='a'*40,GITHUB_RUN_ID='123',GITHUB_RUN_ATTEMPT='2',GITHUB_STEP_SUMMARY=str(root/'summary'),GITHUB_SERVER_URL='https://github.com')
   return root,path,env
  def test_exact_fork_upload_draft_then_publish_and_hash(self):

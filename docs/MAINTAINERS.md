@@ -2,7 +2,7 @@
 
 ## Distribution policy
 
-The repository supplies QuietTube source, not a YouTube base app link. Users fork it and manually provide an authorized decrypted 21.38.2 direct HTTPS IPA link. The workflow downloads that input, checks the exact pinned hash, compiles/packages and releases the output **in the invoking fork**, never the upstream repository. It requires explicit rights/publication acknowledgement. Public forks create publicly downloadable releases.
+The repository supplies QuietTube source, not a YouTube base app link. Users fork it and manually provide an authorized decrypted 21.38.2 direct HTTPS IPA link. The IPA workflow compiles the library, downloads that input, checks the exact pinned hash, packages and releases the output **in the invoking fork**, never the upstream repository. It requires explicit rights/publication acknowledgement. Public forks create publicly downloadable releases.
 
 This arrangement is **not a DMCA guarantee or legal clearance**. User-supplied input and fork-based publication do not establish permission to obtain, modify or distribute an app. Source functionality, circumvention allegations, trademarks, service terms and links may raise separate issues. Consult a qualified professional rather than making legal assurances. See [GitHub's DMCA policy](https://docs.github.com/en/site-policy/content-removal-policies/dmca-takedown-policy).
 
@@ -36,3 +36,7 @@ Retired stubs, development diaries, raw disassembly, obsolete baselines/tests an
 ## Copy and compatibility
 
 Present QuietTube as an iOS customization, not a LiveContainer-exclusive app. Keep LiveContainer in the tested-environment table. Do not turn untested installation options into a universal compatibility claim. The beginner guide recommends Catbox only as a user-selected file host, not as a source of YouTube downloads. The package still removes app extensions and needs signing/preparation; behavior of other installers and sign-in/entitlements has not been validated.
+
+## Authorized standalone upstream releases
+
+The original repository may now publish **dylib-only** releases through the separate workflow, with a per-run prerelease choice. The IPA workflow remains fork-only. This is an intentional, narrowly scoped distribution-policy change; it does not enable upstream IPA publishing. See [release flows](RELEASE-FLOWS.md). The runtime/build sources are unchanged from the CoreGraphics link correction.

@@ -45,9 +45,10 @@ jobs:
           python scripts/package.py "$RUNNER_TEMP/QuietTube-base.ipa" artifacts/QuietTube.dylib "$IPA_PATH"
           test -s "$IPA_PATH" || { echo '::error::Expected IPA output missing'; exit 1; }
           ls -lh "$IPA_PATH"
-      - name: Publish IPA to this fork and show download link
+      - name: Publish IPA and dylib to this fork with download links
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_KIND: ipa
           IS_FORK: ${{ github.event.repository.fork }}
           ACKNOWLEDGE_RIGHTS: ${{ inputs.acknowledge_rights }}
         run: python scripts/publish.py

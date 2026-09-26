@@ -2,6 +2,9 @@
 
 ## 1.1.0 — manual diagnostic sessions
 
+- Distribution update: fork IPA releases now also attach the compiled dylib with a separate direct link. A new manual dylib-only workflow supports the original repository and forks, with a per-run prerelease checkbox defaulting to on. No base app is downloaded or uploaded in dylib-only mode; upstream IPA publication remains blocked.
+- Both release modes include library notices, SHA256 checksums and source/build metadata. Runtime sources and the CoreGraphics-linked build are unchanged by this distribution update.
+
 - Build correction: explicitly link CoreGraphics for the export popover geometry functions; add a regression check. No production source changes in this correction.
 
 - Adds opt-in, temporary local recording for known playback/error, watch-transition, feed-mutation, explicit-ad and renderer/template discovery paths. It is not an all-events or network logger.

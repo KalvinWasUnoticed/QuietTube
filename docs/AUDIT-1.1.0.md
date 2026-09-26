@@ -1,5 +1,7 @@
 # 1.1.0 logging rebuild — audit and test evidence
 
+Subsequent distribution-only changes: see [release flows](RELEASE-FLOWS.md). Dylib-only upstream publication is now authorized; IPA publishing remains fork-only. The current suite has 128 Python tests; counts below describe the earlier logging/linker audit.
+
 ## Linker correction
 
 The supplied GitHub run passed the regression-check step, including the configured macOS native harnesses, then failed iOS linking on `CGRectGetMidX` / `CGRectGetMidY`. The export popover introduced those CoreGraphics symbols, but the build linked only Foundation and UIKit. The corrected build explicitly links CoreGraphics, and a source regression test checks that dependency. No production source or runtime behavior changed in this correction. The corrected Apple link and device execution still require confirmation; the earlier check-step pass does not validate them.
