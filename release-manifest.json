@@ -2,7 +2,7 @@
   "release": "1.2.0",
   "sha256": {
     ".github/ISSUE_TEMPLATE/bug.md": "e5de77f50641011e23dfb5adac054536a2345f143538501fa2227d389736a8df",
-    ".github/workflows/build.yml": "4de7adf1364833f0d26cdce91a40e908bc4d1b3064a72f67807bec90741df07a",
+    ".github/workflows/build.yml": "23423e811eae106a325d8b7c51ca4b7034cbf1950e241cd523e816aff1c595d8",
     ".github/workflows/checks.yml": "02f96fc2e04b93668897e2c0cbd579a94af9c8ffcb7bafce7f3c4bf55b4d7ebd",
     ".github/workflows/dylib.yml": "915f0544c612f8960b6f770bfaea128aa67d993920e3030462fe9d5098b541f6",
     "CHANGELOG.md": "ad50239ee502338d2690b4d3b58a2b923c53f04eb9452443c92f76ff31f30f3b",
@@ -45,6 +45,7 @@
     "docs/MAINTAINERS.md": "8bfba6cb11ec5632aed70fad0912add19c2a89b57ddda93352a0cc4c2691d8cd",
     "docs/PRIVACY.md": "83979ede6f174208995731c10c4c2ddbb66ccf36a23a194dfae59b572421235d",
     "docs/RELEASE-FLOWS.md": "91c777d94609d91639ce7085e0a256496f2bf6a34c115559ff0f1c3bb8c31fab",
+    "docs/RELEASE-NOTES-1.2.0-dylib.md": "465c23ed0100a142573bc1171bfb91178b130e557283d0b023de46b8902b4a13",
     "docs/SETTINGS.md": "6c61cba23474210549263ca50016d36ec3c5174a62ba12b698d4ec5c76cb1284",
     "docs/TEST-CASES-1.2.0.md": "a859168b618c0fb7ccb364a0f81dffba8f112bfc439ea555016eb0ffd4e39b29",
     "docs/assets/banner.png": "77263726e1220566a2d937199e2dbb48851321248f7bf1d78f2a0b855300391e",
