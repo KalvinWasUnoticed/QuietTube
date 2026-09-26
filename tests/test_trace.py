@@ -29,7 +29,10 @@ class MinimizeTraceTests(unittest.TestCase):
   self.assertIn('Sources/QTMutationTrace.m',(R/'scripts/build.sh').read_text())
   self.assertIn('QTInstallMutationTrace();',(R/'Sources/QTFeatures.m').read_text())
   self.assertIn('QTMutationReport()',(R/'Sources/QTAdProfile.m').read_text())
-  self.assertIn('QTPrepareAdTest();',(R/'Sources/QTSettings.m').read_text())
+  settings=(R/'Sources/QTSettings.m').read_text()
+  # 1.2.0 replaces the old adTest probe wiring with the enhanced logger master
+  self.assertTrue('QTPrepareAdTest();' in settings or 'QTEnhancedStart' in settings)
+  self.assertTrue('QTEnhancedEnabled' in settings or 'QTDEnabled' in settings)
   self.assertIn('if (!QTOn(@"enabled") || (!QTOn(@"mutationTrace") && !QTDEnabled())) return;',S)
 
  def test_insert_detail_is_bounded_and_not_a_filter(self):

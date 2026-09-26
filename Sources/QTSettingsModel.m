@@ -49,7 +49,7 @@ NSDictionary<NSString *,NSNumber *> *QTSettingChanges(NSString *key, BOOL enable
 }
 NSDictionary<NSString *,NSNumber *> *QTPresetChanges(NSString *name) {
     if (![@[@"Ads & essentials",@"Focused feed"] containsObject:name]) return @{};
-    NSMutableDictionary *changes=[@{@"enabled":@YES,@"adTest":@YES,@"feedAds":@YES,@"displayAds":@YES,@"extendedFeed":@YES,@"plainLogo":@YES,@"mutationTrace":@NO,@"inspectElements":@NO} mutableCopy];
+    NSMutableDictionary *changes=[@{@"enabled":@YES,@"adTest":@YES,@"feedAds":@YES,@"displayAds":@YES,@"extendedFeed":@YES,@"plainLogo":@YES,@"mutationTrace":@NO,@"inspectElements":@NO,@"enhancedLogging":@NO} mutableCopy];
     if ([name isEqualToString:@"Focused feed"]) for (NSString *key in @[@"shorts",@"mixes",@"watchAgain",@"topicsShelves",@"edgeCards",@"playables",@"eventPromos"]) changes[key]=@YES;
     return changes;
 }
@@ -57,5 +57,6 @@ void QTSaveSettings(NSDictionary<NSString *,NSNumber *> *changes) {
     // Restrict writes to known preferences. No reset, migration or hook install.
     NSMutableSet *known=[NSMutableSet setWithObject:@"enabled"];
     for (NSDictionary *option in QTOptions()) [known addObject:option[@"key"]];
+    [known addObject:@"enhancedLogging"];
     for (NSString *key in changes) if ([known containsObject:key]) QTSet(key,[changes[key] boolValue]);
 }

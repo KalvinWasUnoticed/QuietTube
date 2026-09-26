@@ -6,7 +6,7 @@ Run **Build QuietTube IPA** in a fork. Supply the compatible base URL and comple
 
 A successful run publishes a **prerelease in that fork** with direct Summary/release-note links to:
 
-- `QuietTube-1.1.0-21.38.2.ipa`
+- `QuietTube-1.2.0-21.38.2.ipa`
 - `QuietTube.dylib`, the same compiled library included in the IPA
 
 Original-repository IPA publishing is blocked by both the workflow and publisher. The IPA already includes the tweak. Don’t inject it again.
@@ -54,4 +54,4 @@ Public release assets are public. The acknowledgement is not legal clearance.
 
 The source-package checks use synthetic files and mocked `gh` commands to test modes, hashes, missing/bad assets, failure handling and accidental-upload prevention. They are not live GitHub tests.
 
-The maintainer subsequently reported a successful standalone 1.1.0 dylib build/release. That is separate evidence from the earlier source-package checks, and does not validate every host app or device configuration. The native source and CoreGraphics-linked build were not changed for the two release flows.
+The maintainer subsequently reported a successful standalone 1.2.0 dylib build/release. That is separate evidence from the earlier source-package checks, and does not validate every host app or device configuration. The native source and CoreGraphics-linked build were not changed for the two release flows.

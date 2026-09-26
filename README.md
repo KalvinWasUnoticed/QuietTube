@@ -53,7 +53,7 @@ Earlier builds were tested here for ad blocking, Google sign-in, native PiP, bac
 
 Open an [issue](https://github.com/KalvinWasUnoticed/QuietTube/issues) with the version, device, installation method and what happened. For build failures, include the error from the failed step—not just “build failed.”
 
-For playback or feed problems, you can [record a short diagnostic session](docs/DIAGNOSTICS.md). Recording is manual, files are limited, and nothing is uploaded automatically. Review a report before sharing it.
+For playback or feed problems, turn on **Enhanced logging** in **Quiet controls → Advanced → Troubleshooting** — one master switch (on = `● Collecting`), plus **Export logs** and **Clear logs**. Leave it on during daily use; when you see an intrusive shelf or an ad slip through, tap **Export logs** right away — no need to reproduce in a separate test session. Files are 3 × 256 KiB, 7-day, no upload. Review before sharing. [Logger details](docs/DIAGNOSTICS.md).
 
 ---
 

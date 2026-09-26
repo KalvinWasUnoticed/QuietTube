@@ -24,7 +24,7 @@ The manifest rejects mixed versions and known obsolete files. It does not prove 
 
 Run the source checks and native build. For IPA mode, use the real authorized pinned base in a fork. Confirm the direct downloads, source commit and hashes. A skipped job is not a successful build, and an incomplete draft is not a completed release.
 
-Test the exact output while preserving a backup and existing data. Check the 1.1.0 footer, saved choices over restarts, fresh-install defaults in a disposable container, presets, navigation, large text/light/dark, playback/feed behavior, sign-in, native PiP and background audio. New logger controls need their own [device checks](AUDIT-1.1.0.md#required-device-acceptance).
+Test the exact output while preserving a backup and existing data. Check the 1.2.0 footer, saved choices over restarts, fresh-install defaults in a disposable container, presets, navigation, large text/light/dark, playback/feed behavior, sign-in, native PiP and background audio. New logger controls need their own [device checks](AUDIT-1.2.0.md#required-device-acceptance).
 
 LiveContainer is the reported tested method, not the only imaginable installer. Do not claim another method works until it has evidence. A regular release label is a publication choice, not a stable-device verdict.
 

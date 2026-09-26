@@ -1,6 +1,8 @@
 #import <Foundation/Foundation.h>
 #import <dispatch/dispatch.h>
-// Manual session state is transient; no user preferences are changed.
+// Enhanced logger: one master toggle for daily use. Persistent choice (NSUserDefaults)
+// controls auto-start at launch; transient QTDRecording controls current session.
+// Files remain bounded (3 x 256 KiB, 7-day) and local only.
 typedef NS_ENUM(NSUInteger, QTDiagnosticEvent) {
     QTDEStart, QTDEStop, QTDEApp, QTDEPlaybackError, QTDEPlayer,
     QTDEMutation, QTDEFeedBoundary, QTDEElement, QTDEHook, QTDECount
@@ -15,5 +17,9 @@ void QTDError(NSError *error);
 // Completions run on the logging queue, NOT the main queue. No sync UI waits.
 void QTDExport(void (^completion)(NSString *report));
 void QTDClear(void (^completion)(void));
+// Persistent master for the 3-button UI. Auto-starts at launch when enabled.
+BOOL QTEnhancedEnabled(void);
+BOOL QTEnhancedStart(void);
+void QTEnhancedStop(void);
 // Foundation-only redaction entry point, shared by write and export validation.
 NSDictionary *QTDSanitize(NSDictionary *fields);

@@ -12,6 +12,7 @@ static NSUInteger QTDRateCount, QTDSamples;
 static NSTimeInterval QTDRateWindow, QTDSampleWindow;
 static const NSUInteger QTDFileLimit=QTDPFileLimit;
 static NSTimeInterval QTDLastPrune;
+static NSString * const QTEnhancedKey = @"QuietTube.v1.enhancedLogging";
 static void QTDPrepare(void) {
     static dispatch_once_t once;
     dispatch_once(&once, ^{
@@ -30,7 +31,6 @@ static BOOL QTDIdentifier(NSString *value, BOOL selector) {
 NSDictionary *QTDSanitize(NSDictionary *fields) {
     NSMutableDictionary *safe=[NSMutableDictionary dictionary];
     if (![fields isKindOfClass:NSDictionary.class]) return safe;
-    // Iterate our fixed schema, NEVER enumerate arbitrary caller keys or describe objects.
     for (NSString *key in @[@"count",@"index",@"bytes",@"mask",@"ad",@"scope",@"code",@"depth",@"domain",@"phase",@"slot",@"installed",@"removed",@"kept"]) {
         id value=fields[key];
         if ([value isKindOfClass:NSNumber.class] && isfinite([value doubleValue]) && fabs([value doubleValue])<=9007199254740991.0) safe[key]=@([value longLongValue]);
@@ -57,7 +57,7 @@ static NSArray<NSDictionary *> *QTDRead(NSUInteger index) {
         [fm removeItemAtPath:QTDPath(index) error:NULL]; return @[];
     }
     NSData *data=[NSData dataWithContentsOfFile:QTDPath(index)];
-    if (!data) { QTDFailures++; return nil; } // Keep temporarily unreadable files.
+    if (!data) { QTDFailures++; return nil; }
     NSString *text=[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     NSMutableArray *rows=[NSMutableArray array];
     NSTimeInterval now=NSDate.date.timeIntervalSince1970;
@@ -85,8 +85,6 @@ static void QTDProtect(NSString *path) {
     if (![NSFileManager.defaultManager setAttributes:attributes ofItemAtPath:path error:NULL]) QTDFailures++;
 }
 static void QTDPrune(void) {
-    // Rebuild only recognized files from recent, schema-validated records.
-    // Also removes partial/corrupt lines and redacts before any export.
     NSFileManager *fm=NSFileManager.defaultManager;
     if (!QTDDirectory || ![[fm attributesOfItemAtPath:QTDDirectory error:NULL][NSFileType] isEqualToString:NSFileTypeDirectory]) return;
     for (NSUInteger i=0;i<3;i++) {
@@ -139,7 +137,7 @@ static NSDictionary *QTDRow(QTDiagnosticEvent event, NSDictionary *fields) {
 void QTDConfigure(NSString *directory) {
     QTDPrepare();
     @synchronized(QTDLock) {
-        if (QTDConfigured) return; // One private directory per process.
+        if (QTDConfigured) return;
         QTDConfigured=YES;
         dispatch_async(QTDQueue, ^{
             @try {
@@ -148,11 +146,21 @@ void QTDConfigure(NSString *directory) {
                 NSURL *url=[NSURL fileURLWithPath:QTDDirectory isDirectory:YES];
                 [url setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:NULL];
                 QTDPrune();
+                // Auto-start if the user left the master toggle on (persistent daily logger).
+                if ([[NSUserDefaults standardUserDefaults] boolForKey:QTEnhancedKey]) {
+                    @synchronized(QTDLock) {
+                        if (!QTDRecording && QTDPending < QTDPQueueLimit) {
+                            QTDRecording=YES; QTDRateCount=0; QTDSamples=0; QTDPending++;
+                            dispatch_async(QTDQueue, ^{ @try { QTDPrune(); QTDWrite(QTDRow(QTDEStart,@{})); } @catch (__unused NSException *e) { QTDFailures++; } @finally { @synchronized(QTDLock) { QTDPending--; } } });
+                        }
+                    }
+                }
             } @catch (__unused NSException *e) { QTDFailures++; }
         });
     }
 }
 BOOL QTDEnabled(void) { QTDPrepare(); @synchronized(QTDLock) { return QTDRecording; } }
+BOOL QTEnhancedEnabled(void) { return [[NSUserDefaults standardUserDefaults] boolForKey:QTEnhancedKey]; }
 BOOL QTDStart(void) {
     QTDPrepare();
     @synchronized(QTDLock) {
@@ -164,6 +172,12 @@ BOOL QTDStart(void) {
     }
     return YES;
 }
+BOOL QTEnhancedStart(void) {
+    [[NSUserDefaults standardUserDefaults] setObject:@(YES) forKey:QTEnhancedKey];
+    if (QTDStart()) return YES;
+    [[NSUserDefaults standardUserDefaults] setObject:@(NO) forKey:QTEnhancedKey];
+    return NO;
+}
 void QTDStop(void) {
     QTDPrepare();
     @synchronized(QTDLock) {
@@ -173,6 +187,10 @@ void QTDStop(void) {
         QTDPending++;
         dispatch_async(QTDQueue, ^{ @try { QTDWrite(QTDRow(QTDEStop,@{})); } @catch (__unused NSException *e) { QTDFailures++; } @finally { @synchronized(QTDLock) { QTDPending--; } } });
     }
+}
+void QTEnhancedStop(void) {
+    [[NSUserDefaults standardUserDefaults] setObject:@(NO) forKey:QTEnhancedKey];
+    QTDStop();
 }
 BOOL QTDSample(void) {
     QTDPrepare();
@@ -201,7 +219,7 @@ void QTDEvent(QTDiagnosticEvent event, NSDictionary *fields) {
                 @finally { @synchronized(QTDLock) { QTDPending--; } }
             });
         }
-    } @catch (__unused NSException *e) { /* Diagnostics never replace a native operation. */ }
+    } @catch (__unused NSException *e) { }
 }
 void QTDError(NSError *error) {
     if (!QTDEnabled()) return;
@@ -221,9 +239,9 @@ void QTDError(NSError *error) {
 void QTDExport(void (^completion)(NSString *)) {
     QTDPrepare();
     @synchronized(QTDLock) {
-        NSUInteger queueDrops=QTDQueueDrops, rateDrops=QTDRateDrops; BOOL enabled=QTDRecording;
+        NSUInteger queueDrops=QTDQueueDrops, rateDrops=QTDRateDrops; BOOL enabled=QTDRecording; BOOL master=QTEnhancedEnabled();
         dispatch_async(QTDQueue, ^{
-            NSMutableString *report=[NSMutableString stringWithFormat:@"QuietTube 1.1.0 manual diagnostics\nRecording: %@. Queue drops: %lu. Rate drops: %lu.\nLocal only; review identifiers before sharing. Not all events are observed.\nEvents: 0=start,1=stop,2=app,3=playback error,4=player,5=mutation,6=feed boundary,7=element,8=hook.\nError domains: 0=other,1=YouTube,2=URL,3=Cocoa,4=OSStatus.\nApp phase: 0=active,1=background,2=memory warning,3=termination notification (not guaranteed).\nPlayer phase: 0=factory invoked,1=no-op supplied,2=session safety pause,3=native fallback.\nMutation slots follow existing report: collapse-start/end,layout,apply,insert-section,insert-content,replace-section/content,insert-notification.\nFeed phase: 0=presentation input,1=pre-insert,2=insert returned. Element mask is a heuristic, not ad proof; ad=-1 means marker unreadable.\n",enabled?@"yes":@"no",(unsigned long)queueDrops,(unsigned long)rateDrops];
+            NSMutableString *report=[NSMutableString stringWithFormat:@"QuietTube 1.2.0 enhanced diagnostics\nRecording: %@ (master %@). Queue drops: %lu. Rate drops: %lu.\nLocal only; review identifiers before sharing. Not all events are observed.\nEvents: 0=start,1=stop,2=app,3=playback error,4=player,5=mutation,6=feed boundary,7=element,8=hook.\nError domains: 0=other,1=YouTube,2=URL,3=Cocoa,4=OSStatus.\nApp phase: 0=active,1=background,2=memory warning,3=termination notification (not guaranteed).\nPlayer phase: 0=factory invoked,1=no-op supplied,2=session safety pause,3=native fallback.\nMutation slots follow existing report: collapse-start/end,layout,apply,insert-section,insert-content,replace-section/content,insert-notification.\nFeed phase: 0=presentation input,1=pre-insert,2=insert returned. Element mask is a heuristic, not ad proof; ad=-1 means marker unreadable.\nEnhanced logger: single master toggle, 3 files x 256 KiB, 7-day window. Auto-rotates, no upload.\n",enabled?@"yes":@"no",master?@"on":@"off",(unsigned long)queueDrops,(unsigned long)rateDrops];
             @try {
                 if (QTDDirectory) {
                     QTDPrune();
@@ -240,13 +258,23 @@ void QTDExport(void (^completion)(NSString *)) {
 void QTDClear(void (^completion)(void)) {
     QTDPrepare();
     @synchronized(QTDLock) {
-        QTDRecording=NO; // Stop admission before queueing deletion; no post-clear writes.
+        // Keep the persistent master as-is; only stop transient admission before deletion.
+        // The UI's Clear button does not turn off the master — toggle does.
+        BOOL wasRecording=QTDRecording;
+        QTDRecording=NO;
         dispatch_async(QTDQueue, ^{
             @try { if (QTDDirectory && QTDEnsureDirectory()) for (NSUInteger i=0;i<3;i++) {
                 NSString *path=QTDPath(i);
                 if ([NSFileManager.defaultManager fileExistsAtPath:path] && ![NSFileManager.defaultManager removeItemAtPath:path error:NULL]) QTDFailures++;
             } }
             @catch (__unused NSException *e) { QTDFailures++; }
+            @synchronized(QTDLock) {
+                // If master is still on, resume recording after the files are gone.
+                if (wasRecording && QTEnhancedEnabled() && !QTDRecording && QTDPending < QTDPQueueLimit) {
+                    QTDRecording=YES; QTDRateCount=0; QTDSamples=0; QTDPending++;
+                    dispatch_async(QTDQueue, ^{ @try { QTDWrite(QTDRow(QTDEStart,@{})); } @catch (__unused NSException *e) { QTDFailures++; } @finally { @synchronized(QTDLock) { QTDPending--; } } });
+                }
+            }
             completion();
         });
     }

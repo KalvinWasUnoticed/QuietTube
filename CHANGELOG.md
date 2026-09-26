@@ -1,6 +1,15 @@
 # Changelog
 
-## Documentation and artwork refresh — no runtime change
+## 1.2.0 — enhanced logger (3 buttons)
+
+- Merges ~10 troubleshooting controls into **3 buttons**: **Enhanced logging** master toggle, **Export logs**, **Clear logs**. The old `Record feed activity` / `Record template clues` / `Prepare a support test` / `View support report` / `Clear template capture` are now part of the one master.
+- Master is persistent and auto-resumes after relaunch until you turn it off. When on, it captures daily feed/player clues without needing a dedicated reproduction session — tap **Export logs** as soon as you see an intrusive shelf or an in-player ad slip through.
+- Still bounded: **3 × 256 KiB** files, **7-day window**, auto-rotates (oldest dropped). Queue/rate limits, sampling and field redaction unchanged. No automatic upload.
+- Enhanced capture now includes unmatched template clues during daily use (previously required a separate restart switch) and keeps scoped insertion/player error details.
+- Presets turn the master **off**; *Disable all options* turns it off too. Footer shows `● Collecting` / `○ Off` state. Docs updated (`DIAGNOSTICS.md`, `SETTINGS.md`, `PRIVACY.md`).
+- Bumps version to **1.2.0**. No change to ad/feed filtering rules or supported base (21.38.2).
+
+## 1.1.0 — documentation and artwork refresh — no runtime change
 
 - Rewrites the docs in plain language and puts the IPA/dylib paths where readers can find them.
 - Replaces the gradient banner with a flat printed-label design and adds an editable project mark. The real RC1 screenshots stay unchanged.

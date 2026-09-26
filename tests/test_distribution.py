@@ -55,7 +55,7 @@ class DistributionTests(unittest.TestCase):
     if local:self.assertTrue((p.parent/local).exists(),f'{p.name}: {local}')
  def test_version_is_consistent(self):
   v=(R/'VERSION').read_text().strip()
-  self.assertEqual(v,'1.1.0')
+  self.assertEqual(v,'1.2.0')
   self.assertIn(v,(R/'Sources/QTSettings.m').read_text())
   self.assertIn(v,(R/'Sources/QTAdProfile.m').read_text())
   self.assertIn(v,(R/'scripts/package.py').read_text())

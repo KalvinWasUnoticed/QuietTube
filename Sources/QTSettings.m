@@ -47,15 +47,13 @@
             @{@"title":@"Troubleshooting",@"page":@"Troubleshooting",@"note":@"Optional local diagnostics for reporting a problem."},
             @{@"title":@"About QuietTube",@"action":@"about"},
             @{@"title":@"Disable all options",@"action":@"reset",@"note":@"Clears QuietTube toggle selections, not your YouTube account or history."}]];
-        if ([self.group isEqualToString:@"Troubleshooting"]) [rows addObjectsFromArray:@[
-            @{@"title":@"Start diagnostic session",@"action":@"startDiagnostics",@"note":@"Manual, sampled playback/feed clues. Saves up to 3 × 256 KiB locally; expires after 7 days on cleanup. Stops on relaunch. Master must be active."},
-            @{@"title":@"Stop diagnostic session",@"action":@"stopDiagnostics",@"note":@"Stop new recording immediately. Saved files remain until cleared, expired or evicted."},
-            @{@"title":@"Export diagnostic history",@"action":@"exportDiagnostics",@"note":@"Review identifier clues before sharing. No automatic upload. App cache files may be purged by iOS."},
-            @{@"title":@"Clear diagnostic history",@"action":@"clearDiagnostics",@"note":@"Stops recording and deletes QuietTube diagnostic files. Does not clear the older in-memory reports."},
-            @{@"title":@"Prepare a support test",@"action":@"prepareAdTest",@"note":@"Enable ad protection, extended matching and local diagnostic capture. Your other preferences stay unchanged."},
-            @{@"title":@"View support report",@"action":@"adReport",@"note":@"Short player and feed report. Review before sharing."},
-            @{@"title":@"View full diagnostics",@"action":@"diagnostics"},
-            @{@"title":@"Clear template capture",@"action":@"clearCapture"}]];
+        if ([self.group isEqualToString:@"Troubleshooting"]) {
+            // 1.2.0: single master + export + clear (replaces 10 old controls)
+            rows=[NSMutableArray arrayWithArray:@[
+                @{@"title":@"Enhanced logging",@"action":@"toggleEnhancedLogging",@"note":@"One master switch. When on, captures daily feed/player clues locally (3 × 256 KiB, 7-day, no upload). Use Export as soon as you see something odd — no need to reproduce after turning it on."},
+                @{@"title":@"Export logs",@"action":@"exportDiagnostics",@"note":@"Share the last 3 sessions + current support snapshot. Review before sharing. Files are in app cache; iOS can purge them."},
+                @{@"title":@"Clear logs",@"action":@"clearDiagnostics",@"note":@"Deletes local log files. Does not turn off the master switch."}]];
+        }
         self.rows=rows;
     }
 }
@@ -67,9 +65,24 @@
 - (NSString *)tableView:(UITableView *)tv titleForFooterInSection:(NSInteger)section {
     if (self.preview) return @"Only the settings listed above will be saved. No change is made until you tap Apply. All other preferences are preserved. Fully close and reopen the app afterward.";
     NSString *state=QTSettingsPendingRestart()?@"Restart required — fully close and reopen the app to apply saved changes.":@"Changes take effect after fully closing and reopening the app.";
-    if (QTDEnabled()) state=[state stringByAppendingString:@"\nDiagnostic session recording locally (sampled). Stop in Troubleshooting."];
+    if (QTEnhancedEnabled() || QTDEnabled()) state=[state stringByAppendingString:@"\n● Enhanced logging: collecting locally (3 × 256 KiB, 7-day, no upload). Tap the row in Troubleshooting to stop."];
+    else state=[state stringByAppendingString:@"\n○ Enhanced logging off. Turn it on in Troubleshooting to capture daily feed/player clues."];
     if (QTAdProfilePaused()) state=[state stringByAppendingString:@"\nAd protection paused this session after a playback error. Your saved choice is unchanged. Reopen the app to retry."];
-    return [NSString stringWithFormat:@"%@\n%@\n1.1.0 · Unofficial, not affiliated with YouTube. Use YouTube’s own Picture in Picture setting.",state,QTSavedSetting(@"enabled")?@"":@"QuietTube is disabled for the next launch. Enable the master switch to use these options."];
+    return [NSString stringWithFormat:@"%@\n%@\n1.2.0 · Unofficial, not affiliated with YouTube. Use YouTube’s own Picture in Picture setting.",state,QTSavedSetting(@"enabled")?@"":@"QuietTube is disabled for the next launch. Enable the master switch to use these options."];
+}
+- (void)toggleEnhancedLogging:(UISwitch *)sender {
+    BOOL wantOn = sender.on;
+    if (wantOn) {
+        if (!QTOn(@"enabled")) { [self showNotice:@"Enable QuietTube and restart first"]; sender.on = NO; return; }
+        if (QTEnhancedStart()) {
+            if ([[NSBundle.mainBundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"] isEqualToString:@"21.38.2"]) QTInstallFeatures();
+            [self showNotice:@"Enhanced logging started • Collecting locally"];
+        } else { [self showNotice:@"Diagnostics unavailable or busy"]; sender.on = NO; [[NSUserDefaults standardUserDefaults] setObject:@(NO) forKey:@"QuietTube.v1.enhancedLogging"]; }
+    } else {
+        QTEnhancedStop();
+        [self showNotice:@"Enhanced logging stopped • Files kept until cleared"];
+    }
+    [self.tableView reloadData];
 }
 - (UITableViewCell *)tableView:(UITableView *)tv cellForRowAtIndexPath:(NSIndexPath *)index {
     NSDictionary *row=self.rows[index.row];
@@ -80,6 +93,20 @@
     cell.detailTextLabel.font=[UIFont preferredFontForTextStyle:UIFontTextStyleFootnote];
     cell.detailTextLabel.adjustsFontForContentSizeCategory=YES;
     cell.detailTextLabel.numberOfLines=0; cell.detailTextLabel.text=row[@"note"];
+    if ([row[@"action"] isEqualToString:@"toggleEnhancedLogging"]) {
+        BOOL on = QTEnhancedEnabled() || QTDEnabled();
+        cell.textLabel.text = on ? @"● Enhanced logging — Collecting" : @"○ Enhanced logging — Off";
+        cell.detailTextLabel.text = on ? @"Collecting logs locally (3 × 256 KiB, 7-day, no upload). Tap switch or row to stop. Export anytime you see odd feed/ads." : @"Off. Tap switch or row to start — captures during daily use; export as soon as you see something odd.";
+        UISwitch *toggle = [UISwitch new];
+        toggle.on = on;
+        toggle.accessibilityLabel = @"Enhanced logging";
+        toggle.accessibilityIdentifier = @"enhancedLogging";
+        [toggle addTarget:self action:@selector(toggleEnhancedLogging:) forControlEvents:UIControlEventValueChanged];
+        cell.accessoryView = toggle;
+        cell.accessoryType = UITableViewCellAccessoryNone;
+        cell.selectionStyle = UITableViewCellSelectionStyleDefault;
+        return cell;
+    }
     if (row[@"icon"]) cell.imageView.image=[UIImage systemImageNamed:row[@"icon"]];
     if (row[@"key"]) {
         NSString *key=row[@"key"];
@@ -115,6 +142,9 @@
 }
 - (void)applyPreset {
     QTSaveSettings(self.preview);
+    if (self.preview[@"enhancedLogging"] && ![self.preview[@"enhancedLogging"] boolValue] && QTEnhancedEnabled()) {
+        QTEnhancedStop();
+    }
     UINavigationController *navigation=self.navigationController;
     [navigation popViewControllerAnimated:YES];
     QTOptionsController *parent=(QTOptionsController *)navigation.topViewController;
@@ -136,28 +166,31 @@
         page.group=row[@"page"] ?: row[@"preset"];
         if (row[@"preset"]) page.preview=QTPresetChanges(row[@"preset"]);
         [self.navigationController pushViewController:page animated:YES];
-    } else if ([row[@"action"] isEqualToString:@"startDiagnostics"]) {
-        if (!QTOn(@"enabled")) { [self showNotice:@"Enable QuietTube and restart first"]; return; }
-        if (QTDStart()) {
-            // Same installers and immutable launch flags; manual logging installs
-            // only additional observation paths, never changes saved settings.
-            if ([[NSBundle.mainBundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"] isEqualToString:@"21.38.2"]) QTInstallFeatures();
-            [self showNotice:@"Diagnostic session started · Local only"];
-        } else [self showNotice:@"Diagnostics unavailable or busy"];
+    } else if ([row[@"action"] isEqualToString:@"toggleEnhancedLogging"]) {
+        // Single master toggle: also callable by tapping the row (switch handles the same).
+        BOOL isOn = QTEnhancedEnabled() || QTDEnabled();
+        if (isOn) {
+            QTEnhancedStop();
+            [self showNotice:@"Enhanced logging stopped • Files kept"];
+        } else {
+            if (!QTOn(@"enabled")) { [self showNotice:@"Enable QuietTube and restart first"]; return; }
+            if (QTEnhancedStart()) {
+                if ([[NSBundle.mainBundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"] isEqualToString:@"21.38.2"]) QTInstallFeatures();
+                [self showNotice:@"Enhanced logging started • Collecting locally"];
+            } else [self showNotice:@"Diagnostics unavailable or busy"];
+        }
         [self.tableView reloadData];
-    } else if ([row[@"action"] isEqualToString:@"stopDiagnostics"]) {
-        QTDStop(); [self.tableView reloadData]; [self showNotice:@"Recording stopped · Files retained"];
     } else if ([row[@"action"] isEqualToString:@"clearDiagnostics"]) {
         if (self.diagnosticBusy) return;
         self.diagnosticBusy=YES;
         __weak QTOptionsController *weakSelf=self;
         QTDClear(^{ dispatch_async(dispatch_get_main_queue(),^{
             QTOptionsController *page=weakSelf; page.diagnosticBusy=NO;
-            [page.tableView reloadData]; [page showNotice:@"Diagnostic deletion requested · Check export for failures"];
+            [page.tableView reloadData]; [page showNotice:@"Logs cleared — master stays as set"];
         }); });
     } else if ([row[@"action"] isEqualToString:@"exportDiagnostics"]) {
         if (self.diagnosticBusy) return;
-        self.diagnosticBusy=YES; [self showNotice:@"Preparing local history…"];
+        self.diagnosticBusy=YES; [self showNotice:@"Preparing logs…"];
         NSString *context;
         @try { context=QTDiagnostics(); }
         @catch (__unused NSException *exception) { context=@"Current support snapshot unavailable.\n"; }
@@ -170,20 +203,18 @@
             share.popoverPresentationController.sourceRect=CGRectMake(CGRectGetMidX(page.view.bounds),CGRectGetMidY(page.view.bounds),1,1);
             [page presentViewController:share animated:YES completion:nil];
         }); });
-    } else if ([row[@"action"] isEqualToString:@"adReport"]) [self showText:QTAdReport() title:@"Support report"];
-    else if ([row[@"action"] isEqualToString:@"diagnostics"]) [self showText:QTDiagnostics() title:@"Diagnostics"];
-    else if ([row[@"action"] isEqualToString:@"about"]) [self showText:@"QuietTube 1.1.0\n\nAn unofficial customization for YouTube 21.38.2 on iOS. Not affiliated with or endorsed by YouTube or Google.\n\nAd protection was tested in limited sessions on one device. It is not guaranteed across all videos or future app updates. Earlier player/settings builds were tested on iPhone 14, iOS 26.5 and LiveContainer 3.8.0. The new diagnostic controls still require device validation. Other environments may behave differently.\n\nQuietTube adds no automatic diagnostic upload. Reports can contain internal class/template identifiers; review before sharing. YouTube and your installation tools have their own data practices.\n\nThe QuietTube source is MIT licensed; see LICENSE and Notices in the source distribution. That license does not grant rights to redistribute YouTube or its trademarks.\n\nTo pause modifications, turn off Enable QuietTube and fully close and reopen the app. Your preferences are retained. Restore your previous IPA if needed." title:@"About QuietTube"];
-    else if ([row[@"action"] isEqualToString:@"prepareAdTest"]) {
-        QTPrepareAdTest(); [self.tableView reloadData]; [self showNotice:@"Support test saved · Restart to apply"];
-    } else if ([row[@"action"] isEqualToString:@"clearCapture"]) {
-        QTResetElementCapture(); [self showNotice:@"Template capture cleared"];
-    } else if ([row[@"action"] isEqualToString:@"reset"]) {
-        UIAlertController *alert=[UIAlertController alertControllerWithTitle:@"Disable all options?" message:@"This clears QuietTube toggle selections for the next launch. Your YouTube account and history are not changed." preferredStyle:UIAlertControllerStyleAlert];
+    } else if ([row[@"action"] isEqualToString:@"about"]) [self showText:@"QuietTube 1.2.0\n\nAn unofficial customization for YouTube 21.38.2 on iOS. Not affiliated with or endorsed by YouTube or Google.\n\nAd protection was tested in limited sessions on one device. It is not guaranteed across all videos or future app updates. The enhanced logger captures during daily use when its master is on. Earlier builds were tested on iPhone 14, iOS 26.5 and LiveContainer 3.8.0. Other environments may behave differently.\n\nQuietTube adds no automatic diagnostic upload. Reports can contain internal class/template identifiers; review before sharing. YouTube and your installation tools have their own data practices.\n\nThe QuietTube source is MIT licensed; see LICENSE and Notices in the source distribution. That license does not grant rights to redistribute YouTube or its trademarks.\n\nTo pause modifications, turn off Enable QuietTube and fully close and reopen the app. Your preferences are retained. Restore your previous IPA if needed." title:@"About QuietTube"];
+    else if ([row[@"action"] isEqualToString:@"reset"]) {
+        UIAlertController *alert=[UIAlertController alertControllerWithTitle:@"Disable all options?" message:@"This clears QuietTube toggle selections for the next launch, including the enhanced logger. Your YouTube account and history are not changed." preferredStyle:UIAlertControllerStyleAlert];
         [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
         [alert addAction:[UIAlertAction actionWithTitle:@"Disable all" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *a) {
             NSMutableDictionary *changes=[NSMutableDictionary dictionaryWithObject:@NO forKey:@"enabled"];
             for (NSDictionary *o in QTOptions()) changes[o[@"key"]]=@NO;
-            QTSaveSettings(changes); [self.tableView reloadData]; [self showNotice:@"Options disabled · Restart to apply"];
+            changes[@"enhancedLogging"]=@NO;
+            QTSaveSettings(changes);
+            [[NSUserDefaults standardUserDefaults] setObject:@(NO) forKey:@"QuietTube.v1.enhancedLogging"];
+            QTEnhancedStop();
+            [self.tableView reloadData]; [self showNotice:@"Options disabled · Restart to apply"];
         }]];
         [self presentViewController:alert animated:YES completion:nil];
     }

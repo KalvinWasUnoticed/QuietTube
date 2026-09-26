@@ -17,7 +17,7 @@ Both presets show a preview. Backing out changes nothing.
 | Ads & essentials | Master, video/feed blocking, additional ad formats, extended matching and classic logo ON; detailed activity/template capture OFF | Existing feed-cleanup selections, background audio and automatic-next preference |
 | Focused feed | The above, plus all available feed-cleanup options ON | Background audio and automatic-next preference |
 
-Presets add settings; they are not resets. Switching from Focused feed to Ads & essentials does not undo the feed cleanup. Basic support counters still run when detailed capture is off. These presets do not control a temporary manual diagnostic session.
+Presets add settings; they are not resets. Switching from Focused feed to Ads & essentials does not undo the feed cleanup. Basic support counters still run when detailed capture is off. Both presets turn the Enhanced logger **off** and do not start a logging session.
 
 ## Ads
 
@@ -56,9 +56,9 @@ Limits worth knowing:
 
 **Extended feed matching** is the shared prerequisite for broader cleanup.
 
-**Troubleshooting** contains reports, the older activity/template capture switches, and manual diagnostic sessions. **Prepare a support test** enables its documented ad/matching/capture prerequisites for the next launch, leaving unrelated choices alone. [What each logging control does](DIAGNOSTICS.md).
+**Troubleshooting** now has only three rows: **Enhanced logging** (single master switch), **Export logs** and **Clear logs**. When the master is on, it captures daily feed/player clues locally (3 × 256 KiB, 7-day, no upload) — the old `Record feed activity` / `Record template clues` and `Prepare a support test` are merged into it and auto-resume after relaunch until you turn it off. [What each logging control does](DIAGNOSTICS.md).
 
-**Disable all options** asks for confirmation, then saves all toggles off for the next launch. It does not delete your account or history. To stop a currently running manual diagnostic session immediately, use its **Stop** action.
+**Disable all options** asks for confirmation, then saves all toggles off for the next launch, including the enhanced logger. It does not delete your account or history. To stop collecting immediately, toggle **Enhanced logging** off.
 
 ## Saved choices
 
@@ -68,4 +68,4 @@ Ordinary restarts and updates keep local preferences. Toggling a switch, applyin
 
 The old error latch could save video blocking off. If that happened, enable it once after updating and restart. The updater cannot distinguish the old automatic off from a deliberate off, so it leaves either alone.
 
-Manual recording is different: it is temporary session state and starts off after relaunch. It does not reset a saved switch. Recent log files can remain available for export; [storage and expiry limits](DIAGNOSTICS.md#storage-and-deletion) still apply.
+Enhanced logging is the only persistent logger: its master stays on across launches until you toggle it off or use *Disable all options*. Recent log files (3 × 256 KiB, 7-day) remain available for export after relaunch; [storage and expiry limits](DIAGNOSTICS.md#storage-and-deletion) still apply.

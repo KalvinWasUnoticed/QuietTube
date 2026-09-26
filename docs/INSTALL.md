@@ -50,10 +50,10 @@ The URL is **not a secret**. GitHub can retain workflow inputs even though the d
 
 ## 4. Download the right asset
 
-When the run succeeds, open **Summary → DOWNLOAD IPA — QuietTube 1.1.0**. Or open that run’s release and download:
+When the run succeeds, open **Summary → DOWNLOAD IPA — QuietTube 1.2.0**. Or open that run’s release and download:
 
 ```text
-QuietTube-1.1.0-21.38.2.ipa
+QuietTube-1.2.0-21.38.2.ipa
 ```
 
 The release also has a separate `QuietTube.dylib`, checksums, notices and build metadata. Those are not substitutes for the IPA. GitHub’s source ZIP is not an installable app either.
@@ -77,7 +77,7 @@ For setup, use the official [SideStore prerequisites](https://docs.sidestore.io/
 
 ## 6. Find the settings
 
-Open **You → Settings → General → Quiet controls**. The footer should show **1.1.0**.
+Open **You → Settings → General → Quiet controls**. The footer should show **1.2.0**.
 
 Fresh installs start with the master switch and video/feed blocking on. Updates keep saved choices. Presets are optional. Close and reopen the app to apply switch changes; in LiveContainer, stop and relaunch the guest. Manual diagnostic sessions are separate and start without a restart.
 
@@ -122,7 +122,7 @@ bash scripts/build.sh
 With Python 3.11+ and the compiled library:
 
 ```sh
-python3 scripts/package.py "/path/to/authorized-base.ipa" "artifacts/QuietTube.dylib" "artifacts/QuietTube-1.1.0-local.ipa"
+python3 scripts/package.py "/path/to/authorized-base.ipa" "artifacts/QuietTube.dylib" "artifacts/QuietTube-1.2.0-local.ipa"
 ```
 
 On Windows, the Python packaging step can use `py -3` with a matching compiled library. It does not compile the iOS library for you.

@@ -8,18 +8,18 @@ Reports can include settings flags, internal class/template names, relative even
 
 Template matching is not a privacy-proof parser. Names that look like identifiers can still contain sensitive clues. **Review a report before sharing it.**
 
-Detailed activity/template capture is optional. The presets turn those older capture switches off; Prepare a support test turns its prerequisites on. Updates preserve saved choices. The manual recording session has separate Start/Stop actions.
+Enhanced logging is the single logger. Presets turn it **off**. Updates preserve saved choices. One master toggle starts/stops daily capture — no separate *Record feed activity* / *Record template clues* switches.
 
 ## Where data stays
 
 | Data | Lifetime |
 | --- | --- |
-| Preferences | Local app storage; ordinary restarts and updates keep them. A data reset, removal or new app/container identity can lose them. No cloud settings backup. |
-| Older event rings/template capture | Memory only; reset on process restart. Clear template capture removes that capture, not every counter. |
-| Manual event history | Three private cache files of 256 KiB each. Seven-day expiry is applied on cleanup, not while a closed app is unable to run. iOS can evict them. |
+| Preferences (including Enhanced logging master) | Local app storage; ordinary restarts and updates keep them. A data reset, removal or new app/container identity can lose them. No cloud settings backup. Master auto-resumes after relaunch until you turn it off. |
+| Older event rings | Memory only; reset on process restart. |
+| Enhanced log history | Three private cache files of 256 KiB each (768 KiB total, auto-rotates). Seven-day expiry is applied on cleanup, not while a closed app is unable to run. iOS can evict them. |
 | Exported reports/screenshots | Wherever you save or share them. Clearing QuietTube’s files cannot remove those copies. |
 
-Manual recording starts off each process launch. Export includes recent disk events and the current support snapshot. Clear diagnostic history stops new recording and queues file deletion after earlier writes; it does not clear the older memory-only reports. Check failure counts rather than assume a failed filesystem operation succeeded.
+When the master is on, it auto-resumes after relaunch. Export includes recent disk events (last 3 sessions) and the current support snapshot. Clear deletes the 3 files (and briefly stops, then resumes if master is still on). Check failure counts rather than assume a failed filesystem operation succeeded.
 
 [Recording, expiry and sampling limits](DIAGNOSTICS.md).
 

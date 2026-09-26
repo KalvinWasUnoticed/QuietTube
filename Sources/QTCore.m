@@ -163,7 +163,7 @@ void QTResetElementCapture(void) {
     }
 }
 void QTObserveUnmatchedElement(NSData *data) {
-    if (!QTOn(@"inspectElements") || ![data isKindOfClass:NSData.class] || data.length>262144) return;
+    if ((!(QTOn(@"inspectElements") || QTDEnabled())) || ![data isKindOfClass:NSData.class] || data.length>262144) return;
     @synchronized(QTElementGroups) {
         if (QTElementsInspected>=128) return;
         QTElementsInspected++;
@@ -183,7 +183,7 @@ void QTObserveUnmatchedElement(NSData *data) {
 }
 NSString *QTDiagnostics(void) {
     NSMutableString *s = [NSMutableString stringWithFormat:
-        @"QuietTube 1.1.0 Ad profile and bounded troubleshooting\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
+        @"QuietTube 1.2.0 Ad profile and bounded troubleshooting\nYouTube %@\niOS %@\n\nInstalled does NOT mean device-tested. Unavailable hooks are not active.\n\n",
         [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"], UIDevice.currentDevice.systemVersion];
 // BEGIN 0.13 AD PROFILE
     [s appendString:QTAdReport()];
@@ -207,7 +207,7 @@ NSString *QTDiagnostics(void) {
             [s appendFormat:@"%@ : %@\n", k, QTCounters[k]];
     }
     [s appendString:@"\nUNMATCHED ELEMENT TEMPLATE CAPTURE\n"];
-    [s appendFormat:@"capture enabled this launch: %@\n", QTOn(@"inspectElements") ? @"yes" : @"no"];
+    [s appendFormat:@"capture enabled this launch: %@ (enhanced %@)\n", (QTOn(@"inspectElements") || QTDEnabled()) ? @"yes" : @"no", QTEnhancedEnabled() ? @"master on" : @"master off"];
     [s appendString:@"Lexical identifier-shaped names, not verified root renderers. Nested names may appear. Groups are NOT individual visible cards. Review before sharing.\n"];
     @synchronized(QTElementGroups) {
         [s appendFormat:@"unmatched elements sampled: %lu / 128\nelements without accepted identifiers: %lu\ngroup-cap drops: %lu\n",
