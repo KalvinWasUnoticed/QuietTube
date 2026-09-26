@@ -2,9 +2,9 @@
   "release": "1.2.0",
   "sha256": {
     ".github/ISSUE_TEMPLATE/bug.md": "e5de77f50641011e23dfb5adac054536a2345f143538501fa2227d389736a8df",
-    ".github/workflows/build.yml": "23423e811eae106a325d8b7c51ca4b7034cbf1950e241cd523e816aff1c595d8",
+    ".github/workflows/build.yml": "9da1a1b71703e23f91349649098c27c0af094752205234dac2263ed8f60d4960",
     ".github/workflows/checks.yml": "02f96fc2e04b93668897e2c0cbd579a94af9c8ffcb7bafce7f3c4bf55b4d7ebd",
-    ".github/workflows/dylib.yml": "915f0544c612f8960b6f770bfaea128aa67d993920e3030462fe9d5098b541f6",
+    ".github/workflows/dylib.yml": "15aad9c65d8fa67ffc667a0e0a5ff0952068b51c81c2236850f8e093533370c2",
     "CHANGELOG.md": "ad50239ee502338d2690b4d3b58a2b923c53f04eb9452443c92f76ff31f30f3b",
     "CONTRIBUTING.md": "f2c8f9c244a10d2ebe557e9eb7c5b6e1c7b92c3b4d49494346a13271d714dbc9",
     "LICENSE": "9c8443bd28820bbf01e931c7f01662c6b90f0e9dd685bb0e9b0f5b1f338b6d30",
@@ -87,7 +87,9 @@
     "tests/test_settings_native.m": "b4a689892d769a514cf11d790f495acdd1357f1c19874f2f776824408520afcd",
     "tests/test_stress.c": "2a8b2e1b765d6cf6d5b189ba825e709f7ad015f0965accd2db35fbae7e25e7bc",
     "tests/test_template_scan.c": "9792b81ca061c1c199b8a043dd92841c5fe6b43540ce33a7d45cbd7afb907e2b",
-    "tests/test_trace.py": "325c22ed4be7a0a6dbf78a3c05eabf5939c57fa934da367512f9bdfd02e90162"
+    "tests/test_trace.py": "325c22ed4be7a0a6dbf78a3c05eabf5939c57fa934da367512f9bdfd02e90162",
+    ".github/workflows/build-exp.yml": "8dd2959784623388df5b2d0897cb66a83834ccd1069c978c30cf5b1803778476",
+    ".github/workflows/dylib-exp.yml": "4f4a73cfe2badcf75bf683dde93a963f8a0e861779c1c96d37b2a8832e4fcb6d"
   },
   "forbidden_legacy_files": [
     ".github/workflows/source-checks.yml",
